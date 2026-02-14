@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ERP (без БД)</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Производственный трекер (локальный)</h1>
+    
+    <div class="controls">
+      <button onclick="showCreateOrder()">+ Новый заказ</button>
+      <button onclick="exportData()">💾 Экспорт данных</button>
+      <button onclick="importData()">📂 Импорт данных</button>
+    </div>
+
+    <div id="orders-list"></div>
+
+    <div id="modal" class="modal hidden">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <div id="modal-body"></div>
+      </div>
+    </div>
+
+    <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImportFile(event)">
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
