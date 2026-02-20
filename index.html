@@ -132,13 +132,14 @@
             finalHtml += `<div class="date-header">ЗАКАЗЫ ЗА ${dateStr}</div>`;
             finalHtml += `<div class="separator">${separator}</div><br>`;
             
-            // Разбиваем на строки и обрабатываем по заказам
+            // Разбиваем на строки
             const lines = text.split('\n');
             let currentOrder = [];
             let orderTotals = { m2: 0, lm: 0, hours: 0 };
+            let inOrder = false;
             
-            for (let line of lines) {
-                const trimmed = line.trim();
+            for (let j = 0; j < lines.length; j++) {
+                const trimmed = lines[j].trim();
                 
                 // Пропускаем пустые строки
                 if (trimmed.length === 0) continue;
@@ -160,29 +161,30 @@
                 if (trimmed.includes('undefined') || trimmed.includes('NaN')) continue;
                 
                 // Проверяем, начинается ли новый заказ (строка с №)
-                if (/^№\d/i.test(trimmed)) {
+                if (/^№\s*\d/i.test(trimmed)) {
                     // Если был предыдущий заказ, выводим его итоги
-                    if (currentOrder.length > 0) {
+                    if (inOrder && currentOrder.length > 0) {
                         outputOrder(currentOrder, orderTotals);
                     }
                     // Начинаем новый заказ
                     currentOrder = [];
                     orderTotals = { m2: 0, lm: 0, hours: 0 };
+                    inOrder = true;
                 }
                 
-                // Обрабатываем строку
-                let processedLine = removePrices(trimmed);
-                
-                // Извлекаем объемы для подсчета
+                // Извлекаем объемы из текущей строки
                 extractVolumes(trimmed, orderTotals);
                 
-                if (processedLine.length > 0) {
+                // Обрабатываем строку (убираем цены)
+                let processedLine = removePrices(trimmed);
+                
+                if (processedLine.length > 0 && inOrder) {
                     currentOrder.push(processedLine);
                 }
             }
             
             // Выводим последний заказ в файле
-            if (currentOrder.length > 0) {
+            if (inOrder && currentOrder.length > 0) {
                 outputOrder(currentOrder, orderTotals);
             }
         }
@@ -240,20 +242,22 @@
     function extractVolumes(line, totals) {
         const lowerLine = line.toLowerCase();
         
-        // Ищем строки с "Объем:"
+        // Ищем строки с "Объем:" или "Объём:"
         if (lowerLine.includes('объем:') || lowerLine.includes('объём:')) {
-            // Извлекаем число и единицу измерения
-            const match = line.match(/[\d,]+\s*(м²|м\.п\.|часы|час)/i);
+            // Извлекаем числовое значение и единицу измерения
+            // Паттерн: Объем: X м² или Объем: X часы
+            const match = line.match(/объе[мМ]:\s*([\d,]+)\s*(м²|м2|м\.п\.|мп|часы|час|ч)/i);
             if (match) {
-                const value = parseFloat(match[0].replace(',', '.').replace(/[^\d.]/g, ''));
-                const unit = match[0].toLowerCase();
+                const valueStr = match[1].replace(',', '.');
+                const value = parseFloat(valueStr);
+                const unit = match[2].toLowerCase();
                 
-                if (!isNaN(value)) {
-                    if (unit.includes('м²') || unit.includes('м2')) {
+                if (!isNaN(value) && value > 0) {
+                    if (unit === 'м²' || unit === 'м2') {
                         totals.m2 += value;
-                    } else if (unit.includes('м.п.') || unit.includes('мп')) {
+                    } else if (unit === 'м.п.' || unit === 'мп') {
                         totals.lm += value;
-                    } else if (unit.includes('час')) {
+                    } else if (unit === 'часы' || unit === 'час' || unit === 'ч') {
                         totals.hours += value;
                     }
                 }
@@ -266,7 +270,7 @@
         let result = line;
         
         // Подсветка номеров заказов (№...)
-        result = result.replace(/(№[\d\s-]+)/g, '<span class="order-number">$1</span>');
+        result = result.replace(/(№\s*[\d\s-]+)/g, '<span class="order-number">$1</span>');
         
         // Подсветка количества (x1, x2 и т.д.)
         result = result.replace(/(x\d+)/gi, '<span class="quantity">$1</span>');
