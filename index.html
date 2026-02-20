@@ -71,29 +71,46 @@
 
         finalContent = "";
         
-        for (const file of files) {
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
             const text = await readFileAsText(file);
+            
+            // Извлекаем дату из имени файла
+            const dateStr = formatDateFromFile(file.name);
+            
+            // Добавляем заголовок с датой
+            if (i > 0) {
+                finalContent += '\n';
+            }
+            finalContent += '═'.repeat(50) + '\n';
+            finalContent += `ЗАКАЗЫ ЗА ${dateStr}\n`;
+            finalContent += '═'.repeat(50) + '\n\n';
             
             // Разбиваем на строки и фильтруем
             const lines = text.split('\n');
-            const filteredLines = lines.filter(line => {
+            for (let line of lines) {
                 const trimmed = line.trim();
-                // Убираем строки с "Итого по заказу"
-                if (trimmed.includes('Итого по заказу')) return false;
-                // Убираем строки с "Общая сумма за день"
-                if (trimmed.includes('Общая сумма за день')) return false;
-                // Убираем разделительные линии из ===
-                if (/^=+$/.test(trimmed)) return false;
-                // Убираем пустые строки в начале и конце, но оставляем внутри
-                return trimmed.length > 0 || finalContent.length > 0;
-            });
-            
-            // Добавляем отфильтрованный контент
-            if (filteredLines.length > 0) {
-                if (finalContent.length > 0) {
-                    finalContent += '\n'; // Пустая строка между файлами
+                
+                // Пропускаем пустые строки в начале
+                if (trimmed.length === 0) continue;
+                
+                // Пропускаем заголовки с датами из исходных файлов
+                if (trimmed.toLowerCase().includes('заказы за')) continue;
+                
+                // Пропускаем разделительные линии
+                if (/^[═=]+$/.test(trimmed)) continue;
+                
+                // Пропускаем строки с итогами
+                if (trimmed.includes('Итого по заказу')) continue;
+                if (trimmed.includes('Общая сумма за день')) continue;
+                
+                // Удаляем суммы из строк (числа в конце после |)
+                let processedLine = removePrices(trimmed);
+                
+                // Добавляем строку если она не пустая после обработки
+                if (processedLine.length > 0) {
+                    finalContent += processedLine + '\n';
                 }
-                finalContent += filteredLines.join('\n');
             }
         }
 
@@ -104,6 +121,54 @@
         document.getElementById('controls').style.display = 'block';
         
         previewArea.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Функция удаления цен из строки
+    function removePrices(line) {
+        // Удаляем паттерны типа "| x1 | 70 200,00 ₽" или "| x1 | 70,20 ₽"
+        // Оставляем только часть до цены
+        let result = line;
+        
+        // Ищем паттерн: | xN | число с пробелами и запятой и ₽
+        const pricePattern = /\s*\|\s*x\d+\s*\|\s*[\d\s,]+,\d{2}\s*₽?/g;
+        result = result.replace(pricePattern, (match) => {
+            // Находим позицию последнего | перед ценой
+            const lastPipe = match.lastIndexOf('|');
+            if (lastPipe !== -1) {
+                // Возвращаем только часть с количеством
+                return match.substring(0, lastPipe + 1);
+            }
+            return '';
+        });
+        
+        // Также пробуем удалить простые цены в конце строки
+        result = result.replace(/\s*\|\s*[\d\s,]+,\d{2}\s*₽?\s*$/g, '');
+        
+        return result.trim();
+    }
+
+    // Функция извлечения и форматирования даты из имени файла
+    function formatDateFromFile(filename) {
+        const patterns = [
+            /(\d{4})-(\d{2})-(\d{2})/,  // YYYY-MM-DD
+            /(\d{2})\.(\d{2})\.(\d{4})/  // DD.MM.YYYY
+        ];
+
+        for (let pattern of patterns) {
+            const match = filename.match(pattern);
+            if (match) {
+                if (pattern.source.includes('\\d{4}-')) {
+                    // YYYY-MM-DD -> DD.MM.YYYY
+                    return `${match[3]}.${match[2]}.${match[1]}`;
+                } else {
+                    // DD.MM.YYYY -> DD.MM.YYYY
+                    return `${match[1]}.${match[2]}.${match[3]}`;
+                }
+            }
+        }
+        
+        // Если дата не найдена, используем имя файла без расширения
+        return filename.replace(/\.[^/.]+$/, "").toUpperCase();
     }
 
     function readFileAsText(file) {
