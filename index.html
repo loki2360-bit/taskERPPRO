@@ -6,55 +6,82 @@
     <title>Объединение заказов</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f8f9fa; padding-top: 40px; }
-        .container { max-width: 800px; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        body { 
+            background-color: #f8f9fa; 
+            padding-top: 40px; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container { 
+            max-width: 900px; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+        }
         #previewArea { 
             display: none; 
             margin-top: 20px; 
             border: 1px solid #ddd; 
-            padding: 20px; 
+            padding: 30px; 
             background: #fff;
-            font-family: 'Courier New', Courier, monospace;
-            white-space: pre-wrap;
-            line-height: 1.6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            font-size: 14px;
         }
         
-        /* Цвета для разных элементов */
         .date-header { 
             color: #d63384; 
             font-weight: bold;
+            font-size: 18px;
             background-color: #f8d7da;
-            padding: 2px 8px;
+            padding: 8px 15px;
             border-radius: 4px;
+            margin: 20px 0 15px 0;
+            display: inline-block;
         }
         .order-number { 
             color: #0d6efd; 
             font-weight: bold;
+            font-size: 16px;
         }
-        .item-name { 
-            color: #198754;
+        .order-block {
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-left: 3px solid #0d6efd;
+            border-radius: 4px;
         }
-        .quantity { 
-            color: #fd7e14;
-            font-weight: bold;
+        .item-line {
+            margin: 8px 0;
+            padding-left: 20px;
         }
-        .separator { 
-            color: #6c757d;
+        .volume-line {
+            margin: 10px 0 5px 20px;
+            color: #495057;
         }
         .order-total {
             color: #6f42c1;
             font-weight: bold;
             background-color: #e9d8fd;
-            padding: 2px 8px;
+            padding: 8px 12px;
             border-radius: 4px;
-            margin-top: 5px;
+            margin: 15px 0 0 0;
+            display: inline-block;
+        }
+        .separator-line {
+            color: #6c757d;
+            margin: 10px 0;
+        }
+        .quantity { 
+            color: #fd7e14;
+            font-weight: bold;
         }
         
         @media print {
             body * { visibility: hidden; }
             #printSection, #printSection * { visibility: visible; }
             #printSection { position: absolute; left: 0; top: 0; width: 100%; }
-            .date-header, .order-total { 
+            .date-header, .order-total, .order-block { 
                 -webkit-print-color-adjust: exact; 
                 print-color-adjust: exact;
             }
@@ -114,68 +141,53 @@
             const file = files[i];
             const text = await readFileAsText(file);
             
-            // Извлекаем дату из имени файла
             const dateStr = formatDateFromFile(file.name);
             
-            // Добавляем заголовок с датой
             if (i > 0) {
                 finalContent += '\n';
                 finalHtml += '<br>';
             }
             
-            const separator = '═'.repeat(50);
+            const separator = '═'.repeat(60);
             finalContent += separator + '\n';
             finalContent += `ЗАКАЗЫ ЗА ${dateStr}\n`;
             finalContent += separator + '\n\n';
             
-            finalHtml += `<div class="separator">${separator}</div>`;
+            finalHtml += `<div class="separator-line">${separator}</div>`;
             finalHtml += `<div class="date-header">ЗАКАЗЫ ЗА ${dateStr}</div>`;
-            finalHtml += `<div class="separator">${separator}</div><br>`;
+            finalHtml += `<div class="separator-line">${separator}</div><br>`;
             
-            // Разбиваем на строки
             const lines = text.split('\n');
             let currentOrder = [];
             let orderTotals = { m2: 0, lm: 0, hours: 0 };
+            let currentOrderNumber = '';
             let inOrder = false;
             
             for (let j = 0; j < lines.length; j++) {
                 const trimmed = lines[j].trim();
                 
-                // Пропускаем пустые строки
                 if (trimmed.length === 0) continue;
-                
-                // Пропускаем заголовки с датами из исходных файлов
                 if (trimmed.toLowerCase().includes('заказы за')) continue;
-                
-                // Пропускаем разделительные линии
                 if (/^[═=-]+$/.test(trimmed)) continue;
-                
-                // Пропускаем строки с суммами и итогами
                 if (trimmed.toLowerCase().includes('сумма:')) continue;
                 if (trimmed.toLowerCase().includes('итого:')) continue;
                 if (trimmed.toLowerCase().includes('итого по заказу')) continue;
                 if (trimmed.toLowerCase().includes('общая сумма за день')) continue;
                 if (trimmed.toLowerCase().includes('экспорт:')) continue;
-                
-                // Пропускаем строки которые содержат только "undefined" или "NaN"
                 if (trimmed.includes('undefined') || trimmed.includes('NaN')) continue;
                 
-                // Проверяем, начинается ли новый заказ (строка с №)
                 if (/^№\s*\d/i.test(trimmed)) {
-                    // Если был предыдущий заказ, выводим его итоги
                     if (inOrder && currentOrder.length > 0) {
-                        outputOrder(currentOrder, orderTotals);
+                        outputOrder(currentOrderNumber, currentOrder, orderTotals);
                     }
-                    // Начинаем новый заказ
+                    currentOrderNumber = trimmed.match(/№\s*[\d-]+/i)[0];
                     currentOrder = [];
                     orderTotals = { m2: 0, lm: 0, hours: 0 };
                     inOrder = true;
                 }
                 
-                // Извлекаем объемы из текущей строки
                 extractVolumes(trimmed, orderTotals);
                 
-                // Обрабатываем строку (убираем цены)
                 let processedLine = removePrices(trimmed);
                 
                 if (processedLine.length > 0 && inOrder) {
@@ -183,9 +195,8 @@
                 }
             }
             
-            // Выводим последний заказ в файле
             if (inOrder && currentOrder.length > 0) {
-                outputOrder(currentOrder, orderTotals);
+                outputOrder(currentOrderNumber, currentOrder, orderTotals);
             }
         }
 
@@ -198,54 +209,49 @@
         previewArea.scrollIntoView({ behavior: 'smooth' });
     }
 
-    // Функция вывода заказа с итогами
-    function outputOrder(orderLines, totals) {
-        // Выводим строки заказа
+    function outputOrder(orderNumber, orderLines, totals) {
+        finalContent += `  ${orderNumber}\n`;
+        finalHtml += `<div class="order-block">`;
+        finalHtml += `<div class="order-number">  ${orderNumber}</div>`;
+        
         for (let line of orderLines) {
-            finalContent += line + '\n';
-            finalHtml += highlightLine(line) + '<br>';
+            if (!line.match(/^№/i)) {
+                finalContent += `    ${line}\n`;
+                finalHtml += `<div class="item-line">${highlightLine(line)}</div>`;
+            }
         }
         
-        // Выводим итоги по заказу
         let hasTotals = false;
-        let totalText = '';
-        let totalHtml = '';
         
         if (totals.m2 > 0) {
             const text = `ИТОГО: ${totals.m2.toFixed(2)} м²`;
-            finalContent += text + '\n';
-            totalHtml += `<span class="order-total">${text}</span> `;
+            finalContent += `    ${text}\n`;
+            finalHtml += `<div class="volume-line"><strong>${text}</strong></div>`;
             hasTotals = true;
         }
         
         if (totals.lm > 0) {
             const text = `ИТОГО: ${totals.lm.toFixed(2)} м.п.`;
-            finalContent += text + '\n';
-            totalHtml += `<span class="order-total">${text}</span> `;
+            finalContent += `    ${text}\n`;
+            finalHtml += `<div class="volume-line"><strong>${text}</strong></div>`;
             hasTotals = true;
         }
         
         if (totals.hours > 0) {
             const text = `ИТОГО: ${totals.hours.toFixed(2)} часы`;
-            finalContent += text + '\n';
-            totalHtml += `<span class="order-total">${text}</span> `;
+            finalContent += `    ${text}\n`;
+            finalHtml += `<div class="volume-line"><strong>${text}</strong></div>`;
             hasTotals = true;
         }
         
-        if (hasTotals) {
-            finalContent += '\n';
-            finalHtml += totalHtml + '<br><br>';
-        }
+        finalHtml += `</div>`;
+        finalContent += '\n';
     }
 
-    // Функция извлечения объемов из строки
     function extractVolumes(line, totals) {
         const lowerLine = line.toLowerCase();
         
-        // Ищем строки с "Объем:" или "Объём:"
         if (lowerLine.includes('объем:') || lowerLine.includes('объём:')) {
-            // Извлекаем числовое значение и единицу измерения
-            // Паттерн: Объем: X м² или Объем: X часы
             const match = line.match(/объе[мМ]:\s*([\d,]+)\s*(м²|м2|м\.п\.|мп|часы|час|ч)/i);
             if (match) {
                 const valueStr = match[1].replace(',', '.');
@@ -265,59 +271,38 @@
         }
     }
 
-    // Функция подсветки различных элементов в строке
     function highlightLine(line) {
         let result = line;
-        
-        // Подсветка номеров заказов (№...)
-        result = result.replace(/(№\s*[\d\s-]+)/g, '<span class="order-number">$1</span>');
-        
-        // Подсветка количества (x1, x2 и т.д.)
         result = result.replace(/(x\d+)/gi, '<span class="quantity">$1</span>');
-        
-        // Подсветка разделителей |
-        result = result.replace(/\|/g, '<span class="separator">|</span>');
-        
+        result = result.replace(/\|/g, '<span style="color: #6c757d;">|</span>');
         return result;
     }
 
-    // Функция удаления цен из строки
     function removePrices(line) {
         let result = line;
-        
-        // Удаляем паттерны с ценами: числа с пробелами, запятой и ₽
         result = result.replace(/\s*\|\s*[\d\s]+,\d{2}\s*₽?/g, '|');
-        
-        // Удаляем оставшиеся ₽ символы
         result = result.replace(/₽/g, '');
-        
-        // Удаляем множественные пробелы перед |
         result = result.replace(/\s+\|/g, ' |');
-        
         return result.trim();
     }
 
-    // Функция извлечения и форматирования даты из имени файла
     function formatDateFromFile(filename) {
         const patterns = [
-            /(\d{4})-(\d{2})-(\d{2})/,  // YYYY-MM-DD
-            /(\d{2})\.(\d{2})\.(\d{4})/  // DD.MM.YYYY
+            /(\d{4})-(\d{2})-(\d{2})/,
+            /(\d{2})\.(\d{2})\.(\d{4})/
         ];
 
         for (let pattern of patterns) {
             const match = filename.match(pattern);
             if (match) {
                 if (pattern.source.includes('\\d{4}-')) {
-                    // YYYY-MM-DD -> DD.MM.YYYY
                     return `${match[3]}.${match[2]}.${match[1]}`;
                 } else {
-                    // DD.MM.YYYY -> DD.MM.YYYY
                     return `${match[1]}.${match[2]}.${match[3]}`;
                 }
             }
         }
         
-        // Если дата не найдена, используем имя файла без расширения
         return filename.replace(/\.[^/.]+$/, "").toUpperCase();
     }
 
