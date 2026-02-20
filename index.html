@@ -1,137 +1,57 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Автобусная статистика</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Программа лояльности</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Автобусная статистика</h1>
-            <p>Ваш личный трекер поездок на общественном транспорте</p>
-        </header>
+  <div class="container">
+    <h1>Программа лояльности</h1>
+    
+    <!-- Регистрация клиента -->
+    <section id="registration">
+      <h2>Регистрация</h2>
+      <input type="text" id="client-name" placeholder="Ваше имя">
+      <button id="register-btn">Зарегистрироваться</button>
+      <div id="registration-result" class="result"></div>
+    </section>
 
-        <main>
-            <!-- Панель активной поездки -->
-            <section id="active-trip" class="card hidden">
-                <h2>Текущая поездка</h2>
-                <div class="trip-info">
-                    <p>Маршрут: <span id="current-route">-</span></p>
-                    <p>Время: <span id="trip-timer">00:00:00</span></p>
-                </div>
-                <div class="trip-actions">
-                    <button id="end-trip" class="btn btn-danger">Завершить поездку</button>
-                </div>
-            </section>
+    <!-- Основной интерфейс -->
+    <section id="main-interface">
+      <div class="input-group">
+        <input type="text" id="client-id-input" placeholder="Введите ваш номер">
+        <button id="check-balance">Проверить баланс</button>
+      </div>
+      <div id="balance-display" class="balance-info"></div>
+    </section>
 
-            <!-- Панель начала новой поездки -->
-            <section id="new-trip" class="card">
-                <h2>Начать новую поездку</h2>
-                <form id="trip-form">
-                    <div class="form-group">
-                        <label for="route-select">Маршрут:</label>
-                        <select id="route-select" required>
-                            <option value="">Выберите маршрут</option>
-                            <option value="1">1 - Центральный вокзал - Парк Победы</option>
-                            <option value="5">5 - Автовокзал - Микрорайон Северный</option>
-                            <option value="10">10 - Университет - ТЦ "Галерея"</option>
-                            <option value="15">15 - Ж/д вокзал - Поселок Пригородный</option>
-                            <option value="22">22 - Аэропорт - Центр</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Начать поездку</button>
-                </form>
-            </section>
+    <!-- Режим сотрудника (скрыт) -->
+    <section id="staff-mode">
+      <div class="staff-header">
+        <h2>Режим сотрудника</h2>
+        <div class="secret-command">
+          <input type="password" id="secret-command" placeholder="Секретная команда">
+          <button id="activate-staff">Активировать</button>
+        </div>
+      </div>
+      
+      <div id="staff-controls" class="hidden">
+        <div class="input-group">
+          <input type="text" id="staff-client-id" placeholder="Номер клиента">
+          <button id="load-history">Загрузить историю</button>
+        </div>
+        
+        <div id="client-history" class="history"></div>
+        
+        <div class="action-buttons">
+          <button id="add-points" class="primary">Начислить 100 баллов</button>
+        </div>
+      </div>
+    </section>
+  </div>
 
-            <!-- Панель завершения поездки -->
-            <section id="complete-trip" class="card hidden">
-                <h2>Завершение поездки</h2>
-                <div class="trip-summary">
-                    <p>Маршрут: <span id="summary-route">-</span></p>
-                    <p>Время в пути: <span id="summary-duration">-</span></p>
-                    <p>Средняя скорость: <span id="summary-speed">-</span> км/ч</p>
-                </div>
-
-                <div class="form-group">
-                    <label>Оцените поездку:</label>
-                    <div id="rating" class="rating">
-                        <span data-value="1">★</span>
-                        <span data-value="2">★</span>
-                        <span data-value="3">★</span>
-                        <span data-value="4">★</span>
-                        <span data-value="5">★</span>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="receipt-scan">Сканирование чека:</label>
-                    <input type="file" id="receipt-scan" accept="image/*">
-                    <div id="receipt-preview" class="receipt-preview"></div>
-                </div>
-
-                <button id="save-trip" class="btn btn-success">Сохранить поездку</button>
-            </section>
-
-            <!-- Статистика -->
-            <section id="statistics" class="card">
-                <h2>Статистика поездок</h2>
-                
-                <div class="stats-filters">
-                    <div class="form-group">
-                        <label>Маршрут:</label>
-                        <select id="stats-route-filter">
-                            <option value="all">Все маршруты</option>
-                            <option value="1">1 - Центральный вокзал - Парк Победы</option>
-                            <option value="5">5 - Автовокзал - Микрорайон Северный</option>
-                            <option value="10">10 - Университет - ТЦ "Галерея"</option>
-                            <option value="15">15 - Ж/д вокзал - Поселок Пригородный</option>
-                            <option value="22">22 - Аэропорт - Центр</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="stats-overview">
-                    <div class="stat-card">
-                        <h3>Всего поездок</h3>
-                        <p id="total-trips">0</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Средний рейтинг</h3>
-                        <p id="avg-rating">-</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Среднее время</h3>
-                        <p id="avg-duration">-</p>
-                    </div>
-                </div>
-                
-                <div class="trip-history">
-                    <h3>История поездок</h3>
-                    <table id="trips-table">
-                        <thead>
-                            <tr>
-                                <th>Дата</th>
-                                <th>Маршрут</th>
-                                <th>Время</th>
-                                <th>Скорость</th>
-                                <th>Рейтинг</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- История поездок будет добавлена динамически -->
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-        </main>
-
-        <footer>
-            <p>© 2026 Автобусная статистика | Все данные хранятся локально в вашем браузере</p>
-        </footer>
-    </div>
-
-    <script src="app.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
