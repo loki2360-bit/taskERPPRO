@@ -6,49 +6,192 @@
     <title>Объединение заказов</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f8f9fa; padding-top: 40px; }
-        .container { max-width: 800px; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        body { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding-top: 40px;
+            padding-bottom: 40px;
+        }
+        .container { 
+            max-width: 900px; 
+            background: white; 
+            padding: 40px; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2); 
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 12px;
+            font-weight: 600;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        /* Стили для оформленного вывода */
         #previewArea { 
             display: none; 
-            margin-top: 20px; 
-            border: 1px solid #ddd; 
-            padding: 20px; 
+            margin-top: 30px; 
+            padding: 30px; 
             background: #fff;
-            font-family: 'Courier New', Courier, monospace;
-            white-space: pre-wrap;
+            border-radius: 10px;
         }
+        
+        .date-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin: 30px 0 20px 0;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .order-block {
+            background: #f8f9fa;
+            border-left: 5px solid #667eea;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        
+        .order-block:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .order-number {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 10px rgba(245, 87, 108, 0.3);
+        }
+        
+        .order-item {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #e9ecef;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .item-type {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 6px 15px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            display: inline-block;
+        }
+        
+        .item-material {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+            padding: 6px 15px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            display: inline-block;
+        }
+        
+        .item-quantity {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+            padding: 6px 15px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 14px;
+            display: inline-block;
+            min-width: 60px;
+            text-align: center;
+        }
+        
+        .item-detail {
+            color: #495057;
+            font-size: 14px;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .separator {
+            height: 3px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            margin: 30px 0;
+            border-radius: 3px;
+        }
+        
         @media print {
             body * { visibility: hidden; }
             #printSection, #printSection * { visibility: visible; }
-            #printSection { position: absolute; left: 0; top: 0; width: 100%; }
+            #printSection { 
+                position: absolute; 
+                left: 0; 
+                top: 0; 
+                width: 100%;
+                background: white;
+            }
+            .date-header {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                page-break-after: avoid;
+            }
+            .order-block {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                page-break-inside: avoid;
+            }
+            .order-number, .item-type, .item-material, .item-quantity {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2 class="mb-4 text-center">📦 Объединение заказов по датам</h2>
+    <h2 class="mb-4 text-center" style="color: #667eea; font-weight: 700;">📦 Объединение заказов по датам</h2>
     
     <div class="mb-3">
-        <label for="fileInput" class="form-label">Выберите TXT файлы (можно несколько сразу):</label>
-        <input class="form-control" type="file" id="fileInput" multiple accept=".txt">
-        <div class="form-text">Файлы будут отсортированы автоматически.</div>
+        <label for="fileInput" class="form-label fw-bold">Выберите TXT файлы (можно несколько сразу):</label>
+        <input class="form-control form-control-lg" type="file" id="fileInput" multiple accept=".txt">
+        <div class="form-text">Файлы будут автоматически отсортированы по дате</div>
     </div>
 
-    <button class="btn btn-primary w-100" onclick="processFiles()">Объединить и подготовить к печати</button>
+    <button class="btn btn-primary btn-lg w-100" onclick="processFiles()">✨ Объединить и оформить</button>
 
     <div id="printSection" style="margin-top: 30px;">
         <div id="previewArea"></div>
     </div>
     
-    <div id="controls" style="display:none; margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
-        <button class="btn btn-success me-2" onclick="window.print()">🖨️ Печать / PDF</button>
-        <button class="btn btn-outline-secondary" onclick="downloadTxt()">💾 Скачать общий TXT</button>
+    <div id="controls" style="display:none; margin-top: 30px; border-top: 3px solid #667eea; padding-top: 20px;">
+        <button class="btn btn-success btn-lg me-2" onclick="window.print()">🖨️ Печать / PDF</button>
+        <button class="btn btn-outline-primary btn-lg" onclick="downloadTxt()">💾 Скачать TXT</button>
     </div>
 </div>
 
 <script>
     let finalContent = "";
+    let finalHtml = "";
 
     async function processFiles() {
         const fileInput = document.getElementById('fileInput');
@@ -70,52 +213,65 @@
         });
 
         finalContent = "";
+        finalHtml = "";
         
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
             const text = await readFileAsText(file);
             
-            // Извлекаем дату из имени файла
             const dateStr = formatDateFromFile(file.name);
             
-            // Добавляем заголовок с датой
-            if (i > 0) {
-                finalContent += '\n';
-            }
-            finalContent += '═'.repeat(50) + '\n';
-            finalContent += `ЗАКАЗЫ ЗА ${dateStr}\n`;
-            finalContent += '═'.repeat(50) + '\n\n';
+            // Добавляем заголовок даты
+            finalHtml += `<div class="date-header">📅 Заказы за ${dateStr}</div>`;
+            finalContent += `ЗАКАЗЫ ЗА ${dateStr}\n${'='.repeat(50)}\n\n`;
             
-            // Разбиваем на строки и фильтруем
             const lines = text.split('\n');
+            let currentOrder = null;
+            let orderItems = [];
+            
             for (let line of lines) {
                 const trimmed = line.trim();
+                if (!trimmed) continue;
                 
-                // Пропускаем пустые строки в начале
-                if (trimmed.length === 0) continue;
-                
-                // Пропускаем заголовки с датами из исходных файлов
+                // Пропускаем заголовки и разделители
                 if (trimmed.toLowerCase().includes('заказы за')) continue;
-                
-                // Пропускаем разделительные линии
                 if (/^[═=]+$/.test(trimmed)) continue;
-                
-                // Пропускаем строки с итогами
                 if (trimmed.includes('Итого по заказу')) continue;
                 if (trimmed.includes('Общая сумма за день')) continue;
                 
-                // Удаляем суммы из строк (числа в конце после |)
-                let processedLine = removePrices(trimmed);
-                
-                // Добавляем строку если она не пустая после обработки
-                if (processedLine.length > 0) {
-                    finalContent += processedLine + '\n';
+                // Проверяем, это номер заказа
+                const orderMatch = trimmed.match(/заказ\s*№?(\d+)/i);
+                if (orderMatch) {
+                    // Если был предыдущий заказ, сохраняем его
+                    if (currentOrder && orderItems.length > 0) {
+                        addOrderToOutput(currentOrder, orderItems);
+                    }
+                    currentOrder = orderMatch[1];
+                    orderItems = [];
+                    continue;
                 }
+                
+                // Парсим строку с элементом заказа
+                if (trimmed.startsWith('-')) {
+                    const item = parseOrderItem(trimmed);
+                    if (item) {
+                        orderItems.push(item);
+                    }
+                }
+            }
+            
+            // Добавляем последний заказ
+            if (currentOrder && orderItems.length > 0) {
+                addOrderToOutput(currentOrder, orderItems);
+            }
+            
+            if (i < files.length - 1) {
+                finalHtml += `<div class="separator"></div>`;
             }
         }
 
         const previewArea = document.getElementById('previewArea');
-        previewArea.innerText = finalContent;
+        previewArea.innerHTML = finalHtml;
         previewArea.style.display = 'block';
         
         document.getElementById('controls').style.display = 'block';
@@ -123,51 +279,103 @@
         previewArea.scrollIntoView({ behavior: 'smooth' });
     }
 
-    // Функция удаления цен из строки
-    function removePrices(line) {
-        // Удаляем паттерны типа "| x1 | 70 200,00 ₽" или "| x1 | 70,20 ₽"
-        // Оставляем только часть до цены
-        let result = line;
+    function parseOrderItem(line) {
+        // Убираем начальный "-"
+        let content = line.replace(/^\s*-\s*/, '');
         
-        // Ищем паттерн: | xN | число с пробелами и запятой и ₽
-        const pricePattern = /\s*\|\s*x\d+\s*\|\s*[\d\s,]+,\d{2}\s*₽?/g;
-        result = result.replace(pricePattern, (match) => {
-            // Находим позицию последнего | перед ценой
-            const lastPipe = match.lastIndexOf('|');
-            if (lastPipe !== -1) {
-                // Возвращаем только часть с количеством
-                return match.substring(0, lastPipe + 1);
+        const item = {
+            type: '',
+            material: '',
+            quantity: '',
+            details: []
+        };
+        
+        // Разбиваем по |
+        const parts = content.split('|').map(p => p.trim()).filter(p => p);
+        
+        for (let part of parts) {
+            // Проверяем количество (x1, x2 и т.д.)
+            if (/^x\d+$/i.test(part)) {
+                item.quantity = part.toUpperCase();
+                continue;
             }
-            return '';
-        });
+            
+            // Проверяем тип (распил, линейный распил и т.д.)
+            if (part.toLowerCase().includes('распил') || 
+                part.toLowerCase().includes('деталь') ||
+                part.toLowerCase().includes('стол')) {
+                item.type = part;
+                continue;
+            }
+            
+            // Проверяем материал (мдф, лдсп и т.д.)
+            if (part.toLowerCase().includes('мдф') || 
+                part.toLowerCase().includes('лдсп') ||
+                part.toLowerCase().includes('мм')) {
+                item.material = part;
+                continue;
+            }
+            
+            // Остальное - детали
+            if (part && !/^\d/.test(part)) {
+                item.details.push(part);
+            }
+        }
         
-        // Также пробуем удалить простые цены в конце строки
-        result = result.replace(/\s*\|\s*[\d\s,]+,\d{2}\s*₽?\s*$/g, '');
-        
-        return result.trim();
+        return item;
     }
 
-    // Функция извлечения и форматирования даты из имени файла
+    function addOrderToOutput(orderNumber, items) {
+        // HTML версия
+        let itemsHtml = '';
+        for (let item of items) {
+            itemsHtml += `
+                <div class="order-item">
+                    ${item.type ? `<span class="item-type">🔧 ${item.type}</span>` : ''}
+                    ${item.material ? `<span class="item-material">📋 ${item.material}</span>` : ''}
+                    ${item.quantity ? `<span class="item-quantity">${item.quantity}</span>` : ''}
+                    ${item.details.length > 0 ? `<span class="item-detail">${item.details.join(' → ')}</span>` : ''}
+                </div>
+            `;
+        }
+        
+        finalHtml += `
+            <div class="order-block">
+                <div class="order-number">📋 Заказ №${orderNumber}</div>
+                ${itemsHtml}
+            </div>
+        `;
+        
+        // Текстовая версия
+        finalContent += `Заказ №${orderNumber}\n`;
+        for (let item of items) {
+            let line = '  - ';
+            if (item.type) line += `[${item.type}] `;
+            if (item.material) line += `{${item.material}} `;
+            if (item.quantity) line += `×${item.quantity} `;
+            if (item.details.length > 0) line += item.details.join(' → ');
+            finalContent += line + '\n';
+        }
+        finalContent += '\n';
+    }
+
     function formatDateFromFile(filename) {
         const patterns = [
-            /(\d{4})-(\d{2})-(\d{2})/,  // YYYY-MM-DD
-            /(\d{2})\.(\d{2})\.(\d{4})/  // DD.MM.YYYY
+            /(\d{4})-(\d{2})-(\d{2})/,
+            /(\d{2})\.(\d{2})\.(\d{4})/
         ];
 
         for (let pattern of patterns) {
             const match = filename.match(pattern);
             if (match) {
                 if (pattern.source.includes('\\d{4}-')) {
-                    // YYYY-MM-DD -> DD.MM.YYYY
                     return `${match[3]}.${match[2]}.${match[1]}`;
                 } else {
-                    // DD.MM.YYYY -> DD.MM.YYYY
                     return `${match[1]}.${match[2]}.${match[3]}`;
                 }
             }
         }
         
-        // Если дата не найдена, используем имя файла без расширения
         return filename.replace(/\.[^/.]+$/, "").toUpperCase();
     }
 
