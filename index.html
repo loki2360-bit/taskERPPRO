@@ -98,13 +98,19 @@
                 if (trimmed.toLowerCase().includes('заказы за')) continue;
                 
                 // Пропускаем разделительные линии
-                if (/^[═=]+$/.test(trimmed)) continue;
+                if (/^[═=-]+$/.test(trimmed)) continue;
                 
-                // Пропускаем строки с итогами
-                if (trimmed.includes('Итого по заказу')) continue;
-                if (trimmed.includes('Общая сумма за день')) continue;
+                // Пропускаем строки с суммами и итогами
+                if (trimmed.toLowerCase().includes('сумма:')) continue;
+                if (trimmed.toLowerCase().includes('итого:')) continue;
+                if (trimmed.toLowerCase().includes('итого по заказу')) continue;
+                if (trimmed.toLowerCase().includes('общая сумма за день')) continue;
+                if (trimmed.toLowerCase().includes('экспорт:')) continue;
                 
-                // Удаляем суммы из строк
+                // Пропускаем строки которые содержат только "undefined" или "NaN"
+                if (trimmed.includes('undefined') || trimmed.includes('NaN')) continue;
+                
+                // Удаляем суммы из строк (если остались)
                 let processedLine = removePrices(trimmed);
                 
                 // Добавляем строку если она не пустая после обработки
@@ -128,7 +134,6 @@
         let result = line;
         
         // Удаляем паттерны с ценами: числа с пробелами, запятой и ₽
-        // Например: "| x1 | 70 200,00 ₽" или "| x1 | 70,20 ₽"
         result = result.replace(/\s*\|\s*[\d\s]+,\d{2}\s*₽?/g, '|');
         
         // Удаляем оставшиеся ₽ символы
