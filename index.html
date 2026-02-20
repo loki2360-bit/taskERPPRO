@@ -274,19 +274,33 @@
       }
     }
 
-    // Получение данных из хранилища
+    // Получение данных из хранилища - ИСПРАВЛЕНО
     function getClients() {
       try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY_CLIENTS)) || [];
+        const data = localStorage.getItem(STORAGE_KEY_CLIENTS);
+        if (!data) {
+          return [];
+        }
+        
+        const clients = JSON.parse(data);
+        // Убедимся, что это массив
+        return Array.isArray(clients) ? clients : [];
       } catch (e) {
         localStorage.setItem(STORAGE_KEY_CLIENTS, JSON.stringify([]));
         return [];
       }
     }
 
+    // ИСПРАВЛЕНО - аналогично для других функций
     function getTransactions() {
       try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY_TRANSACTIONS)) || [];
+        const data = localStorage.getItem(STORAGE_KEY_TRANSACTIONS);
+        if (!data) {
+          return [];
+        }
+        
+        const transactions = JSON.parse(data);
+        return Array.isArray(transactions) ? transactions : [];
       } catch (e) {
         localStorage.setItem(STORAGE_KEY_TRANSACTIONS, JSON.stringify([]));
         return [];
@@ -295,7 +309,13 @@
 
     function getRewards() {
       try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY_REWARDS)) || [];
+        const data = localStorage.getItem(STORAGE_KEY_REWARDS);
+        if (!data) {
+          return [];
+        }
+        
+        const rewards = JSON.parse(data);
+        return Array.isArray(rewards) ? rewards : [];
       } catch (e) {
         localStorage.setItem(STORAGE_KEY_REWARDS, JSON.stringify([]));
         return [];
@@ -323,11 +343,17 @@
       localStorage.setItem(STORAGE_KEY_STAFF_MODE, active ? 'true' : 'false');
     }
 
-    // Генерация 4-значного ID
+    // Генерация 4-значного ID - ИСПРАВЛЕНО
     function generateClientId() {
       let clientId;
       let exists = true;
       const clients = getClients();
+      
+      // Добавлена проверка, что clients - массив
+      if (!Array.isArray(clients)) {
+        console.error("clients не является массивом. Используем временный ID.");
+        return Math.floor(1000 + Math.random() * 9000).toString();
+      }
       
       while (exists) {
         clientId = Math.floor(1000 + Math.random() * 9000).toString();
