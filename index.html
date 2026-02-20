@@ -41,12 +41,20 @@
         .separator { 
             color: #6c757d;
         }
+        .order-total {
+            color: #6f42c1;
+            font-weight: bold;
+            background-color: #e9d8fd;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-top: 5px;
+        }
         
         @media print {
             body * { visibility: hidden; }
             #printSection, #printSection * { visibility: visible; }
             #printSection { position: absolute; left: 0; top: 0; width: 100%; }
-            .date-header { 
+            .date-header, .order-total { 
                 -webkit-print-color-adjust: exact; 
                 print-color-adjust: exact;
             }
@@ -124,8 +132,11 @@
             finalHtml += `<div class="date-header">ЗАКАЗЫ ЗА ${dateStr}</div>`;
             finalHtml += `<div class="separator">${separator}</div><br>`;
             
-            // Разбиваем на строки и фильтруем
+            // Разбиваем на строки и обрабатываем по заказам
             const lines = text.split('\n');
+            let currentOrder = [];
+            let orderTotals = { m2: 0, lm: 0, hours: 0 };
+            
             for (let line of lines) {
                 const trimmed = line.trim();
                 
@@ -148,15 +159,31 @@
                 // Пропускаем строки которые содержат только "undefined" или "NaN"
                 if (trimmed.includes('undefined') || trimmed.includes('NaN')) continue;
                 
+                // Проверяем, начинается ли новый заказ (строка с №)
+                if (/^№\d/i.test(trimmed)) {
+                    // Если был предыдущий заказ, выводим его итоги
+                    if (currentOrder.length > 0) {
+                        outputOrder(currentOrder, orderTotals);
+                    }
+                    // Начинаем новый заказ
+                    currentOrder = [];
+                    orderTotals = { m2: 0, lm: 0, hours: 0 };
+                }
+                
                 // Обрабатываем строку
                 let processedLine = removePrices(trimmed);
                 
+                // Извлекаем объемы для подсчета
+                extractVolumes(trimmed, orderTotals);
+                
                 if (processedLine.length > 0) {
-                    finalContent += processedLine + '\n';
-                    
-                    // Добавляем HTML с подсветкой
-                    finalHtml += highlightLine(processedLine) + '<br>';
+                    currentOrder.push(processedLine);
                 }
+            }
+            
+            // Выводим последний заказ в файле
+            if (currentOrder.length > 0) {
+                outputOrder(currentOrder, orderTotals);
             }
         }
 
@@ -167,6 +194,71 @@
         document.getElementById('controls').style.display = 'block';
         
         previewArea.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Функция вывода заказа с итогами
+    function outputOrder(orderLines, totals) {
+        // Выводим строки заказа
+        for (let line of orderLines) {
+            finalContent += line + '\n';
+            finalHtml += highlightLine(line) + '<br>';
+        }
+        
+        // Выводим итоги по заказу
+        let hasTotals = false;
+        let totalText = '';
+        let totalHtml = '';
+        
+        if (totals.m2 > 0) {
+            const text = `ИТОГО: ${totals.m2.toFixed(2)} м²`;
+            finalContent += text + '\n';
+            totalHtml += `<span class="order-total">${text}</span> `;
+            hasTotals = true;
+        }
+        
+        if (totals.lm > 0) {
+            const text = `ИТОГО: ${totals.lm.toFixed(2)} м.п.`;
+            finalContent += text + '\n';
+            totalHtml += `<span class="order-total">${text}</span> `;
+            hasTotals = true;
+        }
+        
+        if (totals.hours > 0) {
+            const text = `ИТОГО: ${totals.hours.toFixed(2)} часы`;
+            finalContent += text + '\n';
+            totalHtml += `<span class="order-total">${text}</span> `;
+            hasTotals = true;
+        }
+        
+        if (hasTotals) {
+            finalContent += '\n';
+            finalHtml += totalHtml + '<br><br>';
+        }
+    }
+
+    // Функция извлечения объемов из строки
+    function extractVolumes(line, totals) {
+        const lowerLine = line.toLowerCase();
+        
+        // Ищем строки с "Объем:"
+        if (lowerLine.includes('объем:') || lowerLine.includes('объём:')) {
+            // Извлекаем число и единицу измерения
+            const match = line.match(/[\d,]+\s*(м²|м\.п\.|часы|час)/i);
+            if (match) {
+                const value = parseFloat(match[0].replace(',', '.').replace(/[^\d.]/g, ''));
+                const unit = match[0].toLowerCase();
+                
+                if (!isNaN(value)) {
+                    if (unit.includes('м²') || unit.includes('м2')) {
+                        totals.m2 += value;
+                    } else if (unit.includes('м.п.') || unit.includes('мп')) {
+                        totals.lm += value;
+                    } else if (unit.includes('час')) {
+                        totals.hours += value;
+                    }
+                }
+            }
+        }
     }
 
     // Функция подсветки различных элементов в строке
