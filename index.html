@@ -16,11 +16,40 @@
             background: #fff;
             font-family: 'Courier New', Courier, monospace;
             white-space: pre-wrap;
+            line-height: 1.6;
         }
+        
+        /* Цвета для разных элементов */
+        .date-header { 
+            color: #d63384; 
+            font-weight: bold;
+            background-color: #f8d7da;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .order-number { 
+            color: #0d6efd; 
+            font-weight: bold;
+        }
+        .item-name { 
+            color: #198754;
+        }
+        .quantity { 
+            color: #fd7e14;
+            font-weight: bold;
+        }
+        .separator { 
+            color: #6c757d;
+        }
+        
         @media print {
             body * { visibility: hidden; }
             #printSection, #printSection * { visibility: visible; }
             #printSection { position: absolute; left: 0; top: 0; width: 100%; }
+            .date-header { 
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact;
+            }
         }
     </style>
 </head>
@@ -49,6 +78,7 @@
 
 <script>
     let finalContent = "";
+    let finalHtml = "";
 
     async function processFiles() {
         const fileInput = document.getElementById('fileInput');
@@ -70,6 +100,7 @@
         });
 
         finalContent = "";
+        finalHtml = "";
         
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
@@ -81,10 +112,17 @@
             // Добавляем заголовок с датой
             if (i > 0) {
                 finalContent += '\n';
+                finalHtml += '<br>';
             }
-            finalContent += '═'.repeat(50) + '\n';
+            
+            const separator = '═'.repeat(50);
+            finalContent += separator + '\n';
             finalContent += `ЗАКАЗЫ ЗА ${dateStr}\n`;
-            finalContent += '═'.repeat(50) + '\n\n';
+            finalContent += separator + '\n\n';
+            
+            finalHtml += `<div class="separator">${separator}</div>`;
+            finalHtml += `<div class="date-header">ЗАКАЗЫ ЗА ${dateStr}</div>`;
+            finalHtml += `<div class="separator">${separator}</div><br>`;
             
             // Разбиваем на строки и фильтруем
             const lines = text.split('\n');
@@ -110,23 +148,41 @@
                 // Пропускаем строки которые содержат только "undefined" или "NaN"
                 if (trimmed.includes('undefined') || trimmed.includes('NaN')) continue;
                 
-                // Удаляем суммы из строк (если остались)
+                // Обрабатываем строку
                 let processedLine = removePrices(trimmed);
                 
-                // Добавляем строку если она не пустая после обработки
                 if (processedLine.length > 0) {
                     finalContent += processedLine + '\n';
+                    
+                    // Добавляем HTML с подсветкой
+                    finalHtml += highlightLine(processedLine) + '<br>';
                 }
             }
         }
 
         const previewArea = document.getElementById('previewArea');
-        previewArea.innerText = finalContent;
+        previewArea.innerHTML = finalHtml;
         previewArea.style.display = 'block';
         
         document.getElementById('controls').style.display = 'block';
         
         previewArea.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Функция подсветки различных элементов в строке
+    function highlightLine(line) {
+        let result = line;
+        
+        // Подсветка номеров заказов (№...)
+        result = result.replace(/(№[\d\s-]+)/g, '<span class="order-number">$1</span>');
+        
+        // Подсветка количества (x1, x2 и т.д.)
+        result = result.replace(/(x\d+)/gi, '<span class="quantity">$1</span>');
+        
+        // Подсветка разделителей |
+        result = result.replace(/\|/g, '<span class="separator">|</span>');
+        
+        return result;
     }
 
     // Функция удаления цен из строки
