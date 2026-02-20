@@ -91,7 +91,7 @@
             for (let line of lines) {
                 const trimmed = line.trim();
                 
-                // Пропускаем пустые строки в начале
+                // Пропускаем пустые строки
                 if (trimmed.length === 0) continue;
                 
                 // Пропускаем заголовки с датами из исходных файлов
@@ -104,7 +104,7 @@
                 if (trimmed.includes('Итого по заказу')) continue;
                 if (trimmed.includes('Общая сумма за день')) continue;
                 
-                // Удаляем суммы из строк (числа в конце после |)
+                // Удаляем суммы из строк
                 let processedLine = removePrices(trimmed);
                 
                 // Добавляем строку если она не пустая после обработки
@@ -125,24 +125,17 @@
 
     // Функция удаления цен из строки
     function removePrices(line) {
-        // Удаляем паттерны типа "| x1 | 70 200,00 ₽" или "| x1 | 70,20 ₽"
-        // Оставляем только часть до цены
         let result = line;
         
-        // Ищем паттерн: | xN | число с пробелами и запятой и ₽
-        const pricePattern = /\s*\|\s*x\d+\s*\|\s*[\d\s,]+,\d{2}\s*₽?/g;
-        result = result.replace(pricePattern, (match) => {
-            // Находим позицию последнего | перед ценой
-            const lastPipe = match.lastIndexOf('|');
-            if (lastPipe !== -1) {
-                // Возвращаем только часть с количеством
-                return match.substring(0, lastPipe + 1);
-            }
-            return '';
-        });
+        // Удаляем паттерны с ценами: числа с пробелами, запятой и ₽
+        // Например: "| x1 | 70 200,00 ₽" или "| x1 | 70,20 ₽"
+        result = result.replace(/\s*\|\s*[\d\s]+,\d{2}\s*₽?/g, '|');
         
-        // Также пробуем удалить простые цены в конце строки
-        result = result.replace(/\s*\|\s*[\d\s,]+,\d{2}\s*₽?\s*$/g, '');
+        // Удаляем оставшиеся ₽ символы
+        result = result.replace(/₽/g, '');
+        
+        // Удаляем множественные пробелы перед |
+        result = result.replace(/\s+\|/g, ' |');
         
         return result.trim();
     }
