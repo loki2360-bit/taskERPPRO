@@ -274,7 +274,7 @@
       }
     }
 
-    // Получение данных из хранилища - ИСПРАВЛЕНО
+    // Получение данных из хранилища
     function getClients() {
       try {
         const data = localStorage.getItem(STORAGE_KEY_CLIENTS);
@@ -283,7 +283,6 @@
         }
         
         const clients = JSON.parse(data);
-        // Убедимся, что это массив
         return Array.isArray(clients) ? clients : [];
       } catch (e) {
         localStorage.setItem(STORAGE_KEY_CLIENTS, JSON.stringify([]));
@@ -291,7 +290,6 @@
       }
     }
 
-    // ИСПРАВЛЕНО - аналогично для других функций
     function getTransactions() {
       try {
         const data = localStorage.getItem(STORAGE_KEY_TRANSACTIONS);
@@ -343,7 +341,7 @@
       localStorage.setItem(STORAGE_KEY_STAFF_MODE, active ? 'true' : 'false');
     }
 
-    // Генерация 4-значного ID - ИСПРАВЛЕНО
+    // Генерация 4-значного ID
     function generateClientId() {
       let clientId;
       let exists = true;
@@ -649,7 +647,7 @@
     // Инициализация приложения
     function initApp() {
       initStorage();
-      updateStaffModeUI();
+      updateStaffModeUI(); // Обновляем интерфейс при загрузке
       
       // Обработчики событий
       document.getElementById('register-btn').addEventListener('click', registerClient);
