@@ -4,7 +4,209 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Программа лояльности</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --success: #4cc9f0;
+      --danger: #f72585;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --gray: #6c757d;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: var(--dark);
+      background-color: #f5f7fb;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      padding: 30px;
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--primary);
+      margin-bottom: 25px;
+      font-size: 2.2em;
+    }
+
+    section {
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #eee;
+    }
+
+    h2 {
+      color: var(--primary);
+      margin-bottom: 15px;
+      font-size: 1.5em;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    input {
+      flex: 1;
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+    }
+
+    button {
+      background: var(--gray);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #5a6268;
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    button.primary {
+      background: var(--primary);
+    }
+
+    button.primary:hover {
+      background: #354ed9;
+    }
+
+    .result, .balance-info {
+      min-height: 24px;
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 6px;
+    }
+
+    .result.success {
+      background: rgba(76, 201, 248, 0.15);
+      color: #0d6efd;
+    }
+
+    .result.error {
+      background: rgba(247, 37, 133, 0.15);
+      color: var(--danger);
+    }
+
+    .balance-info {
+      background: rgba(67, 97, 238, 0.08);
+      border-left: 4px solid var(--primary);
+      padding: 15px;
+      font-size: 1.1em;
+    }
+
+    .promo-code {
+      background: #fff8e6;
+      border: 1px dashed #ffc107;
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 15px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .history {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 15px 0;
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid #eee;
+    }
+
+    .history ul {
+      list-style: none;
+      padding-left: 5px;
+    }
+
+    .history li {
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .staff-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .secret-command {
+      display: flex;
+      gap: 5px;
+    }
+
+    .staff-mode-indicator {
+      background: #e9ecef;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 0.9em;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .staff-mode-indicator.active {
+      display: block;
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    @media (max-width: 600px) {
+      .input-group {
+        flex-direction: column;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -18,40 +220,428 @@
       <div id="registration-result" class="result"></div>
     </section>
 
-    <!-- Основной интерфейс -->
+    <!-- Основной интерфейс (единый для всех) -->
     <section id="main-interface">
+      <h2>Проверка баланса / Начисление баллов</h2>
       <div class="input-group">
-        <input type="text" id="client-id-input" placeholder="Введите ваш номер">
-        <button id="check-balance">Проверить баланс</button>
+        <input type="text" id="client-id-input" placeholder="Введите ваш номер или секретную команду">
+        <button id="check-balance">Проверить</button>
       </div>
       <div id="balance-display" class="balance-info"></div>
-    </section>
-
-    <!-- Режим сотрудника (скрыт) -->
-    <section id="staff-mode">
-      <div class="staff-header">
-        <h2>Режим сотрудника</h2>
-        <div class="secret-command">
-          <input type="password" id="secret-command" placeholder="Секретная команда">
-          <button id="activate-staff">Активировать</button>
-        </div>
+      
+      <div class="staff-mode-indicator" id="staff-indicator">
+        <strong>Режим сотрудника активирован</strong> - теперь вы можете начислять баллы
       </div>
       
-      <div id="staff-controls" class="hidden">
-        <div class="input-group">
-          <input type="text" id="staff-client-id" placeholder="Номер клиента">
-          <button id="load-history">Загрузить историю</button>
-        </div>
-        
-        <div id="client-history" class="history"></div>
-        
-        <div class="action-buttons">
-          <button id="add-points" class="primary">Начислить 100 баллов</button>
-        </div>
+      <div id="staff-controls" class="action-buttons hidden">
+        <button id="add-points" class="primary">Начислить 100 баллов</button>
+        <button id="load-history">Показать историю</button>
       </div>
+      
+      <div id="client-history" class="history hidden"></div>
     </section>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    // Константы
+    const SECRET_COMMAND = 'loyalty42'; // Секретная команда для сотрудников
+    const POINTS_PER_PURCHASE = 100;
+    const REWARD_THRESHOLD = 1000;
+    const STORAGE_KEY_CLIENTS = 'loyalty_clients';
+    const STORAGE_KEY_TRANSACTIONS = 'loyalty_transactions';
+    const STORAGE_KEY_REWARDS = 'loyalty_rewards';
+    const STORAGE_KEY_STAFF_MODE = 'loyalty_staff_mode';
+
+    // Проверка поддержки localStorage
+    if (typeof(Storage) === "undefined") {
+      alert("Ваш браузер не поддерживает localStorage. Программа лояльности работать не будет.");
+    }
+
+    // Инициализация хранилища
+    function initStorage() {
+      if (!localStorage.getItem(STORAGE_KEY_CLIENTS)) {
+        localStorage.setItem(STORAGE_KEY_CLIENTS, JSON.stringify([]));
+      }
+      if (!localStorage.getItem(STORAGE_KEY_TRANSACTIONS)) {
+        localStorage.setItem(STORAGE_KEY_TRANSACTIONS, JSON.stringify([]));
+      }
+      if (!localStorage.getItem(STORAGE_KEY_REWARDS)) {
+        localStorage.setItem(STORAGE_KEY_REWARDS, JSON.stringify([]));
+      }
+      if (!localStorage.getItem(STORAGE_KEY_STAFF_MODE)) {
+        localStorage.setItem(STORAGE_KEY_STAFF_MODE, 'false');
+      }
+    }
+
+    // Получение данных из хранилища
+    function getClients() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY_CLIENTS)) || [];
+      } catch (e) {
+        localStorage.setItem(STORAGE_KEY_CLIENTS, JSON.stringify([]));
+        return [];
+      }
+    }
+
+    function getTransactions() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY_TRANSACTIONS)) || [];
+      } catch (e) {
+        localStorage.setItem(STORAGE_KEY_TRANSACTIONS, JSON.stringify([]));
+        return [];
+      }
+    }
+
+    function getRewards() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY_REWARDS)) || [];
+      } catch (e) {
+        localStorage.setItem(STORAGE_KEY_REWARDS, JSON.stringify([]));
+        return [];
+      }
+    }
+
+    function isStaffMode() {
+      return localStorage.getItem(STORAGE_KEY_STAFF_MODE) === 'true';
+    }
+
+    // Сохранение данных
+    function saveClients(clients) {
+      localStorage.setItem(STORAGE_KEY_CLIENTS, JSON.stringify(clients));
+    }
+
+    function saveTransactions(transactions) {
+      localStorage.setItem(STORAGE_KEY_TRANSACTIONS, JSON.stringify(transactions));
+    }
+
+    function saveRewards(rewards) {
+      localStorage.setItem(STORAGE_KEY_REWARDS, JSON.stringify(rewards));
+    }
+
+    function setStaffMode(active) {
+      localStorage.setItem(STORAGE_KEY_STAFF_MODE, active ? 'true' : 'false');
+    }
+
+    // Генерация 4-значного ID
+    function generateClientId() {
+      let clientId;
+      let exists = true;
+      const clients = getClients();
+      
+      while (exists) {
+        clientId = Math.floor(1000 + Math.random() * 9000).toString();
+        exists = clients.some(client => client.id === clientId);
+      }
+      
+      return clientId;
+    }
+
+    // Генерация промокода
+    function generatePromoCode() {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let code = '';
+      for (let i = 0; i < 8; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return code;
+    }
+
+    // Регистрация нового клиента
+    function registerClient() {
+      const name = document.getElementById('client-name').value.trim();
+      if (!name) {
+        showResult('Введите ваше имя', 'error');
+        return;
+      }
+
+      try {
+        const clientId = generateClientId();
+        const clients = getClients();
+        
+        // Добавляем нового клиента
+        clients.push({
+          id: clientId,
+          name: name,
+          balance: 0,
+          createdAt: new Date().toISOString()
+        });
+        
+        saveClients(clients);
+        
+        // Показываем результат
+        const resultHTML = `
+          <div class="result success">
+            <strong>Регистрация успешна!</strong><br>
+            Ваш номер: <span style="font-weight:bold; font-size:1.2em">${clientId}</span>
+            Сохраните его для проверки баланса
+          </div>
+        `;
+        document.getElementById('registration-result').innerHTML = resultHTML;
+        document.getElementById('client-name').value = '';
+        
+      } catch (error) {
+        console.error('Ошибка регистрации:', error);
+        showResult('Ошибка регистрации. Попробуйте позже.', 'error');
+      }
+    }
+
+    // Проверка баланса клиента
+    function checkBalance() {
+      const input = document.getElementById('client-id-input').value.trim();
+      
+      // Проверяем, является ли ввод секретной командой
+      if (input === SECRET_COMMAND) {
+        setStaffMode(true);
+        showResult('Режим сотрудника активирован', 'success');
+        updateStaffModeUI();
+        return;
+      }
+      
+      // Если это номер клиента
+      if (/^\d{4}$/.test(input)) {
+        try {
+          const clients = getClients();
+          const client = clients.find(c => c.id === input);
+          
+          if (!client) {
+            showResult('Клиент не найден', 'error');
+            return;
+          }
+
+          // Проверяем наличие неиспользованных промокодов
+          const rewards = getRewards();
+          const activeReward = rewards.find(r => r.clientId === input && !r.redeemed);
+
+          // Формируем отображение баланса
+          let balanceHTML = `
+            <strong>Баланс:</strong> ${client.balance} из ${REWARD_THRESHOLD}
+            <div class="progress-bar">
+              <div class="progress" style="width: ${Math.min(client.balance / REWARD_THRESHOLD * 100, 100)}%"></div>
+            </div>
+          `;
+
+          if (activeReward) {
+            balanceHTML += `
+              <div class="promo-code">
+                Ваш промокод: <strong>${activeReward.code}</strong><br>
+                Используйте его при следующей покупке
+              </div>
+            `;
+          }
+
+          document.getElementById('balance-display').innerHTML = balanceHTML;
+          
+          // Скрываем режим сотрудника, если был активирован
+          if (isStaffMode()) {
+            setStaffMode(false);
+            updateStaffModeUI();
+          }
+          
+        } catch (error) {
+          console.error('Ошибка проверки баланса:', error);
+          showResult('Ошибка при проверке баланса', 'error');
+        }
+      } else {
+        showResult('Введите корректный 4-значный номер или секретную команду', 'error');
+      }
+    }
+
+    // Обновление интерфейса режима сотрудника
+    function updateStaffModeUI() {
+      const staffIndicator = document.getElementById('staff-indicator');
+      const staffControls = document.getElementById('staff-controls');
+      const clientHistory = document.getElementById('client-history');
+      
+      if (isStaffMode()) {
+        staffIndicator.classList.add('active');
+        staffControls.classList.remove('hidden');
+        clientHistory.classList.add('hidden');
+      } else {
+        staffIndicator.classList.remove('active');
+        staffControls.classList.add('hidden');
+        clientHistory.classList.add('hidden');
+      }
+    }
+
+    // Начисление баллов
+    function addPoints() {
+      const clientId = document.getElementById('client-id-input').value.trim();
+      if (!/^\d{4}$/.test(clientId)) {
+        showResult('Введите корректный 4-значный номер', 'error');
+        return;
+      }
+
+      try {
+        const clients = getClients();
+        const clientIndex = clients.findIndex(c => c.id === clientId);
+        
+        if (clientIndex === -1) {
+          showResult('Клиент не найден', 'error');
+          return;
+        }
+
+        // Обновляем баланс
+        const client = clients[clientIndex];
+        client.balance += POINTS_PER_PURCHASE;
+        let promoCode = null;
+        
+        // Проверяем достижение порога
+        if (client.balance >= REWARD_THRESHOLD) {
+          // Генерируем уникальный промокод
+          const rewards = getRewards();
+          do {
+            promoCode = generatePromoCode();
+          } while (rewards.some(r => r.code === promoCode));
+          
+          // Сохраняем промокод
+          rewards.push({
+            clientId: clientId,
+            code: promoCode,
+            redeemed: false,
+            createdAt: new Date().toISOString()
+          });
+          saveRewards(rewards);
+          
+          // Сбрасываем баланс
+          client.balance = 0;
+        }
+        
+        // Сохраняем обновленные данные
+        clients[clientIndex] = client;
+        saveClients(clients);
+        
+        // Добавляем запись в историю
+        const transactions = getTransactions();
+        transactions.push({
+          clientId: clientId,
+          points: POINTS_PER_PURCHASE,
+          type: 'purchase',
+          timestamp: new Date().toISOString()
+        });
+        saveTransactions(transactions);
+        
+        // Обновляем баланс
+        checkBalance();
+        
+        // Показываем результат
+        if (promoCode) {
+          showResult(`Начислено! Промокод сгенерирован: ${promoCode}`, 'success');
+        } else {
+          showResult(`Начислено ${POINTS_PER_PURCHASE} баллов`, 'success');
+        }
+        
+      } catch (error) {
+        console.error('Ошибка начисления баллов:', error);
+        showResult('Ошибка при начислении баллов', 'error');
+      }
+    }
+
+    // Показать историю
+    function showHistory() {
+      const clientId = document.getElementById('client-id-input').value.trim();
+      if (!/^\d{4}$/.test(clientId)) {
+        showResult('Введите корректный 4-значный номер', 'error');
+        return;
+      }
+
+      try {
+        const clients = getClients();
+        const client = clients.find(c => c.id === clientId);
+        
+        if (!client) {
+          showResult('Клиент не найден', 'error');
+          return;
+        }
+
+        // Загружаем историю транзакций
+        const transactions = getTransactions().filter(tx => tx.clientId === clientId);
+        
+        // Формируем отображение истории
+        let historyHTML = `
+          <h3>Клиент: ${client.name} (Баланс: ${client.balance})</h3>
+          <ul>
+        `;
+
+        if (transactions.length > 0) {
+          transactions.slice(0, 20).forEach(tx => {
+            const date = new Date(tx.timestamp).toLocaleString('ru-RU', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+            
+            historyHTML += `
+              <li>
+                <strong>${date}</strong> - 
+                ${tx.points > 0 ? '+' : ''}${tx.points} баллов 
+                (${tx.type === 'purchase' ? 'Покупка' : 
+                  tx.type === 'reward' ? 'Скидка' : 'Сброс'})
+              </li>
+            `;
+          });
+        } else {
+          historyHTML += `<li>История операций пуста</li>`;
+        }
+
+        historyHTML += '</ul>';
+        document.getElementById('client-history').innerHTML = historyHTML;
+        document.getElementById('client-history').classList.remove('hidden');
+        
+      } catch (error) {
+        console.error('Ошибка загрузки истории:', error);
+        showResult('Ошибка при загрузке истории', 'error');
+      }
+    }
+
+    // Вспомогательные функции
+    function showResult(message, type = 'info') {
+      const resultDiv = document.createElement('div');
+      resultDiv.className = `result ${type}`;
+      resultDiv.textContent = message;
+      
+      // Очищаем предыдущие сообщения
+      const resultContainer = document.getElementById('registration-result');
+      resultContainer.innerHTML = '';
+      resultContainer.appendChild(resultDiv);
+      
+      // Автоматическое исчезновение через 5 секунд
+      setTimeout(() => {
+        if (resultDiv.parentNode) {
+          resultDiv.parentNode.removeChild(resultDiv);
+        }
+      }, 5000);
+    }
+
+    // Инициализация приложения
+    function initApp() {
+      initStorage();
+      updateStaffModeUI();
+      
+      // Обработчики событий
+      document.getElementById('register-btn').addEventListener('click', registerClient);
+      document.getElementById('check-balance').addEventListener('click', checkBalance);
+      document.getElementById('add-points').addEventListener('click', addPoints);
+      document.getElementById('load-history').addEventListener('click', showHistory);
+      
+      // Поддержка Enter
+      document.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          const activeElement = document.activeElement;
+          if (activeElement.id === 'client-name') {
+            registerClient();
+          } else if (activeElement.id === 'client-id-input') {
+            checkBalance();
+          }
+        }
+      });
+      
+      console.log('Программа лояльности готова к работе (локальный режим)');
+    }
+
+    // Запуск приложения
+    document.addEventListener('DOMContentLoaded', initApp);
+  </script>
 </body>
 </html>
