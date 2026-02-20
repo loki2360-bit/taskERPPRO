@@ -233,6 +233,7 @@
         <strong>Режим сотрудника активирован</strong> - теперь вы можете начислять баллы
       </div>
       
+      <!-- КНОПКА НАЧИСЛЕНИЯ БАЛЛОВ СКРЫТА ПО УМОЛЧАНИЮ -->
       <div id="staff-controls" class="action-buttons hidden">
         <button id="add-points" class="primary">Начислить 100 баллов</button>
         <button id="load-history">Показать историю</button>
@@ -442,6 +443,11 @@
           showResult('Ошибка при проверке баланса', 'error');
         }
       } else {
+        // Деактивируем режим сотрудника при неверном вводе
+        if (isStaffMode()) {
+          setStaffMode(false);
+          updateStaffModeUI();
+        }
         showResult('Введите корректный 4-значный номер или секретную команду', 'error');
       }
     }
