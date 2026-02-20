@@ -107,13 +107,17 @@
     
     <div id="controls" style="display:none; margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
         <button class="btn btn-success me-2" onclick="window.print()">🖨️ Печать / PDF</button>
-        <button class="btn btn-outline-secondary" onclick="downloadTxt()">💾 Скачать общий TXT</button>
+        <button class="btn btn-outline-secondary me-2" onclick="downloadTxt()">💾 Скачать TXT</button>
+        <button class="btn btn-info text-white" onclick="copyForGoogleSheets()">📊 Копировать для Google Таблиц</button>
     </div>
+    
+    <div id="copyMessage" style="display:none; margin-top: 10px; color: #198754; font-weight: bold;"></div>
 </div>
 
 <script>
     let finalContent = "";
     let finalHtml = "";
+    let sheetData = [];
 
     async function processFiles() {
         const fileInput = document.getElementById('fileInput');
@@ -136,6 +140,7 @@
 
         finalContent = "";
         finalHtml = "";
+        sheetData = [];
         
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
@@ -156,6 +161,9 @@
             finalHtml += `<div class="separator-line">${separator}</div>`;
             finalHtml += `<div class="date-header">ЗАКАЗЫ ЗА ${dateStr}</div>`;
             finalHtml += `<div class="separator-line">${separator}</div><br>`;
+            
+            // Добавляем заголовок для таблиц
+            sheetData.push(['Дата', 'Заказ', 'Деталь', 'Операция', 'Количество', 'Объем']);
             
             const lines = text.split('\n');
             let currentOrder = [];
@@ -178,7 +186,7 @@
                 
                 if (/^№\s*\d/i.test(trimmed)) {
                     if (inOrder && currentOrder.length > 0) {
-                        outputOrder(currentOrderNumber, currentOrder, orderTotals);
+                        outputOrder(currentOrderNumber, currentOrder, orderTotals, dateStr);
                     }
                     currentOrderNumber = trimmed.match(/№\s*[\d-]+/i)[0];
                     currentOrder = [];
@@ -192,11 +200,14 @@
                 
                 if (processedLine.length > 0 && inOrder) {
                     currentOrder.push(processedLine);
+                    
+                    // Добавляем в данные для таблиц
+                    addToSheetData(dateStr, currentOrderNumber, processedLine);
                 }
             }
             
             if (inOrder && currentOrder.length > 0) {
-                outputOrder(currentOrderNumber, currentOrder, orderTotals);
+                outputOrder(currentOrderNumber, currentOrder, orderTotals, dateStr);
             }
         }
 
@@ -209,7 +220,46 @@
         previewArea.scrollIntoView({ behavior: 'smooth' });
     }
 
-    function outputOrder(orderNumber, orderLines, totals) {
+    function addToSheetData(date, orderNumber, line) {
+        // Пропускаем строки с номером заказа
+        if (line.match(/^№/i)) return;
+        
+        // Пропускаем строки с объемом (они будут в итогах)
+        if (line.toLowerCase().includes('объем:')) return;
+        if (line.toLowerCase().includes('кол-во:')) return;
+        if (line.toLowerCase().includes('часы:')) return;
+        
+        // Парсим строку для таблицы
+        let detail = '';
+        let operation = '';
+        let quantity = '1';
+        let volume = '';
+        
+        // Извлекаем количество (x1, x2 и т.д.)
+        const qtyMatch = line.match(/x(\d+)/i);
+        if (qtyMatch) {
+            quantity = qtyMatch[1];
+        }
+        
+        // Извлекаем объем из строки если есть
+        const volMatch = line.match(/объе[мМ]:\s*([\d,]+)\s*(м²|м2|м\.п\.|мп|часы|час|ч)/i);
+        if (volMatch) {
+            volume = `${volMatch[1]} ${volMatch[2]}`;
+        }
+        
+        // Извлекаем название детали и операции
+        const parts = line.split('|').map(p => p.trim());
+        if (parts.length >= 2) {
+            detail = parts[0].replace(/^-/, '').trim();
+            operation = parts[1] || '';
+        } else {
+            detail = line.replace(/x\d+/i, '').replace(/\|/g, '').trim();
+        }
+        
+        sheetData.push([date, orderNumber, detail, operation, quantity, volume]);
+    }
+
+    function outputOrder(orderNumber, orderLines, totals, dateStr) {
         finalContent += `  ${orderNumber}\n`;
         finalHtml += `<div class="order-block">`;
         finalHtml += `<div class="order-number">  ${orderNumber}</div>`;
@@ -228,6 +278,9 @@
             finalContent += `    ${text}\n`;
             finalHtml += `<div class="volume-line"><strong>${text}</strong></div>`;
             hasTotals = true;
+            
+            // Добавляем итог в таблицу
+            sheetData.push([dateStr, orderNumber, 'ИТОГО', 'м²', totals.m2.toFixed(2), '']);
         }
         
         if (totals.lm > 0) {
@@ -235,6 +288,8 @@
             finalContent += `    ${text}\n`;
             finalHtml += `<div class="volume-line"><strong>${text}</strong></div>`;
             hasTotals = true;
+            
+            sheetData.push([dateStr, orderNumber, 'ИТОГО', 'м.п.', totals.lm.toFixed(2), '']);
         }
         
         if (totals.hours > 0) {
@@ -242,10 +297,35 @@
             finalContent += `    ${text}\n`;
             finalHtml += `<div class="volume-line"><strong>${text}</strong></div>`;
             hasTotals = true;
+            
+            sheetData.push([dateStr, orderNumber, 'ИТОГО', 'часы', totals.hours.toFixed(2), '']);
         }
         
         finalHtml += `</div>`;
         finalContent += '\n';
+    }
+
+    function copyForGoogleSheets() {
+        if (sheetData.length === 0) {
+            alert("Сначала обработайте файлы!");
+            return;
+        }
+        
+        // Преобразуем в TSV формат (табуляция)
+        const tsvContent = sheetData.map(row => row.join('\t')).join('\n');
+        
+        // Копируем в буфер обмена
+        navigator.clipboard.writeText(tsvContent).then(() => {
+            const msg = document.getElementById('copyMessage');
+            msg.textContent = '✅ Данные скопированы! Вставьте в Google Таблицы (Ctrl+V)';
+            msg.style.display = 'block';
+            
+            setTimeout(() => {
+                msg.style.display = 'none';
+            }, 5000);
+        }).catch(err => {
+            alert('Ошибка копирования: ' + err);
+        });
     }
 
     function extractVolumes(line, totals) {
