@@ -12,7 +12,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         .container { 
-            max-width: 900px; 
+            max-width: 1200px; 
             background: white; 
             padding: 30px; 
             border-radius: 10px; 
@@ -21,36 +21,56 @@
         #previewArea { 
             display: none; 
             margin-top: 20px; 
-            padding: 20px; 
+            padding: 15mm;
             background: #fff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            font-size: 14px;
+            line-height: 1.4;
+            font-size: 11px;
         }
         
+        .date-section {
+            margin-bottom: 15px;
+            page-break-inside: avoid;
+        }
         .date-header { 
             color: #d63384; 
             font-weight: bold;
-            font-size: 16px;
-            margin: 25px 0 15px 0;
-            padding-bottom: 5px;
-            border-bottom: 2px solid #f8d7da;
+            font-size: 13px;
+            margin: 0 0 8px 0;
+            padding: 3px 8px;
+            background-color: #f8d7da;
+            border-radius: 3px;
+            display: inline-block;
+        }
+        .orders-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        .order-item {
+            background-color: #f8f9fa;
+            padding: 6px 8px;
+            border-radius: 3px;
+            border-left: 2px solid #0d6efd;
+            page-break-inside: avoid;
         }
         .order-number { 
             color: #0d6efd; 
             font-weight: bold;
-            font-size: 15px;
-            margin: 15px 0 8px 0;
+            font-size: 11px;
+            margin-bottom: 3px;
         }
         .item-line {
-            margin: 3px 0;
-            padding-left: 15px;
+            margin: 2px 0;
+            padding-left: 8px;
             color: #495057;
+            font-size: 10px;
         }
         .volume-line {
-            margin: 8px 0 0 15px;
+            margin: 4px 0 0 8px;
             color: #6f42c1;
             font-weight: bold;
+            font-size: 10px;
         }
         .quantity { 
             color: #fd7e14;
@@ -58,12 +78,40 @@
         }
         
         @media print {
-            body * { visibility: hidden; }
-            #printSection, #printSection * { visibility: visible; }
-            #printSection { position: absolute; left: 0; top: 0; width: 100%; }
+            @page {
+                size: A4;
+                margin: 10mm;
+            }
+            body { 
+                background: white;
+                padding: 0;
+            }
+            body * { 
+                visibility: hidden; 
+            }
+            #printSection, #printSection * { 
+                visibility: visible; 
+            }
+            #printSection { 
+                position: absolute; 
+                left: 0; 
+                top: 0; 
+                width: 100%;
+                padding: 10mm;
+            }
+            #previewArea {
+                display: block !important;
+                padding: 0;
+            }
             .date-header { 
                 -webkit-print-color-adjust: exact; 
                 print-color-adjust: exact;
+            }
+            .order-item {
+                break-inside: avoid;
+            }
+            .date-section {
+                break-inside: avoid;
             }
         }
     </style>
@@ -125,17 +173,14 @@
             
             if (i > 0) {
                 finalContent += '\n';
-                finalHtml += '<br>';
             }
             
             finalContent += `ЗАКАЗЫ ЗА ${dateStr}\n\n`;
-            finalHtml += `<div class="date-header">ЗАКАЗЫ ЗА ${dateStr}</div>`;
             
             const lines = text.split('\n');
-            let currentOrder = [];
+            let orders = [];
+            let currentOrder = null;
             let orderTotals = { m2: 0, lm: 0, hours: 0 };
-            let currentOrderNumber = '';
-            let inOrder = false;
             
             for (let j = 0; j < lines.length; j++) {
                 const trimmed = lines[j].trim();
@@ -151,27 +196,30 @@
                 if (trimmed.includes('undefined') || trimmed.includes('NaN')) continue;
                 
                 if (/^№\s*\d/i.test(trimmed)) {
-                    if (inOrder && currentOrder.length > 0) {
-                        outputOrder(currentOrderNumber, currentOrder, orderTotals);
+                    if (currentOrder) {
+                        currentOrder.totals = orderTotals;
+                        orders.push(currentOrder);
                     }
-                    currentOrderNumber = trimmed.match(/№\s*[\d-]+/i)[0];
-                    currentOrder = [];
+                    const orderNumber = trimmed.match(/№\s*[\d-]+/i)[0];
+                    currentOrder = { number: orderNumber, lines: [] };
                     orderTotals = { m2: 0, lm: 0, hours: 0 };
-                    inOrder = true;
                 }
                 
-                extractVolumes(trimmed, orderTotals);
-                
-                let processedLine = removePrices(trimmed);
-                
-                if (processedLine.length > 0 && inOrder) {
-                    currentOrder.push(processedLine);
+                if (currentOrder) {
+                    extractVolumes(trimmed, orderTotals);
+                    let processedLine = removePrices(trimmed);
+                    if (processedLine.length > 0 && !processedLine.match(/^№/i)) {
+                        currentOrder.lines.push(processedLine);
+                    }
                 }
             }
             
-            if (inOrder && currentOrder.length > 0) {
-                outputOrder(currentOrderNumber, currentOrder, orderTotals);
+            if (currentOrder) {
+                currentOrder.totals = orderTotals;
+                orders.push(currentOrder);
             }
+            
+            outputDateSection(dateStr, orders);
         }
 
         const previewArea = document.getElementById('previewArea');
@@ -183,36 +231,39 @@
         previewArea.scrollIntoView({ behavior: 'smooth' });
     }
 
-    function outputOrder(orderNumber, orderLines, totals) {
-        finalContent += `  ${orderNumber}\n`;
-        finalHtml += `<div class="order-number">${orderNumber}</div>`;
+    function outputDateSection(dateStr, orders) {
+        finalContent += `${orders.length} заказов\n\n`;
         
-        for (let line of orderLines) {
-            if (!line.match(/^№/i)) {
-                finalContent += `    ${line}\n`;
-                finalHtml += `<div class="item-line">${highlightLine(line)}</div>`;
+        let ordersHtml = '';
+        for (let order of orders) {
+            ordersHtml += `<div class="order-item">`;
+            ordersHtml += `<div class="order-number">${order.number}</div>`;
+            
+            for (let line of order.lines) {
+                ordersHtml += `<div class="item-line">${highlightLine(line)}</div>`;
             }
+            
+            if (order.totals.m2 > 0) {
+                ordersHtml += `<div class="volume-line">ИТОГО: ${order.totals.m2.toFixed(2)} м²</div>`;
+                finalContent += `  ИТОГО: ${order.totals.m2.toFixed(2)} м²\n`;
+            }
+            if (order.totals.lm > 0) {
+                ordersHtml += `<div class="volume-line">ИТОГО: ${order.totals.lm.toFixed(2)} м.п.</div>`;
+                finalContent += `  ИТОГО: ${order.totals.lm.toFixed(2)} м.п.\n`;
+            }
+            if (order.totals.hours > 0) {
+                ordersHtml += `<div class="volume-line">ИТОГО: ${order.totals.hours.toFixed(2)} часы</div>`;
+                finalContent += `  ИТОГО: ${order.totals.hours.toFixed(2)} часы\n`;
+            }
+            
+            ordersHtml += `</div>`;
+            finalContent += '\n';
         }
         
-        if (totals.m2 > 0) {
-            const text = `ИТОГО: ${totals.m2.toFixed(2)} м²`;
-            finalContent += `    ${text}\n`;
-            finalHtml += `<div class="volume-line">${text}</div>`;
-        }
-        
-        if (totals.lm > 0) {
-            const text = `ИТОГО: ${totals.lm.toFixed(2)} м.п.`;
-            finalContent += `    ${text}\n`;
-            finalHtml += `<div class="volume-line">${text}</div>`;
-        }
-        
-        if (totals.hours > 0) {
-            const text = `ИТОГО: ${totals.hours.toFixed(2)} часы`;
-            finalContent += `    ${text}\n`;
-            finalHtml += `<div class="volume-line">${text}</div>`;
-        }
-        
-        finalContent += '\n';
+        finalHtml += `<div class="date-section">`;
+        finalHtml += `<div class="date-header">📅 ${dateStr} (${orders.length} заказов)</div>`;
+        finalHtml += `<div class="orders-grid">${ordersHtml}</div>`;
+        finalHtml += `</div>`;
     }
 
     function extractVolumes(line, totals) {
