@@ -21,56 +21,36 @@
         #previewArea { 
             display: none; 
             margin-top: 20px; 
-            border: 1px solid #ddd; 
-            padding: 30px; 
+            padding: 20px; 
             background: #fff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.8;
+            line-height: 1.6;
             font-size: 14px;
         }
         
         .date-header { 
             color: #d63384; 
             font-weight: bold;
-            font-size: 18px;
-            background-color: #f8d7da;
-            padding: 8px 15px;
-            border-radius: 4px;
-            margin: 20px 0 15px 0;
-            display: inline-block;
+            font-size: 16px;
+            margin: 25px 0 15px 0;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #f8d7da;
         }
         .order-number { 
             color: #0d6efd; 
             font-weight: bold;
-            font-size: 16px;
-        }
-        .order-block {
-            margin-bottom: 25px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-left: 3px solid #0d6efd;
-            border-radius: 4px;
+            font-size: 15px;
+            margin: 15px 0 8px 0;
         }
         .item-line {
-            margin: 8px 0;
-            padding-left: 20px;
-        }
-        .volume-line {
-            margin: 10px 0 5px 20px;
+            margin: 3px 0;
+            padding-left: 15px;
             color: #495057;
         }
-        .order-total {
+        .volume-line {
+            margin: 8px 0 0 15px;
             color: #6f42c1;
             font-weight: bold;
-            background-color: #e9d8fd;
-            padding: 8px 12px;
-            border-radius: 4px;
-            margin: 15px 0 0 0;
-            display: inline-block;
-        }
-        .separator-line {
-            color: #6c757d;
-            margin: 10px 0;
         }
         .quantity { 
             color: #fd7e14;
@@ -81,7 +61,7 @@
             body * { visibility: hidden; }
             #printSection, #printSection * { visibility: visible; }
             #printSection { position: absolute; left: 0; top: 0; width: 100%; }
-            .date-header, .order-total, .order-block { 
+            .date-header { 
                 -webkit-print-color-adjust: exact; 
                 print-color-adjust: exact;
             }
@@ -107,17 +87,13 @@
     
     <div id="controls" style="display:none; margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
         <button class="btn btn-success me-2" onclick="window.print()">🖨️ Печать / PDF</button>
-        <button class="btn btn-outline-secondary me-2" onclick="downloadTxt()">💾 Скачать TXT</button>
-        <button class="btn btn-info text-white" onclick="copyForGoogleSheets()">📊 Копировать для Google Таблиц</button>
+        <button class="btn btn-outline-secondary" onclick="downloadTxt()">💾 Скачать общий TXT</button>
     </div>
-    
-    <div id="copyMessage" style="display:none; margin-top: 10px; color: #198754; font-weight: bold;"></div>
 </div>
 
 <script>
     let finalContent = "";
     let finalHtml = "";
-    let sheetData = [];
 
     async function processFiles() {
         const fileInput = document.getElementById('fileInput');
@@ -140,7 +116,6 @@
 
         finalContent = "";
         finalHtml = "";
-        sheetData = [];
         
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
@@ -153,17 +128,8 @@
                 finalHtml += '<br>';
             }
             
-            const separator = '═'.repeat(60);
-            finalContent += separator + '\n';
-            finalContent += `ЗАКАЗЫ ЗА ${dateStr}\n`;
-            finalContent += separator + '\n\n';
-            
-            finalHtml += `<div class="separator-line">${separator}</div>`;
+            finalContent += `ЗАКАЗЫ ЗА ${dateStr}\n\n`;
             finalHtml += `<div class="date-header">ЗАКАЗЫ ЗА ${dateStr}</div>`;
-            finalHtml += `<div class="separator-line">${separator}</div><br>`;
-            
-            // Добавляем заголовок для таблиц
-            sheetData.push(['Дата', 'Заказ', 'Деталь', 'Операция', 'Количество', 'Объем']);
             
             const lines = text.split('\n');
             let currentOrder = [];
@@ -186,7 +152,7 @@
                 
                 if (/^№\s*\d/i.test(trimmed)) {
                     if (inOrder && currentOrder.length > 0) {
-                        outputOrder(currentOrderNumber, currentOrder, orderTotals, dateStr);
+                        outputOrder(currentOrderNumber, currentOrder, orderTotals);
                     }
                     currentOrderNumber = trimmed.match(/№\s*[\d-]+/i)[0];
                     currentOrder = [];
@@ -200,14 +166,11 @@
                 
                 if (processedLine.length > 0 && inOrder) {
                     currentOrder.push(processedLine);
-                    
-                    // Добавляем в данные для таблиц
-                    addToSheetData(dateStr, currentOrderNumber, processedLine);
                 }
             }
             
             if (inOrder && currentOrder.length > 0) {
-                outputOrder(currentOrderNumber, currentOrder, orderTotals, dateStr);
+                outputOrder(currentOrderNumber, currentOrder, orderTotals);
             }
         }
 
@@ -220,49 +183,9 @@
         previewArea.scrollIntoView({ behavior: 'smooth' });
     }
 
-    function addToSheetData(date, orderNumber, line) {
-        // Пропускаем строки с номером заказа
-        if (line.match(/^№/i)) return;
-        
-        // Пропускаем строки с объемом (они будут в итогах)
-        if (line.toLowerCase().includes('объем:')) return;
-        if (line.toLowerCase().includes('кол-во:')) return;
-        if (line.toLowerCase().includes('часы:')) return;
-        
-        // Парсим строку для таблицы
-        let detail = '';
-        let operation = '';
-        let quantity = '1';
-        let volume = '';
-        
-        // Извлекаем количество (x1, x2 и т.д.)
-        const qtyMatch = line.match(/x(\d+)/i);
-        if (qtyMatch) {
-            quantity = qtyMatch[1];
-        }
-        
-        // Извлекаем объем из строки если есть
-        const volMatch = line.match(/объе[мМ]:\s*([\d,]+)\s*(м²|м2|м\.п\.|мп|часы|час|ч)/i);
-        if (volMatch) {
-            volume = `${volMatch[1]} ${volMatch[2]}`;
-        }
-        
-        // Извлекаем название детали и операции
-        const parts = line.split('|').map(p => p.trim());
-        if (parts.length >= 2) {
-            detail = parts[0].replace(/^-/, '').trim();
-            operation = parts[1] || '';
-        } else {
-            detail = line.replace(/x\d+/i, '').replace(/\|/g, '').trim();
-        }
-        
-        sheetData.push([date, orderNumber, detail, operation, quantity, volume]);
-    }
-
-    function outputOrder(orderNumber, orderLines, totals, dateStr) {
+    function outputOrder(orderNumber, orderLines, totals) {
         finalContent += `  ${orderNumber}\n`;
-        finalHtml += `<div class="order-block">`;
-        finalHtml += `<div class="order-number">  ${orderNumber}</div>`;
+        finalHtml += `<div class="order-number">${orderNumber}</div>`;
         
         for (let line of orderLines) {
             if (!line.match(/^№/i)) {
@@ -271,61 +194,25 @@
             }
         }
         
-        let hasTotals = false;
-        
         if (totals.m2 > 0) {
             const text = `ИТОГО: ${totals.m2.toFixed(2)} м²`;
             finalContent += `    ${text}\n`;
-            finalHtml += `<div class="volume-line"><strong>${text}</strong></div>`;
-            hasTotals = true;
-            
-            // Добавляем итог в таблицу
-            sheetData.push([dateStr, orderNumber, 'ИТОГО', 'м²', totals.m2.toFixed(2), '']);
+            finalHtml += `<div class="volume-line">${text}</div>`;
         }
         
         if (totals.lm > 0) {
             const text = `ИТОГО: ${totals.lm.toFixed(2)} м.п.`;
             finalContent += `    ${text}\n`;
-            finalHtml += `<div class="volume-line"><strong>${text}</strong></div>`;
-            hasTotals = true;
-            
-            sheetData.push([dateStr, orderNumber, 'ИТОГО', 'м.п.', totals.lm.toFixed(2), '']);
+            finalHtml += `<div class="volume-line">${text}</div>`;
         }
         
         if (totals.hours > 0) {
             const text = `ИТОГО: ${totals.hours.toFixed(2)} часы`;
             finalContent += `    ${text}\n`;
-            finalHtml += `<div class="volume-line"><strong>${text}</strong></div>`;
-            hasTotals = true;
-            
-            sheetData.push([dateStr, orderNumber, 'ИТОГО', 'часы', totals.hours.toFixed(2), '']);
+            finalHtml += `<div class="volume-line">${text}</div>`;
         }
         
-        finalHtml += `</div>`;
         finalContent += '\n';
-    }
-
-    function copyForGoogleSheets() {
-        if (sheetData.length === 0) {
-            alert("Сначала обработайте файлы!");
-            return;
-        }
-        
-        // Преобразуем в TSV формат (табуляция)
-        const tsvContent = sheetData.map(row => row.join('\t')).join('\n');
-        
-        // Копируем в буфер обмена
-        navigator.clipboard.writeText(tsvContent).then(() => {
-            const msg = document.getElementById('copyMessage');
-            msg.textContent = '✅ Данные скопированы! Вставьте в Google Таблицы (Ctrl+V)';
-            msg.style.display = 'block';
-            
-            setTimeout(() => {
-                msg.style.display = 'none';
-            }, 5000);
-        }).catch(err => {
-            alert('Ошибка копирования: ' + err);
-        });
     }
 
     function extractVolumes(line, totals) {
@@ -354,7 +241,6 @@
     function highlightLine(line) {
         let result = line;
         result = result.replace(/(x\d+)/gi, '<span class="quantity">$1</span>');
-        result = result.replace(/\|/g, '<span style="color: #6c757d;">|</span>');
         return result;
     }
 
