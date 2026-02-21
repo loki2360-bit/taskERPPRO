@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Объединение заказов</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { 
             background-color: #f8f9fa; 
@@ -12,11 +13,54 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         .container { 
-            max-width: 1200px; 
+            max-width: 1400px; 
             background: white; 
             padding: 30px; 
             border-radius: 10px; 
             box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+        }
+        .dashboard {
+            display: none;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            color: white;
+        }
+        .dashboard.show {
+            display: block;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        .date-stats {
+            background: rgba(255,255,255,0.1);
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-size: 13px;
+        }
+        .operation-tag {
+            display: inline-block;
+            background: rgba(255,255,255,0.3);
+            padding: 3px 10px;
+            border-radius: 12px;
+            margin: 2px;
+            font-size: 11px;
         }
         #previewArea { 
             display: none; 
@@ -127,7 +171,53 @@
         <div class="form-text">Файлы будут отсортированы автоматически.</div>
     </div>
 
-    <button class="btn btn-primary w-100" onclick="processFiles()">Объединить и подготовить к печати</button>
+    <button class="btn btn-primary w-100" onclick="processFiles()">📊 Объединить и показать статистику</button>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="dashboard">
+        <h4 class="mb-3">📈 Общая статистика</h4>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalOrders">0</div>
+                    <div class="stat-label">Всего заказов</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalM2">0</div>
+                    <div class="stat-label">Квадратов (м²)</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalLM">0</div>
+                    <div class="stat-label">Погонных метров</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalHours">0</div>
+                    <div class="stat-label">Часов работы</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <div class="stat-card">
+                    <div class="stat-label mb-2">🔧 Популярные операции</div>
+                    <div id="topOperations"></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="stat-card">
+                    <div class="stat-label mb-2">📅 По датам</div>
+                    <div id="dateStats"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div id="printSection" style="margin-top: 30px;">
         <div id="previewArea"></div>
@@ -135,13 +225,21 @@
     
     <div id="controls" style="display:none; margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
         <button class="btn btn-success me-2" onclick="window.print()">🖨️ Печать / PDF</button>
-        <button class="btn btn-outline-secondary" onclick="downloadTxt()">💾 Скачать общий TXT</button>
+        <button class="btn btn-outline-secondary" onclick="downloadTxt()">💾 Скачать TXT</button>
     </div>
 </div>
 
 <script>
     let finalContent = "";
     let finalHtml = "";
+    let globalStats = {
+        totalOrders: 0,
+        totalM2: 0,
+        totalLM: 0,
+        totalHours: 0,
+        operations: {},
+        dates: {}
+    };
 
     async function processFiles() {
         const fileInput = document.getElementById('fileInput');
@@ -164,6 +262,14 @@
 
         finalContent = "";
         finalHtml = "";
+        globalStats = {
+            totalOrders: 0,
+            totalM2: 0,
+            totalLM: 0,
+            totalHours: 0,
+            operations: {},
+            dates: {}
+        };
         
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
@@ -179,6 +285,7 @@
             let orders = [];
             let currentOrder = null;
             let orderTotals = { m2: 0, lm: 0, hours: 0 };
+            let dateStats = { m2: 0, lm: 0, hours: 0, orders: 0, operations: {} };
             
             for (let j = 0; j < lines.length; j++) {
                 const trimmed = lines[j].trim();
@@ -193,10 +300,17 @@
                 if (trimmed.toLowerCase().includes('экспорт:')) continue;
                 if (trimmed.includes('undefined') || trimmed.includes('NaN')) continue;
                 
+                // Extract operation type
+                extractOperation(trimmed, dateStats.operations);
+                
                 if (/^№\s*\d/i.test(trimmed)) {
                     if (currentOrder) {
                         currentOrder.totals = {...orderTotals};
                         orders.push(currentOrder);
+                        dateStats.orders++;
+                        dateStats.m2 += orderTotals.m2;
+                        dateStats.lm += orderTotals.lm;
+                        dateStats.hours += orderTotals.hours;
                     }
                     const orderNumber = trimmed.match(/№\s*[\d-]+/i)[0];
                     currentOrder = { number: orderNumber, lines: [] };
@@ -215,11 +329,33 @@
             if (currentOrder) {
                 currentOrder.totals = {...orderTotals};
                 orders.push(currentOrder);
+                dateStats.orders++;
+                dateStats.m2 += orderTotals.m2;
+                dateStats.lm += orderTotals.lm;
+                dateStats.hours += orderTotals.hours;
             }
             
-            outputDateSection(dateStr, orders);
+            // Save date stats
+            globalStats.dates[dateStr] = dateStats;
+            globalStats.totalOrders += dateStats.orders;
+            globalStats.totalM2 += dateStats.m2;
+            globalStats.totalLM += dateStats.lm;
+            globalStats.totalHours += dateStats.hours;
+            
+            // Merge operations
+            for (let op in dateStats.operations) {
+                if (!globalStats.operations[op]) {
+                    globalStats.operations[op] = 0;
+                }
+                globalStats.operations[op] += dateStats.operations[op];
+            }
+            
+            outputDateSection(dateStr, orders, dateStats);
         }
 
+        // Show dashboard
+        showDashboard();
+        
         const previewArea = document.getElementById('previewArea');
         previewArea.innerHTML = finalHtml;
         previewArea.style.display = 'block';
@@ -229,14 +365,61 @@
         previewArea.scrollIntoView({ behavior: 'smooth' });
     }
 
-    function outputDateSection(dateStr, orders) {
+    function extractOperation(line, operations) {
+        // Extract operation from parentheses or after |
+        const match = line.match(/\(([^)]+)\)/i) || line.match(/\|\s*([^|]+?)\s*\|/i);
+        if (match) {
+            let op = match[1].trim();
+            // Clean up operation name
+            op = op.replace(/^(распил|время|деталь|стол)/i, (m) => m.trim());
+            if (op.length > 2 && op.toLowerCase() !== 'x' && !op.match(/^\d+$/)) {
+                if (!operations[op]) {
+                    operations[op] = 0;
+                }
+                operations[op]++;
+            }
+        }
+    }
+
+    function showDashboard() {
+        document.getElementById('dashboard').classList.add('show');
+        document.getElementById('totalOrders').textContent = globalStats.totalOrders;
+        document.getElementById('totalM2').textContent = globalStats.totalM2.toFixed(2);
+        document.getElementById('totalLM').textContent = globalStats.totalLM.toFixed(2);
+        document.getElementById('totalHours').textContent = globalStats.totalHours.toFixed(2);
+        
+        // Top operations
+        const sortedOps = Object.entries(globalStats.operations)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 8);
+        
+        let opsHtml = '';
+        for (let [op, count] of sortedOps) {
+            opsHtml += `<span class="operation-tag">${op}: ${count}</span>`;
+        }
+        document.getElementById('topOperations').innerHTML = opsHtml || 'Нет данных';
+        
+        // Date stats
+        let dateHtml = '';
+        for (let [date, stats] of Object.entries(globalStats.dates)) {
+            dateHtml += `<div class="date-stats">`;
+            dateHtml += `<strong>${date}</strong> (${stats.orders} зак.) | `;
+            if (stats.m2 > 0) dateHtml += `${stats.m2.toFixed(2)} м² `;
+            if (stats.lm > 0) dateHtml += `${stats.lm.toFixed(2)} м.п. `;
+            if (stats.hours > 0) dateHtml += `${stats.hours.toFixed(2)} ч`;
+            dateHtml += `</div>`;
+        }
+        document.getElementById('dateStats').innerHTML = dateHtml;
+    }
+
+    function outputDateSection(dateStr, orders, dateStats) {
         finalContent += `════════════════════════════════════════\n`;
         finalContent += `ЗАКАЗЫ ЗА ${dateStr} (${orders.length} заказов)\n`;
-        finalContent += `════════════════════════════════════════\n\n`;
+        finalContent += `════════════════════════════════════════\n`;
+        finalContent += `Всего: ${dateStats.m2.toFixed(2)} м² | ${dateStats.lm.toFixed(2)} м.п. | ${dateStats.hours.toFixed(2)} ч\n\n`;
         
         let ordersHtml = '';
         for (let order of orders) {
-            // Добавляем номер заказа в TXT
             finalContent += `${order.number}\n`;
             
             ordersHtml += `<div class="order-item">`;
@@ -268,7 +451,7 @@
         }
         
         finalHtml += `<div class="date-section">`;
-        finalHtml += `<div class="date-header">📅 ${dateStr} (${orders.length} заказов)</div>`;
+        finalHtml += `<div class="date-header">📅 ${dateStr} (${orders.length} зак. | ${dateStats.m2.toFixed(1)} м² | ${dateStats.hours.toFixed(1)} ч)</div>`;
         finalHtml += `<div class="orders-grid">${ordersHtml}</div>`;
         finalHtml += `</div>`;
     }
