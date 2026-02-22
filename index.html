@@ -804,8 +804,12 @@ const sqmMatch3 = line.match(/кв\.м\s*:\s*(\d+[\.,]?\d*)/i);
 const sqmMatch4 = line.match(/(\d+[\.,]?\d*)\s*кв\.м\s*\(?пог\.м\s*:\s*\d+[\.,]?\d*\)?/i);
 // Формат "кв.м: 10,5 пог.м: 5,2"
 const sqmMatch5 = line.match(/кв\.м\s*:\s*(\d+[\.,]?\d*)\s*пог\.м\s*:\s*\d+[\.,]?\d*/i);
+// Формат "кв.м 10,5"
+const sqmMatch6 = line.match(/кв\.м\s+(\d+[\.,]?\d*)/i);
+// Формат "10.5 кв.м"
+const sqmMatch7 = line.match(/(\d+[\.,]?\d*)\s*кв\.м/i);
 
-const matches = [sqmMatch1, sqmMatch2, sqmMatch3, sqmMatch4, sqmMatch5];
+const matches = [sqmMatch1, sqmMatch2, sqmMatch3, sqmMatch4, sqmMatch5, sqmMatch6, sqmMatch7];
 for (const match of matches) {
 if (match && match[1]) {
 order.parameters['Кв.м'] = parseFloat(match[1].replace(',', '.'));
@@ -825,8 +829,12 @@ const lmMatch3 = line.match(/пог\.м\s*:\s*(\d+[\.,]?\d*)/i);
 const lmMatch4 = line.match(/(\d+[\.,]?\d*)\s*пог\.м\s*\(?кв\.м\s*:\s*\d+[\.,]?\d*\)?/i);
 // Формат "пог.м: 10,5 кв.м: 5,2"
 const lmMatch5 = line.match(/пог\.м\s*:\s*(\d+[\.,]?\d*)\s*кв\.м\s*:\s*\d+[\.,]?\d*/i);
+// Формат "пог.м 10,5"
+const lmMatch6 = line.match(/пог\.м\s+(\d+[\.,]?\d*)/i);
+// Формат "10.5 пог.м"
+const lmMatch7 = line.match(/(\d+[\.,]?\d*)\s*пог\.м/i);
 
-const matches = [lmMatch1, lmMatch2, lmMatch3, lmMatch4, lmMatch5];
+const matches = [lmMatch1, lmMatch2, lmMatch3, lmMatch4, lmMatch5, lmMatch6, lmMatch7];
 for (const match of matches) {
 if (match && match[1]) {
 order.parameters['Пог.м'] = parseFloat(match[1].replace(',', '.'));
