@@ -788,7 +788,7 @@ const value = parseFloat(valueMatch[1].replace(',', '.'));
 // Проверяем тип объема
 if (volumeText.toLowerCase().includes('м²') || volumeText.toLowerCase().includes('кв.м')) {
 order.parameters['Кв.м'] = value;
-} else if (volumeText.toLowerCase().includes('пог.м')) {
+} else if (volumeText.toLowerCase().includes('пог.м') || volumeText.toLowerCase().includes('пог. м')) {
 order.parameters['Пог.м'] = value;
 } else if (volumeText.toLowerCase().includes('час') || volumeText.toLowerCase().includes('ч')) {
 order.parameters['Время'] = value;
