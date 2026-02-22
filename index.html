@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Дашборд заказов</title>
+    <title>Дашборд анализа заказов</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -471,13 +471,38 @@
         .error-message li {
             margin-bottom: 5px;
         }
+        
+        /* Заголовок дашборда */
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .dashboard-header h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .dashboard-header p {
+            color: #6c757d;
+            max-width: 800px;
+            margin: 0 auto;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
+        <header class="dashboard-header">
             <h1><i class="fas fa-chart-line"></i> Дашборд анализа заказов</h1>
-            <p>Загрузите файл с заказами для визуализации данных</p>
+            <p>Загрузите файл с заказами для визуализации данных. Все данные обрабатываются локально в вашем браузере.</p>
         </header>
 
         <div class="error-message" id="errorMessage">
@@ -620,9 +645,6 @@
             // Глобальные переменные для хранения данных
             let allOrders = [];
             let currentFileData = null;
-            let typeChart = null;
-            let ordersChart = null;
-            let topOrdersChart = null;
             
             // История загрузок
             const uploadHistory = [];
@@ -863,11 +885,12 @@
                 // Создаем или обновляем график
                 const ctx = document.getElementById('typeChart').getContext('2d');
                 
-                if (typeChart) {
-                    typeChart.destroy();
+                // ИСПРАВЛЕНИЕ: Проверяем наличие графика через Chart.js API
+                if (Chart.getChart(ctx)) {
+                    Chart.getChart(ctx).destroy();
                 }
                 
-                typeChart = new Chart(ctx, {
+                new Chart(ctx, {
                     type: 'bar',
                     data: {
                         labels: labels,
@@ -929,11 +952,12 @@
                 // Создаем или обновляем график
                 const ctx = document.getElementById('ordersChart').getContext('2d');
                 
-                if (ordersChart) {
-                    ordersChart.destroy();
+                // ИСПРАВЛЕНИЕ: Проверяем наличие графика через Chart.js API
+                if (Chart.getChart(ctx)) {
+                    Chart.getChart(ctx).destroy();
                 }
                 
-                ordersChart = new Chart(ctx, {
+                new Chart(ctx, {
                     type: 'doughnut',
                     data: {
                         labels: labels,
@@ -998,11 +1022,12 @@
                 // Создаем или обновляем график
                 const ctx = document.getElementById('topOrdersChart').getContext('2d');
                 
-                if (topOrdersChart) {
-                    topOrdersChart.destroy();
+                // ИСПРАВЛЕНИЕ: Проверяем наличие графика через Chart.js API
+                if (Chart.getChart(ctx)) {
+                    Chart.getChart(ctx).destroy();
                 }
                 
-                topOrdersChart = new Chart(ctx, {
+                new Chart(ctx, {
                     type: 'horizontalBar',
                     data: {
                         labels: labels,
