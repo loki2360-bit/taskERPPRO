@@ -790,7 +790,7 @@ if (volumeText.toLowerCase().includes('м²') || volumeText.toLowerCase().includ
 order.parameters['Кв.м'] = value;
 } else if (volumeText.toLowerCase().includes('пог.м') || volumeText.toLowerCase().includes('пог. м')) {
 order.parameters['Пог.м'] = value;
-} else if (volumeText.toLowerCase().includes('час') || volumeText.toLowerCase().includes('ч')) {
+} else if (volumeText.toLowerCase().includes('час') || volumeText.toLowerCase().includes('ч') || volumeText.toLowerCase().includes('часы')) {
 order.parameters['Время'] = value;
 }
 }
