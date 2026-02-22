@@ -164,7 +164,7 @@ background: white;
 border-radius: 10px;
 box-shadow: var(--card-shadow);
 padding: 20px;
-min-height: 300px;
+height: 300px;
 display: flex;
 flex-direction: column;
 }
@@ -181,7 +181,6 @@ color: var(--primary-color);
 .chart-container {
 flex: 1;
 position: relative;
-min-height: 200px;
 }
 /* Прогресс-бары */
 .progress-group {
@@ -562,7 +561,6 @@ background-color: #c13515;
 <th>Тип</th>
 <th>Дата</th>
 <th>Файл</th>
-<th>Объем</th>
 <th>Сумма</th>
 </tr>
 </thead>
@@ -589,29 +587,6 @@ const resetAllButton = document.getElementById('resetAllButton');
 // Глобальные переменные для хранения данных
 let allFilesData = []; // Массив для хранения данных всех файлов
 let allOrders = []; // Все заказы из всех файлов
-// Сохранение данных в localStorage
-function saveDataToLocalStorage() {
-localStorage.setItem('dashboardFiles', JSON.stringify(allFilesData));
-}
-// Восстановление данных из localStorage
-function loadDataFromLocalStorage() {
-const savedFiles = localStorage.getItem('dashboardFiles');
-if (savedFiles) {
-allFilesData = JSON.parse(savedFiles);
-allOrders = allFilesData.flatMap(f => f.orders);
-// Обновляем интерфейс
-updateSummaryCards();
-renderCharts();
-renderProgressBars();
-renderDataTable();
-updateHistoryList();
-// Показываем скрытые элементы
-chartsContainer.style.display = 'grid';
-summaryCards.style.display = 'flex';
-historySection.style.display = 'block';
-dataTable.style.display = 'block';
-}
-}
 // Обработчики событий для зоны загрузки
 dropZone.addEventListener('click', () => {
 fileInput.click();
@@ -649,8 +624,6 @@ dataTable.style.display = 'none';
 updateHistoryList();
 // Сбрасываем таблицу
 document.getElementById('tableBody').innerHTML = '';
-// Сохраняем пустые данные
-saveDataToLocalStorage();
 }
 });
 // Обработчик поиска и фильтров
@@ -692,8 +665,6 @@ historySection.style.display = 'block';
 dataTable.style.display = 'block';
 // Сбрасываем выбор файла для возможности загрузки того же файла
 fileInput.value = '';
-// Сохраняем данные
-saveDataToLocalStorage();
 } catch (error) {
 console.error('Ошибка обработки файла:', error);
 showError(`Не удалось обработать файл. Ошибка: ${error.message}`);
@@ -770,13 +741,6 @@ if (sumMatch) {
 order.amount = parseFloat(sumMatch[1].replace(',', '.'));
 }
 }
-}
-// Обработка объема
-const volumeMatch = line.match(/Объем:\s*([\d.,]+)\s*([^\s]+)/);
-if (volumeMatch) {
-const volumeValue = volumeMatch[1].replace(',', '.');
-const volumeUnit = volumeMatch[2];
-order.parameters['Объем'] = `${volumeValue} ${volumeUnit}`;
 }
 }
 // Если сумма не найдена, ищем ее в последней строке
@@ -893,6 +857,7 @@ return formatCurrency(value);
 }
 }
 }
+}
 });
 }
 // Распределение заказов
@@ -939,6 +904,7 @@ const value = context.parsed;
 const total = context.dataset.data.reduce((a, b) => a + b, 0);
 const percentage = ((value / total) * 100).toFixed(1);
 return `${context.label}: ${value} заказов (${percentage}%)`;
+}
 }
 }
 }
@@ -1020,6 +986,7 @@ beginAtZero: true,
 ticks: {
 callback: function(value) {
 return formatCurrency(value);
+}
 }
 }
 }
@@ -1107,7 +1074,6 @@ row.innerHTML = `
 <td>${order.type}</td>
 <td>${order.date}</td>
 <td title="${order.sourceFile}">${order.sourceFile.substring(0, 15)}${order.sourceFile.length > 15 ? '...' : ''}</td>
-<td>${order.parameters['Объем'] || '-'}</td>
 <td class="amount-cell">${formatCurrency(order.amount)}</td>
 `;
 tableBody.appendChild(row);
@@ -1187,8 +1153,6 @@ renderProgressBars();
 renderDataTable();
 // Обновляем историю
 updateHistoryList();
-// Сохраняем данные
-saveDataToLocalStorage();
 // Если удаляем все данные, скрываем график
 if (allFilesData.length === 0) {
 chartsContainer.style.display = 'none';
@@ -1233,8 +1197,6 @@ errorMessage.classList.remove('show');
 function hideError() {
 errorMessage.classList.remove('show');
 }
-// Инициализация при загрузке страницы
-loadDataFromLocalStorage();
 });
 </script>
 </body>
