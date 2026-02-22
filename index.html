@@ -496,6 +496,25 @@
             max-width: 800px;
             margin: 0 auto;
         }
+        
+        /* Кнопка сброса */
+        .reset-button {
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: var(--transition);
+        }
+        
+        .reset-button:hover {
+            background-color: #c13515;
+        }
     </style>
 </head>
 <body>
@@ -590,6 +609,11 @@
 
         <div class="history-section" id="historySection" style="display: none;">
             <h2><i class="fas fa-history"></i> История загрузок</h2>
+            <div class="history-controls">
+                <button class="reset-button" id="resetAllButton">
+                    <i class="fas fa-trash"></i> Сбросить все данные
+                </button>
+            </div>
             <div class="history-list" id="historyList"></div>
         </div>
 
@@ -617,6 +641,7 @@
                         <th>Описание</th>
                         <th>Тип</th>
                         <th>Дата</th>
+                        <th>Файл</th>
                         <th>Сумма</th>
                     </tr>
                 </thead>
@@ -641,13 +666,11 @@
             const dataTable = document.getElementById('dataTable');
             const errorMessage = document.getElementById('errorMessage');
             const errorList = document.getElementById('errorList');
+            const resetAllButton = document.getElementById('resetAllButton');
             
             // Глобальные переменные для хранения данных
-            let allOrders = [];
-            let currentFileData = null;
-            
-            // История загрузок
-            const uploadHistory = [];
+            let allFilesData = []; // Массив для хранения данных всех файлов
+            let allOrders = []; // Все заказы из всех файлов
             
             // Обработчики событий для зоны загрузки
             dropZone.addEventListener('click', () => {
@@ -678,6 +701,26 @@
                 }
             });
             
+            // Обработчик сброса всех данных
+            resetAllButton.addEventListener('click', function() {
+                if (confirm('Вы действительно хотите сбросить все данные?')) {
+                    allFilesData = [];
+                    allOrders = [];
+                    
+                    // Скрываем элементы интерфейса
+                    chartsContainer.style.display = 'none';
+                    summaryCards.style.display = 'none';
+                    historySection.style.display = 'none';
+                    dataTable.style.display = 'none';
+                    
+                    // Обновляем историю
+                    updateHistoryList();
+                    
+                    // Сбрасываем таблицу
+                    document.getElementById('tableBody').innerHTML = '';
+                }
+            });
+            
             // Обработчик поиска и фильтров
             document.getElementById('searchInput').addEventListener('input', filterTable);
             document.getElementById('typeFilter').addEventListener('change', filterTable);
@@ -698,16 +741,26 @@
                         hideError();
                         
                         // Парсим файл
-                        currentFileData = parseOrderFile(e.target.result, file.name);
+                        const fileData = parseOrderFile(e.target.result, file.name);
+                        
+                        // Проверяем, не загружали ли мы уже этот файл
+                        if (allFilesData.some(f => f.fileName === file.name)) {
+                            showError('Этот файл уже был загружен ранее');
+                            return;
+                        }
                         
                         // Добавляем в историю
-                        addToHistory(file);
+                        addToHistory(file, fileData);
                         
-                        // Обновляем интерфейс
-                        updateSummaryCards(currentFileData);
-                        renderCharts(currentFileData);
-                        renderProgressBars(currentFileData);
-                        renderDataTable(currentFileData.orders);
+                        // Добавляем заказы к общему списку
+                        allFilesData.push(fileData);
+                        allOrders = allFilesData.flatMap(f => f.orders);
+                        
+                        // Обновляем интерфейс с учетом всех данных
+                        updateSummaryCards();
+                        renderCharts();
+                        renderProgressBars();
+                        renderDataTable();
                         
                         // Показываем скрытые элементы
                         chartsContainer.style.display = 'grid';
@@ -771,6 +824,7 @@
                         type: '',
                         amount: 0,
                         date: date,
+                        sourceFile: fileName,
                         parameters: {}
                     };
                     
@@ -841,36 +895,46 @@
                 };
             }
             
-            // Обновление сводных карточек
-            function updateSummaryCards(data) {
-                document.getElementById('totalRevenue').textContent = formatCurrency(data.total);
-                document.getElementById('totalOrders').textContent = data.orders.length;
+            // Обновление сводных карточек (с учетом всех файлов)
+            function updateSummaryCards() {
+                // Суммируем данные по всем файлам
+                const totalRevenue = allOrders.reduce((sum, order) => sum + order.amount, 0);
+                const totalOrders = allOrders.length;
+                const avgCheck = totalRevenue / totalOrders;
                 
-                const avgCheck = data.total / data.orders.length;
+                document.getElementById('totalRevenue').textContent = formatCurrency(totalRevenue);
+                document.getElementById('totalOrders').textContent = totalOrders;
                 document.getElementById('avgCheck').textContent = formatCurrency(avgCheck);
                 
-                document.getElementById('lastUpdate').textContent = data.exportDateTime;
+                // Берем последнее время обновления
+                if (allFilesData.length > 0) {
+                    const latestUpdate = allFilesData
+                        .map(f => f.exportDateTime)
+                        .sort()
+                        .pop();
+                    document.getElementById('lastUpdate').textContent = latestUpdate;
+                }
             }
             
-            // Построение графиков
-            function renderCharts(data) {
+            // Построение графиков (с учетом всех файлов)
+            function renderCharts() {
                 // 1. Выручка по типам работ
-                renderTypeChart(data);
+                renderTypeChart();
                 
                 // 2. Распределение заказов
-                renderOrdersChart(data);
+                renderOrdersChart();
                 
                 // 3. Топ-5 самых дорогих заказов
-                renderTopOrdersChart(data);
+                renderTopOrdersChart();
             }
             
             // Выручка по типам работ
-            function renderTypeChart(data) {
+            function renderTypeChart() {
                 const typeRevenue = {};
                 let totalRevenue = 0;
                 
-                // Собираем данные по типам
-                data.orders.forEach(order => {
+                // Собираем данные по типам из всех заказов
+                allOrders.forEach(order => {
                     if (!typeRevenue[order.type]) {
                         typeRevenue[order.type] = 0;
                     }
@@ -934,11 +998,11 @@
             }
             
             // Распределение заказов
-            function renderOrdersChart(data) {
+            function renderOrdersChart() {
                 const typeCount = {};
                 
-                // Собираем количество заказов по типам
-                data.orders.forEach(order => {
+                // Собираем количество заказов по типам из всех заказов
+                allOrders.forEach(order => {
                     if (!typeCount[order.type]) {
                         typeCount[order.type] = 0;
                     }
@@ -1001,10 +1065,10 @@
                 });
             }
             
-            // Топ-5 самых дорогих заказов (ИСПРАВЛЕНО)
-            function renderTopOrdersChart(data) {
+            // Топ-5 самых дорогих заказов
+            function renderTopOrdersChart() {
                 // Сортируем заказы по сумме в убывающем порядке и берем первые 5
-                const topOrders = [...data.orders]
+                const topOrders = [...allOrders]
                     .sort((a, b) => b.amount - a.amount)
                     .slice(0, 5);
                 
@@ -1028,7 +1092,7 @@
                 }
                 
                 new Chart(ctx, {
-                    type: 'bar',  // ИСПРАВЛЕНО: заменен с horizontalBar на bar
+                    type: 'bar',
                     data: {
                         labels: labels,
                         datasets: [{
@@ -1040,7 +1104,7 @@
                         }]
                     },
                     options: {
-                        indexAxis: 'y',  // ИСПРАВЛЕНО: добавлена опция для горизонтального бара
+                        indexAxis: 'y',
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
@@ -1080,9 +1144,13 @@
             }
             
             // Прогресс выполнения
-            function renderProgressBars(data) {
+            function renderProgressBars() {
                 const progressBarContainer = document.getElementById('progressBars');
                 progressBarContainer.innerHTML = '';
+                
+                // Суммируем данные по всем файлам
+                const totalRevenue = allOrders.reduce((sum, order) => sum + order.amount, 0);
+                const totalOrders = allOrders.length;
                 
                 // Определяем целевые значения для прогресса
                 // Например, можно установить цели на день/неделю
@@ -1092,9 +1160,9 @@
                 // Прогресс по выручке
                 createProgressBar(
                     progressBarContainer,
-                    'Выручка за день',
-                    data.total,
-                    dailyTarget,
+                    'Выручка за период',
+                    totalRevenue,
+                    dailyTarget * allFilesData.length,
                     '₽',
                     '#4e73df'
                 );
@@ -1103,15 +1171,15 @@
                 createProgressBar(
                     progressBarContainer,
                     'Количество заказов',
-                    data.orders.length,
-                    ordersTarget,
+                    totalOrders,
+                    ordersTarget * allFilesData.length,
                     '',
                     '#1cc88a'
                 );
                 
                 // Прогресс по типам работ (берем самый популярный тип)
                 const typeCount = {};
-                data.orders.forEach(order => {
+                allOrders.forEach(order => {
                     typeCount[order.type] = (typeCount[order.type] || 0) + 1;
                 });
                 
@@ -1123,7 +1191,7 @@
                     progressBarContainer,
                     `Заказы типа "${mostCommonType}"`,
                     typeCount[mostCommonType],
-                    Math.max(ordersTarget * 0.6, typeCount[mostCommonType] + 2),
+                    Math.max(ordersTarget * 0.6 * allFilesData.length, typeCount[mostCommonType] + 2),
                     '',
                     '#36b9cc'
                 );
@@ -1158,12 +1226,12 @@
             }
             
             // Детализация заказов
-            function renderDataTable(orders) {
+            function renderDataTable() {
                 const tableBody = document.getElementById('tableBody');
                 tableBody.innerHTML = '';
                 
                 // Заполняем таблицу
-                orders.forEach(order => {
+                allOrders.forEach(order => {
                     const row = document.createElement('tr');
                     
                     row.innerHTML = `
@@ -1172,6 +1240,7 @@
                         <td title="${order.description}">${order.description.substring(0, 30)}${order.description.length > 30 ? '...' : ''}</td>
                         <td>${order.type}</td>
                         <td>${order.date}</td>
+                        <td title="${order.sourceFile}">${order.sourceFile.substring(0, 15)}${order.sourceFile.length > 15 ? '...' : ''}</td>
                         <td class="amount-cell">${formatCurrency(order.amount)}</td>
                     `;
                     
@@ -1200,17 +1269,16 @@
             }
             
             // Добавление в историю загрузок
-            function addToHistory(file) {
+            function addToHistory(file, fileData) {
                 const historyItem = {
                     id: Date.now(),
                     name: file.name,
                     date: new Date().toLocaleString(),
-                    size: formatFileSize(file.size)
+                    size: formatFileSize(file.size),
+                    fileData: fileData
                 };
                 
-                uploadHistory.unshift(historyItem);
-                
-                // Обновляем отображение истории
+                // Добавляем в начало списка
                 updateHistoryList();
             }
             
@@ -1219,7 +1287,10 @@
                 const historyList = document.getElementById('historyList');
                 historyList.innerHTML = '';
                 
-                uploadHistory.forEach(item => {
+                // Сортируем по времени добавления (новые сверху)
+                const sortedFiles = [...allFilesData].reverse();
+                
+                sortedFiles.forEach(fileData => {
                     const historyItem = document.createElement('div');
                     historyItem.className = 'history-item';
                     historyItem.innerHTML = `
@@ -1227,11 +1298,11 @@
                             <i class="fas fa-file-alt"></i>
                         </div>
                         <div class="history-item-details">
-                            <h4>${item.name}</h4>
-                            <p><i class="far fa-clock"></i> ${item.date} &bull; <i class="far fa-file"></i> ${item.size}</p>
+                            <h4>${fileData.fileName}</h4>
+                            <p><i class="far fa-clock"></i> ${fileData.exportDateTime} &bull; <i class="fas fa-coins"></i> ${formatCurrency(fileData.total)}</p>
                         </div>
                         <div class="history-item-actions">
-                            <button class="btn-remove" data-id="${item.id}">
+                            <button class="btn-remove" data-filename="${fileData.fileName}">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -1243,26 +1314,35 @@
                 // Добавляем обработчики удаления
                 document.querySelectorAll('.btn-remove').forEach(button => {
                     button.addEventListener('click', function() {
-                        const id = this.getAttribute('data-id');
-                        removeFromHistory(id);
+                        const fileName = this.getAttribute('data-filename');
+                        removeFromHistory(fileName);
                     });
                 });
             }
             
             // Удаление из истории
-            function removeFromHistory(id) {
-                const index = uploadHistory.findIndex(item => item.id == id);
-                if (index !== -1) {
-                    uploadHistory.splice(index, 1);
-                    updateHistoryList();
-                    
-                    // Если удаляем текущие данные, скрываем график
-                    if (uploadHistory.length === 0) {
-                        chartsContainer.style.display = 'none';
-                        summaryCards.style.display = 'none';
-                        historySection.style.display = 'none';
-                        dataTable.style.display = 'none';
-                    }
+            function removeFromHistory(fileName) {
+                // Фильтруем файлы, оставляя только те, у которых имя не совпадает с указанным
+                allFilesData = allFilesData.filter(file => file.fileName !== fileName);
+                
+                // Обновляем общий список заказов
+                allOrders = allFilesData.flatMap(f => f.orders);
+                
+                // Обновляем интерфейс
+                updateSummaryCards();
+                renderCharts();
+                renderProgressBars();
+                renderDataTable();
+                
+                // Обновляем историю
+                updateHistoryList();
+                
+                // Если удаляем все данные, скрываем график
+                if (allFilesData.length === 0) {
+                    chartsContainer.style.display = 'none';
+                    summaryCards.style.display = 'none';
+                    historySection.style.display = 'none';
+                    dataTable.style.display = 'none';
                 }
             }
             
