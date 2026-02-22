@@ -1,70 +1,56 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // DOM Elements
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
-    const summaryCards = document.getElementById('summaryCards');
     const chartsContainer = document.getElementById('chartsContainer');
+    const summaryCards = document.getElementById('summaryCards');
     const historySection = document.getElementById('historySection');
     const dataTable = document.getElementById('dataTable');
     
-    // Summary elements
-    const totalRevenue = document.getElementById('totalRevenue');
-    const totalOrders = document.getElementById('totalOrders');
-    const avgCheck = document.getElementById('avgCheck');
-    const lastUpdate = document.getElementById('lastUpdate');
-    
-    // Charts
-    let typeChart, ordersChart, topOrdersChart;
-    
-    // Data storage
+    // Глобальные переменные для хранения данных
     let allOrders = [];
-    let history = JSON.parse(localStorage.getItem('ordersHistory')) || [];
+    let currentFileData = null;
+    let typeChart = null;
+    let ordersChart = null;
+    let topOrdersChart = null;
     
-    // Initialize the app
-    initApp();
+    // История загрузок
+    const uploadHistory = [];
     
-    function initApp() {
-        // Setup event listeners
-        dropZone.addEventListener('click', () => fileInput.click());
-        dropZone.addEventListener('dragover', handleDragOver);
-        dropZone.addEventListener('drop', handleDrop);
-        fileInput.addEventListener('change', handleFileSelect);
-        
-        // Load history if exists
-        renderHistory();
-        
-        // If there's data in localStorage, load it
-        const savedData = localStorage.getItem('dashboardData');
-        if (savedData) {
-            allOrders = JSON.parse(savedData);
-            updateDashboard();
-        }
-    }
+    // Обработчики событий для зоны загрузки
+    dropZone.addEventListener('click', () => {
+        fileInput.click();
+    });
     
-    function handleDragOver(e) {
+    dropZone.addEventListener('dragover', (e) => {
         e.preventDefault();
-        e.stopPropagation();
-        dropZone.style.borderColor = '#4361ee';
-        dropZone.style.backgroundColor = '#f0f5ff';
-    }
+        dropZone.classList.add('dragover');
+    });
     
-    function handleDrop(e) {
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+    });
+    
+    dropZone.addEventListener('drop', (e) => {
         e.preventDefault();
-        e.stopPropagation();
-        dropZone.style.borderColor = '#ccc';
-        dropZone.style.backgroundColor = 'white';
+        dropZone.classList.remove('dragover');
         
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        if (e.dataTransfer.files.length) {
             handleFile(e.dataTransfer.files[0]);
         }
-    }
+    });
     
-    function handleFileSelect(e) {
-        if (e.target.files && e.target.files[0]) {
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length) {
             handleFile(e.target.files[0]);
         }
-    }
+    });
     
+    // Обработчик поиска и фильтров
+    document.getElementById('searchInput').addEventListener('input', filterTable);
+    document.getElementById('typeFilter').addEventListener('change', filterTable);
+    document.getElementById('dateFilter').addEventListener('change', filterTable);
+    
+    // Обработка загруженного файла
     function handleFile(file) {
         if (!file.name.endsWith('.txt')) {
             alert('Пожалуйста, загрузите текстовый файл (.txt)');
@@ -74,152 +60,177 @@ document.addEventListener('DOMContentLoaded', function() {
         const reader = new FileReader();
         
         reader.onload = function(e) {
-            const content = e.target.result;
-            const parsedData = parseOrderFile(content);
-            
-            if (parsedData && parsedData.orders.length > 0) {
-                // Add date to the orders
-                parsedData.orders.forEach(order => {
-                    order.date = parsedData.date;
-                });
+            try {
+                currentFileData = parseOrderFile(e.target.result, file.name);
+                allOrders = [...allOrders, ...currentFileData.orders];
                 
-                // Add to all orders
-                allOrders = [...allOrders, ...parsedData.orders];
+                // Добавляем в историю
+                addToHistory(file);
                 
-                // Save to localStorage
-                localStorage.setItem('dashboardData', JSON.stringify(allOrders));
+                // Обновляем интерфейс
+                updateSummaryCards(currentFileData);
+                renderCharts(currentFileData);
+                renderProgressBars(currentFileData);
+                renderDataTable(currentFileData.orders);
                 
-                // Add to history
-                addToHistory(file.name, parsedData.date);
+                // Показываем скрытые элементы
+                chartsContainer.style.display = 'grid';
+                summaryCards.style.display = 'flex';
+                historySection.style.display = 'block';
+                dataTable.style.display = 'block';
                 
-                // Update dashboard
-                updateDashboard();
-            } else {
-                alert('Не удалось распознать данные в файле. Проверьте формат.');
+                // Сбрасываем выбор файла для возможности загрузки того же файла
+                fileInput.value = '';
+            } catch (error) {
+                console.error('Ошибка обработки файла:', error);
+                alert('Не удалось обработать файл. Проверьте формат данных.');
             }
         };
         
-        reader.readAsText(file);
+        reader.readAsText(file, 'utf-8');
     }
     
-    function parseOrderFile(content) {
-        try {
-            // Extract date from header
-            const dateMatch = content.match(/ЗАКАЗЫ ЗА (\d{2}\.\d{2}\.\d{4})/);
-            const exportDateMatch = content.match(/Экспорт: (\d{2}\.\d{2}\.\d{4})/);
-            const date = dateMatch ? dateMatch[1] : (exportDateMatch ? exportDateMatch[1] : 'Неизвестно');
+    // Парсинг файла с заказами
+    function parseOrderFile(content, fileName) {
+        // Извлекаем дату из названия файла или содержимого
+        let dateMatch = fileName.match(/(\d{2}\.\d{2}\.\d{4})/);
+        let date = dateMatch ? dateMatch[1] : 'Неизвестно';
+        
+        // Пытаемся найти дату в содержимом файла
+        const contentDateMatch = content.match(/ЗАКЗАКИ ЗА (\d{2}\.\d{2}\.\d{4})/);
+        if (contentDateMatch) {
+            date = contentDateMatch[1];
+        }
+        
+        // Извлекаем экспортную дату и время
+        let exportDateTime = 'Неизвестно';
+        const exportMatch = content.match(/Экспорт: (\d{2}\.\d{2}\.\d{4}, \d{2}:\d{2}:\d{2})/);
+        if (exportMatch) {
+            exportDateTime = exportMatch[1];
+        }
+        
+        // Разделяем заказы
+        const orderSections = content.split('---');
+        const orders = [];
+        
+        // Обрабатываем каждый заказ
+        for (const section of orderSections) {
+            const lines = section.trim().split('\n');
             
-            // Split content into order sections
-            const sections = content.split('---');
-            const orders = [];
-            let total = 0;
+            // Ищем номер и код заказа
+            const numMatch = lines[0].match(/№(\d+)\.\s*(.+)/);
+            if (!numMatch) continue;
             
-            // Process each section
-            for (const section of sections) {
-                if (section.trim() === '') continue;
-                
-                // Extract order number and code
-                const numMatch = section.match(/№(\d+)\.\s*([^\n]+)/);
-                if (!numMatch) continue;
-                
-                const order = {
-                    number: numMatch[1],
-                    code: numMatch[2].trim(),
-                    description: '',
-                    type: '',
-                    amount: 0,
-                    date: date
-                };
-                
-                // Extract description and type
-                const descMatch = section.match(/([^\n]+)\s+\(([^\)]+)\)/);
+            const order = {
+                number: numMatch[1],
+                code: numMatch[2].trim(),
+                description: '',
+                type: '',
+                amount: 0,
+                date: date,
+                parameters: {}
+            };
+            
+            // Ищем описание и тип
+            if (lines.length > 1) {
+                const descMatch = lines[1].trim().match(/([^\(]+)\s*\(([^\)]+)\)/);
                 if (descMatch) {
                     order.description = descMatch[1].trim();
                     order.type = descMatch[2].trim();
+                } else {
+                    order.description = lines[1].trim();
                 }
-                
-                // Extract amount
-                const sumMatch = section.match(/Сумма:\s*([\d.,]+)\s*₽/);
-                if (sumMatch) {
-                    const amountStr = sumMatch[1].replace(',', '.');
-                    order.amount = parseFloat(amountStr);
-                    total += order.amount;
-                }
-                
-                orders.push(order);
             }
             
-            // Extract total from footer if available
-            const totalMatch = content.match(/ИТОГО:\s*([\d.,]+)\s*₽/);
-            if (totalMatch) {
-                total = parseFloat(totalMatch[1].replace(',', '.'));
+            // Обрабатываем параметры
+            for (let i = 2; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                
+                // Парсим параметры (Длина, Ширина и т.д.)
+                const paramMatch = line.match(/([^:]+):\s*([^\s]+)/);
+                if (paramMatch) {
+                    const paramName = paramMatch[1].trim();
+                    let paramValue = paramMatch[2].trim();
+                    
+                    // Сохраняем параметр
+                    order.parameters[paramName] = paramValue;
+                    
+                    // Если это сумма, извлекаем значение
+                    if (paramName === 'Сумма' || line.includes('Сумма')) {
+                        const sumMatch = line.match(/Сумма:\s*([\d.,]+)/);
+                        if (sumMatch) {
+                            order.amount = parseFloat(sumMatch[1].replace(',', '.'));
+                        }
+                    }
+                }
             }
             
-            return {
-                orders,
-                total,
-                date
-            };
-        } catch (error) {
-            console.error('Error parsing file:', error);
-            return null;
+            orders.push(order);
         }
+        
+        // Извлекаем итоговую сумму
+        let total = 0;
+        const totalMatch = content.match(/ИТОГО:\s*([\d.,]+)/);
+        if (totalMatch) {
+            total = parseFloat(totalMatch[1].replace(',', '.'));
+        }
+        
+        return {
+            orders: orders,
+            total: total,
+            date: date,
+            exportDateTime: exportDateTime,
+            fileName: fileName
+        };
     }
     
-    function updateDashboard() {
-        // Update summary cards
-        const total = allOrders.reduce((sum, order) => sum + order.amount, 0);
-        totalRevenue.textContent = formatCurrency(total);
-        totalOrders.textContent = allOrders.length;
-        avgCheck.textContent = formatCurrency(total / allOrders.length || 0);
-        lastUpdate.textContent = new Date().toLocaleString('ru-RU');
+    // Обновление сводных карточек
+    function updateSummaryCards(data) {
+        document.getElementById('totalRevenue').textContent = formatCurrency(data.total);
+        document.getElementById('totalOrders').textContent = data.orders.length;
         
-        // Show elements
-        summaryCards.style.display = 'grid';
-        chartsContainer.style.display = 'grid';
-        dataTable.style.display = 'block';
+        const avgCheck = data.total / data.orders.length;
+        document.getElementById('avgCheck').textContent = formatCurrency(avgCheck);
         
-        // Update charts
-        updateCharts();
-        
-        // Update data table
-        updateDataTable();
+        document.getElementById('lastUpdate').textContent = data.exportDateTime;
     }
     
-    function updateCharts() {
-        // Update type chart (Выручка по типам работ)
-        updateTypeChart();
+    // Построение графиков
+    function renderCharts(data) {
+        // 1. Выручка по типам работ
+        renderTypeChart(data);
         
-        // Update orders chart (Распределение заказов)
-        updateOrdersChart();
+        // 2. Распределение заказов
+        renderOrdersChart(data);
         
-        // Update top orders chart (Топ-5 самых дорогих заказов)
-        updateTopOrdersChart();
-        
-        // Update progress bars
-        updateProgressBars();
+        // 3. Топ-5 самых дорогих заказов (ИСПРАВЛЕНО)
+        renderTopOrdersChart(data);
     }
     
-    function updateTypeChart() {
-        // Group orders by type and sum amounts
-        const typeData = {};
-        allOrders.forEach(order => {
-            if (!typeData[order.type]) {
-                typeData[order.type] = 0;
+    // Выручка по типам работ
+    function renderTypeChart(data) {
+        const typeRevenue = {};
+        let totalRevenue = 0;
+        
+        // Собираем данные по типам
+        data.orders.forEach(order => {
+            if (!typeRevenue[order.type]) {
+                typeRevenue[order.type] = 0;
             }
-            typeData[order.type] += order.amount;
+            typeRevenue[order.type] += order.amount;
+            totalRevenue += order.amount;
         });
         
-        const labels = Object.keys(typeData);
-        const data = Object.values(typeData);
+        // Подготовка данных для Chart.js
+        const labels = Object.keys(typeRevenue);
+        const values = Object.values(typeRevenue);
         
+        // Создаем или обновляем график
         const ctx = document.getElementById('typeChart').getContext('2d');
         
         if (typeChart) {
-            typeChart.data.labels = labels;
-            typeChart.data.datasets[0].data = data;
-            typeChart.update();
-            return;
+            typeChart.destroy();
         }
         
         typeChart = new Chart(ctx, {
@@ -228,69 +239,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 labels: labels,
                 datasets: [{
                     label: 'Выручка (₽)',
-                    data: data,
-                    backgroundColor: [
-                        '#4cc9f0', '#72efdd', '#f368e0', '#ff9f43', '#54a0ff', '#00d2d3'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return value + ' ₽';
-                            }
-                        }
-                    }
-                },
-                plugins: {
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return ` ${formatCurrency(context.parsed.y)} ₽`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
-    
-    function updateOrdersChart() {
-        // Group orders by type
-        const typeCount = {};
-        allOrders.forEach(order => {
-            if (!typeCount[order.type]) {
-                typeCount[order.type] = 0;
-            }
-            typeCount[order.type]++;
-        });
-        
-        const labels = Object.keys(typeCount);
-        const data = Object.values(typeCount);
-        
-        const ctx = document.getElementById('ordersChart').getContext('2d');
-        
-        if (ordersChart) {
-            ordersChart.data.labels = labels;
-            ordersChart.data.datasets[0].data = data;
-            ordersChart.update();
-            return;
-        }
-        
-        ordersChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: data,
-                    backgroundColor: [
-                        '#4cc9f0', '#72efdd', '#f368e0', '#ff9f43', '#54a0ff', '#00d2d3'
-                    ]
+                    data: values,
+                    backgroundColor: labels.map(() => getRandomColor(0.7)),
+                    borderColor: labels.map(() => getRandomColor(1)),
+                    borderWidth: 1
                 }]
             },
             options: {
@@ -298,16 +250,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: 'right',
+                        display: false
                     },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                const label = context.label || '';
-                                const value = context.parsed || 0;
-                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const percentage = Math.round((value / total) * 100);
-                                return ` ${label}: ${value} заказов (${percentage}%)`;
+                                const value = context.parsed.y;
+                                const percentage = ((value / totalRevenue) * 100).toFixed(1);
+                                return `${formatCurrency(value)} (${percentage}%)`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return formatCurrency(value);
                             }
                         }
                     }
@@ -316,22 +276,89 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    function updateTopOrdersChart() {
-        // Get top 5 orders by amount
-        const topOrders = [...allOrders]
+    // Распределение заказов
+    function renderOrdersChart(data) {
+        const typeCount = {};
+        
+        // Собираем количество заказов по типам
+        data.orders.forEach(order => {
+            if (!typeCount[order.type]) {
+                typeCount[order.type] = 0;
+            }
+            typeCount[order.type]++;
+        });
+        
+        // Подготовка данных для Chart.js
+        const labels = Object.keys(typeCount);
+        const values = Object.values(typeCount);
+        
+        // Создаем или обновляем график
+        const ctx = document.getElementById('ordersChart').getContext('2d');
+        
+        if (ordersChart) {
+            ordersChart.destroy();
+        }
+        
+        ordersChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: values,
+                    backgroundColor: labels.map(() => getRandomColor(0.7)),
+                    borderColor: '#fff',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.parsed;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return `${context.label}: ${value} заказов (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Обновляем фильтр типов в таблице
+        const typeFilter = document.getElementById('typeFilter');
+        typeFilter.innerHTML = '<option value="">Все типы</option>';
+        
+        labels.forEach(type => {
+            const option = document.createElement('option');
+            option.value = type;
+            option.textContent = type;
+            typeFilter.appendChild(option);
+        });
+    }
+    
+    // Топ-5 самых дорогих заказов (ИСПРАВЛЕНО)
+    function renderTopOrdersChart(data) {
+        // Сортируем заказы по сумме в убывающем порядке и берем первые 5
+        const topOrders = [...data.orders]
             .sort((a, b) => b.amount - a.amount)
             .slice(0, 5);
         
         const labels = topOrders.map(order => order.description.substring(0, 20) + (order.description.length > 20 ? '...' : ''));
-        const data = topOrders.map(order => order.amount);
+        const values = topOrders.map(order => order.amount);
+        const codes = topOrders.map(order => order.code);
         
+        // Создаем или обновляем график
         const ctx = document.getElementById('topOrdersChart').getContext('2d');
         
         if (topOrdersChart) {
-            topOrdersChart.data.labels = labels;
-            topOrdersChart.data.datasets[0].data = data;
-            topOrdersChart.update();
-            return;
+            topOrdersChart.destroy();
         }
         
         topOrdersChart = new Chart(ctx, {
@@ -340,29 +367,41 @@ document.addEventListener('DOMContentLoaded', function() {
                 labels: labels,
                 datasets: [{
                     label: 'Сумма (₽)',
-                    data: data,
-                    backgroundColor: '#54a0ff'
+                    data: values,
+                    backgroundColor: labels.map(() => getRandomColor(0.7)),
+                    borderColor: labels.map(() => getRandomColor(1)),
+                    borderWidth: 1
                 }]
             },
             options: {
                 indexAxis: 'y',
                 responsive: true,
                 maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                return tooltipItems[0].label;
+                            },
+                            label: function(context) {
+                                const orderIndex = context.dataIndex;
+                                return [
+                                    `Код: ${codes[orderIndex]}`,
+                                    `Сумма: ${formatCurrency(context.parsed.x)}`
+                                ];
+                            }
+                        }
+                    }
+                },
                 scales: {
                     x: {
                         beginAtZero: true,
                         ticks: {
                             callback: function(value) {
-                                return value + ' ₽';
-                            }
-                        }
-                    }
-                },
-                plugins: {
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return ` ${formatCurrency(context.parsed.x)} ₽`;
+                                return formatCurrency(value);
                             }
                         }
                     }
@@ -371,237 +410,220 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    function updateProgressBars() {
-        const progressContainer = document.getElementById('progressBars');
-        progressContainer.innerHTML = '';
+    // Прогресс выполнения (ИСПРАВЛЕНО)
+    function renderProgressBars(data) {
+        const progressBarContainer = document.getElementById('progressBars');
+        progressBarContainer.innerHTML = '';
         
-        // Group orders by type for progress
-        const typeData = {};
-        allOrders.forEach(order => {
-            if (!typeData[order.type]) {
-                typeData[order.type] = 0;
-            }
-            typeData[order.type] += order.amount;
+        // Определяем целевые значения для прогресса
+        // Например, можно установить цели на день/неделю
+        const dailyTarget = 3000; // Целевая выручка за день
+        const ordersTarget = 15;  // Целевое количество заказов за день
+        
+        // Прогресс по выручке
+        createProgressBar(
+            progressBarContainer,
+            'Выручка за день',
+            data.total,
+            dailyTarget,
+            '₽',
+            '#4e73df'
+        );
+        
+        // Прогресс по количеству заказов
+        createProgressBar(
+            progressBarContainer,
+            'Количество заказов',
+            data.orders.length,
+            ordersTarget,
+            '',
+            '#1cc88a'
+        );
+        
+        // Прогресс по типам работ (берем самый популярный тип)
+        const typeCount = {};
+        data.orders.forEach(order => {
+            typeCount[order.type] = (typeCount[order.type] || 0) + 1;
         });
         
-        // Define target values for each type (you could make this configurable)
-        const targets = {
-            'Распил': 5000,
-            'Лин. распил': 3000,
-            'Склейка +': 2000,
-            'Время': 1000
-        };
+        const mostCommonType = Object.keys(typeCount).reduce((a, b) => 
+            typeCount[a] > typeCount[b] ? a : b
+        );
         
-        // Create progress bars for main types
-        Object.keys(typeData).forEach(type => {
-            if (!targets[type]) return;
-            
-            const amount = typeData[type];
-            const target = targets[type];
-            const percentage = Math.min(100, Math.round((amount / target) * 100));
-            
-            const progressItem = document.createElement('div');
-            progressItem.className = 'progress-item';
-            
-            progressItem.innerHTML = `
-                <h3>
-                    <span>${type}</span>
-                    <span>${percentage}%</span>
-                </h3>
-                <div class="progress-bar">
-                    <div class="progress progress-${type.toLowerCase().replace(' ', '')}" style="width: ${percentage}%"></div>
-                </div>
-                <p class="progress-stats">${formatCurrency(amount)} из ${formatCurrency(target)}</p>
-            `;
-            
-            progressContainer.appendChild(progressItem);
-        });
+        createProgressBar(
+            progressBarContainer,
+            `Заказы типа "${mostCommonType}"`,
+            typeCount[mostCommonType],
+            Math.max(ordersTarget * 0.6, typeCount[mostCommonType] + 2),
+            '',
+            '#36b9cc'
+        );
     }
     
-    function updateDataTable() {
+    // Создание одного прогресс-бара
+    function createProgressBar(container, title, currentValue, targetValue, unit, color) {
+        const progressGroup = document.createElement('div');
+        progressGroup.className = 'progress-group';
+        
+        const header = document.createElement('div');
+        header.className = 'progress-header';
+        header.innerHTML = `
+            <span class="progress-title">${title}</span>
+            <span class="progress-value">${formatNumber(currentValue)}${unit} / ${formatNumber(targetValue)}${unit}</span>
+        `;
+        
+        const progressBar = document.createElement('div');
+        progressBar.className = 'progress';
+        
+        const progressFill = document.createElement('div');
+        progressFill.className = 'progress-fill';
+        progressFill.style.width = `${Math.min((currentValue / targetValue) * 100, 100)}%`;
+        progressFill.style.backgroundColor = color;
+        
+        progressBar.appendChild(progressFill);
+        
+        progressGroup.appendChild(header);
+        progressGroup.appendChild(progressBar);
+        
+        container.appendChild(progressGroup);
+    }
+    
+    // Детализация заказов (ИСПРАВЛЕНО)
+    function renderDataTable(orders) {
         const tableBody = document.getElementById('tableBody');
         tableBody.innerHTML = '';
         
-        // Sort orders by date (newest first)
-        const sortedOrders = [...allOrders].sort((a, b) => 
-            new Date(b.date.split('.').reverse().join('-')) - 
-            new Date(a.date.split('.').reverse().join('-'))
-        );
-        
-        // Populate table
-        sortedOrders.forEach(order => {
+        // Заполняем таблицу
+        orders.forEach(order => {
             const row = document.createElement('tr');
+            
             row.innerHTML = `
                 <td>${order.number}</td>
                 <td>${order.code}</td>
                 <td title="${order.description}">${order.description.substring(0, 30)}${order.description.length > 30 ? '...' : ''}</td>
                 <td>${order.type}</td>
                 <td>${order.date}</td>
-                <td>${formatCurrency(order.amount)}</td>
+                <td class="amount-cell">${formatCurrency(order.amount)}</td>
             `;
+            
             tableBody.appendChild(row);
         });
-        
-        // Setup filters
-        setupTableFilters();
     }
     
-    function setupTableFilters() {
-        const tableBody = document.getElementById('tableBody');
-        const searchInput = document.getElementById('searchInput');
-        const typeFilter = document.getElementById('typeFilter');
-        const dateFilter = document.getElementById('dateFilter');
+    // Фильтрация таблицы
+    function filterTable() {
+        const searchText = document.getElementById('searchInput').value.toLowerCase();
+        const typeFilter = document.getElementById('typeFilter').value;
+        const dateFilter = document.getElementById('dateFilter').value;
+        const rows = document.querySelectorAll('#tableBody tr');
         
-        // Populate type filter options
-        const types = [...new Set(allOrders.map(o => o.type))];
-        typeFilter.innerHTML = '<option value="">Все типы</option>';
-        types.forEach(type => {
-            const option = document.createElement('option');
-            option.value = type;
-            option.textContent = type;
-            typeFilter.appendChild(option);
-        });
-        
-        // Populate date filter options
-        const dates = [...new Set(allOrders.map(o => o.date))];
-        dateFilter.innerHTML = '<option value="">Все даты</option>';
-        dates.forEach(date => {
-            const option = document.createElement('option');
-            option.value = date;
-            option.textContent = date;
-            dateFilter.appendChild(option);
-        });
-        
-        // Filter function
-        function filterTable() {
-            const searchTerm = searchInput.value.toLowerCase();
-            const selectedType = typeFilter.value;
-            const selectedDate = dateFilter.value;
+        rows.forEach(row => {
+            const description = row.cells[2].textContent.toLowerCase();
+            const type = row.cells[3].textContent;
+            const date = row.cells[4].textContent;
             
-            const rows = tableBody.querySelectorAll('tr');
+            const matchesSearch = searchText === '' || description.includes(searchText);
+            const matchesType = typeFilter === '' || type === typeFilter;
+            const matchesDate = dateFilter === '' || date === dateFilter;
             
-            rows.forEach(row => {
-                const code = row.cells[1].textContent.toLowerCase();
-                const description = row.cells[2].textContent.toLowerCase();
-                const type = row.cells[3].textContent;
-                const date = row.cells[4].textContent;
-                
-                const matchesSearch = code.includes(searchTerm) || description.includes(searchTerm);
-                const matchesType = !selectedType || type === selectedType;
-                const matchesDate = !selectedDate || date === selectedDate;
-                
-                row.style.display = matchesSearch && matchesType && matchesDate ? '' : 'none';
-            });
-        }
-        
-        // Add event listeners
-        searchInput.addEventListener('input', filterTable);
-        typeFilter.addEventListener('change', filterTable);
-        dateFilter.addEventListener('change', filterTable);
-    }
-    
-    function addToHistory(fileName, date) {
-        // Check if this file is already in history
-        const existingIndex = history.findIndex(item => item.name === fileName);
-        if (existingIndex !== -1) {
-            history.splice(existingIndex, 1);
-        }
-        
-        // Add to beginning of history
-        history.unshift({
-            name: fileName,
-            date: date,
-            timestamp: new Date().toISOString()
+            row.style.display = (matchesSearch && matchesType && matchesDate) ? '' : 'none';
         });
-        
-        // Keep only last 10 items
-        if (history.length > 10) {
-            history.pop();
-        }
-        
-        // Save to localStorage
-        localStorage.setItem('ordersHistory', JSON.stringify(history));
-        
-        // Update history display
-        renderHistory();
     }
     
-    function renderHistory() {
+    // Добавление в историю загрузок
+    function addToHistory(file) {
+        const historyItem = {
+            id: Date.now(),
+            name: file.name,
+            date: new Date().toLocaleString(),
+            size: formatFileSize(file.size)
+        };
+        
+        uploadHistory.unshift(historyItem);
+        
+        // Обновляем отображение истории
+        updateHistoryList();
+    }
+    
+    // Обновление списка истории
+    function updateHistoryList() {
         const historyList = document.getElementById('historyList');
         historyList.innerHTML = '';
         
-        if (history.length === 0) {
-            historySection.style.display = 'none';
-            return;
-        }
-        
-        historySection.style.display = 'block';
-        
-        history.forEach((item, index) => {
+        uploadHistory.forEach(item => {
             const historyItem = document.createElement('div');
             historyItem.className = 'history-item';
-            
-            const dateObj = new Date(item.timestamp);
-            const formattedTime = dateObj.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-            
             historyItem.innerHTML = `
-                <i class="fas fa-file-alt"></i>
-                <span>${item.name} (${item.date})</span>
-                <span class="time"> • ${formattedTime}</span>
-                <span class="remove-btn" data-index="${index}"><i class="fas fa-times"></i></span>
+                <div class="history-item-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="history-item-details">
+                    <h4>${item.name}</h4>
+                    <p><i class="far fa-clock"></i> ${item.date} &bull; <i class="far fa-file"></i> ${item.size}</p>
+                </div>
+                <div class="history-item-actions">
+                    <button class="btn-remove" data-id="${item.id}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
             `;
             
             historyList.appendChild(historyItem);
         });
         
-        // Add event listeners to remove buttons
-        document.querySelectorAll('.remove-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const index = parseInt(this.getAttribute('data-index'));
-                removeHistoryItem(index);
+        // Добавляем обработчики удаления
+        document.querySelectorAll('.btn-remove').forEach(button => {
+            button.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                removeFromHistory(id);
             });
         });
     }
     
-    function removeHistoryItem(index) {
-        // Get orders from the file to be removed
-        const fileToRemove = history[index];
-        const ordersToRemove = allOrders.filter(order => 
-            order.date === fileToRemove.date && 
-            // This is a simplification - in a real app you'd need a better way to identify
-            // But since we don't have unique IDs, we'll assume same date means same file
-            true
-        );
-        
-        // Remove these orders from allOrders
-        allOrders = allOrders.filter(order => 
-            !(order.date === fileToRemove.date)
-        );
-        
-        // Update localStorage
-        localStorage.setItem('dashboardData', JSON.stringify(allOrders));
-        
-        // Remove from history
-        history.splice(index, 1);
-        localStorage.setItem('ordersHistory', JSON.stringify(history));
-        
-        // Update UI
-        if (allOrders.length === 0) {
-            summaryCards.style.display = 'none';
-            chartsContainer.style.display = 'none';
-            dataTable.style.display = 'none';
-        } else {
-            updateDashboard();
+    // Удаление из истории
+    function removeFromHistory(id) {
+        const index = uploadHistory.findIndex(item => item.id == id);
+        if (index !== -1) {
+            uploadHistory.splice(index, 1);
+            updateHistoryList();
+            
+            // Если удаляем текущие данные, скрываем график
+            if (uploadHistory.length === 0) {
+                chartsContainer.style.display = 'none';
+                summaryCards.style.display = 'none';
+                historySection.style.display = 'none';
+                dataTable.style.display = 'none';
+            }
         }
-        
-        renderHistory();
     }
     
+    // Вспомогательные функции
     function formatCurrency(amount) {
         return new Intl.NumberFormat('ru-RU', {
             style: 'currency',
             currency: 'RUB',
             minimumFractionDigits: 2
         }).format(amount).replace('RUB', '₽');
+    }
+    
+    function formatNumber(number) {
+        return new Intl.NumberFormat('ru-RU').format(number);
+    }
+    
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Б';
+        
+        const k = 1024;
+        const sizes = ['Б', 'КБ', 'МБ', 'ГБ'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    function getRandomColor(opacity = 1) {
+        const r = Math.floor(Math.random() * 256);
+        const g = Math.floor(Math.random() * 256);
+        const b = Math.floor(Math.random() * 256);
+        return `rgba(${r}, ${g}, ${b}, ${opacity})`;
     }
 });
