@@ -168,7 +168,7 @@ height: 350px;
 display: flex;
 flex-direction: column;
 min-width: 300px;
-overflow: hidden; /* КРИТИЧЕСКОЕ ИЗМЕНЕНИЕ - предотвращает вылезание графика */
+overflow: hidden;
 }
 .chart-box h2 {
 margin-bottom: 15px;
@@ -790,6 +790,20 @@ order.amount = parseFloat(sumMatch[1].replace(',', '.'));
 }
 }
 }
+// ДОПОЛНИТЕЛЬНАЯ ОБРАБОТКА ДЛЯ КВ.М И ПОГ.М
+// Ищем значения в формате "10,5 кв.м" или "10.5 пог.м"
+if (!order.parameters['Кв.м']) {
+const sqmMatch = line.match(/(\d+[\.,]?\d*)\s*кв\.м/i);
+if (sqmMatch) {
+order.parameters['Кв.м'] = parseFloat(sqmMatch[1].replace(',', '.'));
+}
+}
+if (!order.parameters['Пог.м']) {
+const lmMatch = line.match(/(\d+[\.,]?\d*)\s*пог\.м/i);
+if (lmMatch) {
+order.parameters['Пог.м'] = parseFloat(lmMatch[1].replace(',', '.'));
+}
+}
 }
 // Если сумма не найдена, ищем ее в последней строке
 if (order.amount === 0) {
@@ -1123,8 +1137,8 @@ row.innerHTML = `
 <td>${order.date}</td>
 <td title="${order.sourceFile}">${order.sourceFile.substring(0, 15)}${order.sourceFile.length > 15 ? '...' : ''}</td>
 <td class="amount-cell">${formatCurrency(order.amount)}</td>
-<td>${order.parameters['Кв.м'] ? parseFloat(order.parameters['Кв.м']).toFixed(2) : '-'}</td>
-<td>${order.parameters['Пог.м'] ? parseFloat(order.parameters['Пог.м']).toFixed(2) : '-'}</td>
+<td>${order.parameters['Кв.м'] !== undefined ? parseFloat(order.parameters['Кв.м']).toFixed(2) : '-'}</td>
+<td>${order.parameters['Пог.м'] !== undefined ? parseFloat(order.parameters['Пог.м']).toFixed(2) : '-'}</td>
 `;
 tableBody.appendChild(row);
 });
