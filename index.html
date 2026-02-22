@@ -5,8 +5,473 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Дашборд заказов</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --success-color: #1cc88a;
+            --info-color: #36b9cc;
+            --warning-color: #f6c23e;
+            --danger-color: #e74a3b;
+            --light-color: #f8f9fc;
+            --dark-color: #5a5c69;
+            --card-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            --transition: all 0.2s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fb;
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+        }
+
+        header h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Зона загрузки */
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 40px 20px;
+            text-align: center;
+            background-color: white;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 30px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--primary-color);
+            background-color: #f8f9fc;
+        }
+
+        .upload-area i {
+            font-size: 48px;
+            color: #ccc;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .upload-area h2 {
+            font-size: 22px;
+            color: #555;
+            margin-bottom: 10px;
+            transition: var(--transition);
+        }
+
+        .upload-area p {
+            color: #888;
+            font-size: 16px;
+        }
+
+        .upload-area.dragover h2 {
+            color: var(--primary-color);
+        }
+
+        .upload-area input[type="file"] {
+            display: none;
+        }
+
+        /* Сводные карточки */
+        .summary-cards {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            padding: 20px;
+            flex: 1;
+            min-width: 250px;
+            transition: var(--transition);
+            display: flex;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+
+        .total-revenue .card-icon {
+            background-color: rgba(78, 115, 223, 0.1);
+            color: var(--primary-color);
+        }
+
+        .total-orders .card-icon {
+            background-color: rgba(28, 200, 138, 0.1);
+            color: var(--success-color);
+        }
+
+        .avg-check .card-icon {
+            background-color: rgba(54, 185, 204, 0.1);
+            color: var(--info-color);
+        }
+
+        .last-update .card-icon {
+            background-color: rgba(246, 194, 62, 0.1);
+            color: var(--warning-color);
+        }
+
+        .card-icon i {
+            font-size: 28px;
+        }
+
+        .card-content h3 {
+            font-size: 16px;
+            color: var(--dark-color);
+            margin-bottom: 5px;
+        }
+
+        .value {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #888;
+        }
+
+        /* Графики */
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-box {
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            padding: 20px;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chart-box h2 {
+            margin-bottom: 15px;
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .chart-box h2 i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+
+        .chart-container {
+            flex: 1;
+            position: relative;
+        }
+
+        /* Прогресс-бары */
+        .progress-group {
+            margin-bottom: 20px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .progress-title {
+            font-weight: 500;
+        }
+
+        .progress-value {
+            color: var(--dark-color);
+            font-weight: 500;
+        }
+
+        .progress {
+            height: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.3s;
+        }
+
+        /* История загрузок */
+        .history-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .history-section h2 {
+            margin-bottom: 15px;
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #f8f9fc;
+            transition: var(--transition);
+        }
+
+        .history-item:hover {
+            background-color: #e9ecef;
+        }
+
+        .history-item-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background-color: rgba(78, 115, 223, 0.1);
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .history-item-details h4 {
+            margin-bottom: 3px;
+            font-size: 16px;
+        }
+
+        .history-item-details p {
+            color: #888;
+            font-size: 13px;
+        }
+
+        .history-item-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-remove {
+            background: none;
+            border: none;
+            color: var(--danger-color);
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .btn-remove:hover {
+            background-color: rgba(231, 74, 59, 0.1);
+        }
+
+        /* Таблица данных */
+        .data-table {
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .table-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            max-width: 300px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 8px 10px 8px 30px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filters select {
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table thead {
+            background-color: #f8f9fc;
+        }
+
+        table th {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 2px solid #e9ecef;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        table tr:hover {
+            background-color: #f8f9fc;
+        }
+
+        .amount-cell {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        /* Футер */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #888;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 1200px) {
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .summary-cards {
+                flex-direction: column;
+            }
+            
+            .table-controls {
+                flex-direction: column;
+            }
+            
+            .search-box {
+                max-width: 100%;
+            }
+        }
+
+        /* Ошибки */
+        .error-message {
+            background: #fff5f5;
+            border-left: 4px solid #e74a3b;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .error-message h3 {
+            color: #e74a3b;
+            margin-bottom: 5px;
+        }
+
+        .error-message ul {
+            padding-left: 20px;
+        }
+
+        .error-message li {
+            margin-bottom: 5px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -14,6 +479,14 @@
             <h1><i class="fas fa-chart-line"></i> Дашборд анализа заказов</h1>
             <p>Загрузите файл с заказами для визуализации данных</p>
         </header>
+
+        <div class="error-message" id="errorMessage">
+            <h3>Ошибка обработки файла</h3>
+            <ul id="errorList">
+                <li>Проверьте формат данных в файле</li>
+                <li>Файл должен соответствовать шаблону заказов</li>
+            </ul>
+        </div>
 
         <div class="upload-area" id="dropZone">
             <i class="fas fa-cloud-upload-alt"></i>
@@ -68,15 +541,21 @@
         <div class="charts-container" id="chartsContainer" style="display: none;">
             <div class="chart-box">
                 <h2><i class="fas fa-chart-bar"></i> Выручка по типам работ</h2>
-                <canvas id="typeChart"></canvas>
+                <div class="chart-container">
+                    <canvas id="typeChart"></canvas>
+                </div>
             </div>
             <div class="chart-box">
                 <h2><i class="fas fa-chart-pie"></i> Распределение заказов</h2>
-                <canvas id="ordersChart"></canvas>
+                <div class="chart-container">
+                    <canvas id="ordersChart"></canvas>
+                </div>
             </div>
             <div class="chart-box">
                 <h2><i class="fas fa-chart-line"></i> Топ-5 самых дорогих заказов</h2>
-                <canvas id="topOrdersChart"></canvas>
+                <div class="chart-container">
+                    <canvas id="topOrdersChart"></canvas>
+                </div>
             </div>
             <div class="chart-box">
                 <h2><i class="fas fa-tasks"></i> Прогресс выполнения</h2>
@@ -126,6 +605,687 @@
         </footer>
     </div>
 
-    <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+            const chartsContainer = document.getElementById('chartsContainer');
+            const summaryCards = document.getElementById('summaryCards');
+            const historySection = document.getElementById('historySection');
+            const dataTable = document.getElementById('dataTable');
+            const errorMessage = document.getElementById('errorMessage');
+            const errorList = document.getElementById('errorList');
+            
+            // Глобальные переменные для хранения данных
+            let allOrders = [];
+            let currentFileData = null;
+            let typeChart = null;
+            let ordersChart = null;
+            let topOrdersChart = null;
+            
+            // История загрузок
+            const uploadHistory = [];
+            
+            // Обработчики событий для зоны загрузки
+            dropZone.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+            
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('dragover');
+            });
+            
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                
+                if (e.dataTransfer.files.length) {
+                    handleFile(e.dataTransfer.files[0]);
+                }
+            });
+            
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length) {
+                    handleFile(e.target.files[0]);
+                }
+            });
+            
+            // Обработчик поиска и фильтров
+            document.getElementById('searchInput').addEventListener('input', filterTable);
+            document.getElementById('typeFilter').addEventListener('change', filterTable);
+            document.getElementById('dateFilter').addEventListener('change', filterTable);
+            
+            // Обработка загруженного файла
+            function handleFile(file) {
+                if (!file.name.endsWith('.txt')) {
+                    showError('Пожалуйста, загрузите текстовый файл (.txt)');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    try {
+                        // Сначала сбрасываем ошибки
+                        hideError();
+                        
+                        // Парсим файл
+                        currentFileData = parseOrderFile(e.target.result, file.name);
+                        
+                        // Добавляем в историю
+                        addToHistory(file);
+                        
+                        // Обновляем интерфейс
+                        updateSummaryCards(currentFileData);
+                        renderCharts(currentFileData);
+                        renderProgressBars(currentFileData);
+                        renderDataTable(currentFileData.orders);
+                        
+                        // Показываем скрытые элементы
+                        chartsContainer.style.display = 'grid';
+                        summaryCards.style.display = 'flex';
+                        historySection.style.display = 'block';
+                        dataTable.style.display = 'block';
+                        
+                        // Сбрасываем выбор файла для возможности загрузки того же файла
+                        fileInput.value = '';
+                    } catch (error) {
+                        console.error('Ошибка обработки файла:', error);
+                        showError(`Не удалось обработать файл. Ошибка: ${error.message}`);
+                    }
+                };
+                
+                reader.onerror = function() {
+                    showError('Ошибка чтения файла. Попробуйте загрузить другой файл.');
+                };
+                
+                reader.readAsText(file, 'utf-8');
+            }
+            
+            // Парсинг файла с заказами (ПОЛНОСТЬЮ ПЕРЕПИСАН)
+            function parseOrderFile(content, fileName) {
+                // Извлекаем дату из названия файла или содержимого
+                let dateMatch = fileName.match(/(\d{2}\.\d{2}\.\d{4})/);
+                let date = dateMatch ? dateMatch[1] : 'Неизвестно';
+                
+                // Пытаемся найти дату в содержимом файла
+                const contentDateMatch = content.match(/ЗАКАЗЫ ЗА (\d{2}\.\d{2}\.\d{4})/);
+                if (contentDateMatch) {
+                    date = contentDateMatch[1];
+                }
+                
+                // Извлекаем экспортную дату и время
+                let exportDateTime = 'Неизвестно';
+                const exportMatch = content.match(/Экспорт: (\d{2}\.\d{2}\.\d{4}, \d{2}:\d{2}:\d{2})/);
+                if (exportMatch) {
+                    exportDateTime = exportMatch[1];
+                }
+                
+                // Разделяем заказы
+                const orderSections = content.split('---');
+                const orders = [];
+                
+                // Обрабатываем каждый заказ
+                for (const section of orderSections) {
+                    const lines = section.trim().split('\n');
+                    
+                    // Пропускаем пустые секции
+                    if (lines.length < 3) continue;
+                    
+                    // Ищем номер и код заказа
+                    const numMatch = lines[0].match(/№(\d+)\.\s*(.+)/);
+                    if (!numMatch) continue;
+                    
+                    const order = {
+                        number: numMatch[1],
+                        code: numMatch[2].trim().replace(/\s+/g, ' '),
+                        description: '',
+                        type: '',
+                        amount: 0,
+                        date: date,
+                        parameters: {}
+                    };
+                    
+                    // Ищем описание и тип
+                    if (lines.length > 1) {
+                        const descMatch = lines[1].trim().match(/([^\(]+)\s*\(([^\)]+)\)/);
+                        if (descMatch) {
+                            order.description = descMatch[1].trim();
+                            order.type = descMatch[2].trim();
+                        } else {
+                            // Если нет скобок, берем всю строку как описание
+                            order.description = lines[1].trim();
+                        }
+                    }
+                    
+                    // Обрабатываем параметры
+                    for (let i = 2; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        if (!line) continue;
+                        
+                        // Парсим параметры (Длина, Ширина и т.д.)
+                        const paramMatch = line.match(/([^:]+):\s*([^\s]+)/);
+                        if (paramMatch) {
+                            const paramName = paramMatch[1].trim();
+                            let paramValue = paramMatch[2].trim();
+                            
+                            // Сохраняем параметр
+                            order.parameters[paramName] = paramValue;
+                            
+                            // Если это сумма, извлекаем значение
+                            if (paramName === 'Сумма' || line.includes('Сумма')) {
+                                const sumMatch = line.match(/Сумма:\s*([\d.,]+)/);
+                                if (sumMatch) {
+                                    order.amount = parseFloat(sumMatch[1].replace(',', '.'));
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Если сумма не найдена, ищем ее в последней строке
+                    if (order.amount === 0) {
+                        const lastLine = lines[lines.length - 1].trim();
+                        const sumMatch = lastLine.match(/Сумма:\s*([\d.,]+)/);
+                        if (sumMatch) {
+                            order.amount = parseFloat(sumMatch[1].replace(',', '.'));
+                        }
+                    }
+                    
+                    orders.push(order);
+                }
+                
+                // Извлекаем итоговую сумму
+                let total = 0;
+                const totalMatch = content.match(/ИТОГО:\s*([\d.,]+)/);
+                if (totalMatch) {
+                    total = parseFloat(totalMatch[1].replace(',', '.'));
+                } else {
+                    // Если ИТОГО не найдено, считаем сумму вручную
+                    total = orders.reduce((sum, order) => sum + order.amount, 0);
+                }
+                
+                return {
+                    orders: orders,
+                    total: total,
+                    date: date,
+                    exportDateTime: exportDateTime,
+                    fileName: fileName
+                };
+            }
+            
+            // Обновление сводных карточек
+            function updateSummaryCards(data) {
+                document.getElementById('totalRevenue').textContent = formatCurrency(data.total);
+                document.getElementById('totalOrders').textContent = data.orders.length;
+                
+                const avgCheck = data.total / data.orders.length;
+                document.getElementById('avgCheck').textContent = formatCurrency(avgCheck);
+                
+                document.getElementById('lastUpdate').textContent = data.exportDateTime;
+            }
+            
+            // Построение графиков
+            function renderCharts(data) {
+                // 1. Выручка по типам работ
+                renderTypeChart(data);
+                
+                // 2. Распределение заказов
+                renderOrdersChart(data);
+                
+                // 3. Топ-5 самых дорогих заказов
+                renderTopOrdersChart(data);
+            }
+            
+            // Выручка по типам работ
+            function renderTypeChart(data) {
+                const typeRevenue = {};
+                let totalRevenue = 0;
+                
+                // Собираем данные по типам
+                data.orders.forEach(order => {
+                    if (!typeRevenue[order.type]) {
+                        typeRevenue[order.type] = 0;
+                    }
+                    typeRevenue[order.type] += order.amount;
+                    totalRevenue += order.amount;
+                });
+                
+                // Подготовка данных для Chart.js
+                const labels = Object.keys(typeRevenue);
+                const values = Object.values(typeRevenue);
+                
+                // Создаем или обновляем график
+                const ctx = document.getElementById('typeChart').getContext('2d');
+                
+                if (typeChart) {
+                    typeChart.destroy();
+                }
+                
+                typeChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Выручка (₽)',
+                            data: values,
+                            backgroundColor: labels.map(() => getRandomColor(0.7)),
+                            borderColor: labels.map(() => getRandomColor(1)),
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const value = context.parsed.y;
+                                        const percentage = ((value / totalRevenue) * 100).toFixed(1);
+                                        return `${formatCurrency(value)} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return formatCurrency(value);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Распределение заказов
+            function renderOrdersChart(data) {
+                const typeCount = {};
+                
+                // Собираем количество заказов по типам
+                data.orders.forEach(order => {
+                    if (!typeCount[order.type]) {
+                        typeCount[order.type] = 0;
+                    }
+                    typeCount[order.type]++;
+                });
+                
+                // Подготовка данных для Chart.js
+                const labels = Object.keys(typeCount);
+                const values = Object.values(typeCount);
+                
+                // Создаем или обновляем график
+                const ctx = document.getElementById('ordersChart').getContext('2d');
+                
+                if (ordersChart) {
+                    ordersChart.destroy();
+                }
+                
+                ordersChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: values,
+                            backgroundColor: labels.map(() => getRandomColor(0.7)),
+                            borderColor: '#fff',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const value = context.parsed;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = ((value / total) * 100).toFixed(1);
+                                        return `${context.label}: ${value} заказов (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Обновляем фильтр типов в таблице
+                const typeFilter = document.getElementById('typeFilter');
+                typeFilter.innerHTML = '<option value="">Все типы</option>';
+                
+                labels.forEach(type => {
+                    const option = document.createElement('option');
+                    option.value = type;
+                    option.textContent = type;
+                    typeFilter.appendChild(option);
+                });
+            }
+            
+            // Топ-5 самых дорогих заказов
+            function renderTopOrdersChart(data) {
+                // Сортируем заказы по сумме в убывающем порядке и берем первые 5
+                const topOrders = [...data.orders]
+                    .sort((a, b) => b.amount - a.amount)
+                    .slice(0, 5);
+                
+                const labels = topOrders.map(order => {
+                    // Укорачиваем описание, если оно слишком длинное
+                    let desc = order.description;
+                    if (desc.length > 20) {
+                        return desc.substring(0, 20) + '...';
+                    }
+                    return desc;
+                });
+                const values = topOrders.map(order => order.amount);
+                const codes = topOrders.map(order => order.code);
+                
+                // Создаем или обновляем график
+                const ctx = document.getElementById('topOrdersChart').getContext('2d');
+                
+                if (topOrdersChart) {
+                    topOrdersChart.destroy();
+                }
+                
+                topOrdersChart = new Chart(ctx, {
+                    type: 'horizontalBar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Сумма (₽)',
+                            data: values,
+                            backgroundColor: labels.map(() => getRandomColor(0.7)),
+                            borderColor: labels.map(() => getRandomColor(1)),
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    title: function(tooltipItems) {
+                                        // Ищем полное описание для этого элемента
+                                        const label = tooltipItems[0].label;
+                                        const index = labels.indexOf(label);
+                                        return topOrders[index].description;
+                                    },
+                                    label: function(context) {
+                                        const orderIndex = context.dataIndex;
+                                        return [
+                                            `Код: ${codes[orderIndex]}`,
+                                            `Сумма: ${formatCurrency(context.parsed.x)}`
+                                        ];
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return formatCurrency(value);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Прогресс выполнения
+            function renderProgressBars(data) {
+                const progressBarContainer = document.getElementById('progressBars');
+                progressBarContainer.innerHTML = '';
+                
+                // Определяем целевые значения для прогресса
+                // Например, можно установить цели на день/неделю
+                const dailyTarget = 3000; // Целевая выручка за день
+                const ordersTarget = 15;  // Целевое количество заказов за день
+                
+                // Прогресс по выручке
+                createProgressBar(
+                    progressBarContainer,
+                    'Выручка за день',
+                    data.total,
+                    dailyTarget,
+                    '₽',
+                    '#4e73df'
+                );
+                
+                // Прогресс по количеству заказов
+                createProgressBar(
+                    progressBarContainer,
+                    'Количество заказов',
+                    data.orders.length,
+                    ordersTarget,
+                    '',
+                    '#1cc88a'
+                );
+                
+                // Прогресс по типам работ (берем самый популярный тип)
+                const typeCount = {};
+                data.orders.forEach(order => {
+                    typeCount[order.type] = (typeCount[order.type] || 0) + 1;
+                });
+                
+                const mostCommonType = Object.keys(typeCount).reduce((a, b) => 
+                    typeCount[a] > typeCount[b] ? a : b
+                );
+                
+                createProgressBar(
+                    progressBarContainer,
+                    `Заказы типа "${mostCommonType}"`,
+                    typeCount[mostCommonType],
+                    Math.max(ordersTarget * 0.6, typeCount[mostCommonType] + 2),
+                    '',
+                    '#36b9cc'
+                );
+            }
+            
+            // Создание одного прогресс-бара
+            function createProgressBar(container, title, currentValue, targetValue, unit, color) {
+                const progressGroup = document.createElement('div');
+                progressGroup.className = 'progress-group';
+                
+                const header = document.createElement('div');
+                header.className = 'progress-header';
+                header.innerHTML = `
+                    <span class="progress-title">${title}</span>
+                    <span class="progress-value">${formatNumber(currentValue)}${unit} / ${formatNumber(targetValue)}${unit}</span>
+                `;
+                
+                const progressBar = document.createElement('div');
+                progressBar.className = 'progress';
+                
+                const progressFill = document.createElement('div');
+                progressFill.className = 'progress-fill';
+                progressFill.style.width = `${Math.min((currentValue / targetValue) * 100, 100)}%`;
+                progressFill.style.backgroundColor = color;
+                
+                progressBar.appendChild(progressFill);
+                
+                progressGroup.appendChild(header);
+                progressGroup.appendChild(progressBar);
+                
+                container.appendChild(progressGroup);
+            }
+            
+            // Детализация заказов
+            function renderDataTable(orders) {
+                const tableBody = document.getElementById('tableBody');
+                tableBody.innerHTML = '';
+                
+                // Заполняем таблицу
+                orders.forEach(order => {
+                    const row = document.createElement('tr');
+                    
+                    row.innerHTML = `
+                        <td>${order.number}</td>
+                        <td>${order.code}</td>
+                        <td title="${order.description}">${order.description.substring(0, 30)}${order.description.length > 30 ? '...' : ''}</td>
+                        <td>${order.type}</td>
+                        <td>${order.date}</td>
+                        <td class="amount-cell">${formatCurrency(order.amount)}</td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                });
+            }
+            
+            // Фильтрация таблицы
+            function filterTable() {
+                const searchText = document.getElementById('searchInput').value.toLowerCase();
+                const typeFilter = document.getElementById('typeFilter').value;
+                const dateFilter = document.getElementById('dateFilter').value;
+                const rows = document.querySelectorAll('#tableBody tr');
+                
+                rows.forEach(row => {
+                    const description = row.cells[2].textContent.toLowerCase();
+                    const type = row.cells[3].textContent;
+                    const date = row.cells[4].textContent;
+                    
+                    const matchesSearch = searchText === '' || description.includes(searchText);
+                    const matchesType = typeFilter === '' || type === typeFilter;
+                    const matchesDate = dateFilter === '' || date === dateFilter;
+                    
+                    row.style.display = (matchesSearch && matchesType && matchesDate) ? '' : 'none';
+                });
+            }
+            
+            // Добавление в историю загрузок
+            function addToHistory(file) {
+                const historyItem = {
+                    id: Date.now(),
+                    name: file.name,
+                    date: new Date().toLocaleString(),
+                    size: formatFileSize(file.size)
+                };
+                
+                uploadHistory.unshift(historyItem);
+                
+                // Обновляем отображение истории
+                updateHistoryList();
+            }
+            
+            // Обновление списка истории
+            function updateHistoryList() {
+                const historyList = document.getElementById('historyList');
+                historyList.innerHTML = '';
+                
+                uploadHistory.forEach(item => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    historyItem.innerHTML = `
+                        <div class="history-item-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="history-item-details">
+                            <h4>${item.name}</h4>
+                            <p><i class="far fa-clock"></i> ${item.date} &bull; <i class="far fa-file"></i> ${item.size}</p>
+                        </div>
+                        <div class="history-item-actions">
+                            <button class="btn-remove" data-id="${item.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    
+                    historyList.appendChild(historyItem);
+                });
+                
+                // Добавляем обработчики удаления
+                document.querySelectorAll('.btn-remove').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const id = this.getAttribute('data-id');
+                        removeFromHistory(id);
+                    });
+                });
+            }
+            
+            // Удаление из истории
+            function removeFromHistory(id) {
+                const index = uploadHistory.findIndex(item => item.id == id);
+                if (index !== -1) {
+                    uploadHistory.splice(index, 1);
+                    updateHistoryList();
+                    
+                    // Если удаляем текущие данные, скрываем график
+                    if (uploadHistory.length === 0) {
+                        chartsContainer.style.display = 'none';
+                        summaryCards.style.display = 'none';
+                        historySection.style.display = 'none';
+                        dataTable.style.display = 'none';
+                    }
+                }
+            }
+            
+            // Вспомогательные функции
+            function formatCurrency(amount) {
+                return new Intl.NumberFormat('ru-RU', {
+                    style: 'currency',
+                    currency: 'RUB',
+                    minimumFractionDigits: 2
+                }).format(amount).replace('RUB', '₽');
+            }
+            
+            function formatNumber(number) {
+                return new Intl.NumberFormat('ru-RU').format(number);
+            }
+            
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Б';
+                
+                const k = 1024;
+                const sizes = ['Б', 'КБ', 'МБ', 'ГБ'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+            
+            function getRandomColor(opacity = 1) {
+                const r = Math.floor(Math.random() * 256);
+                const g = Math.floor(Math.random() * 256);
+                const b = Math.floor(Math.random() * 256);
+                return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+            }
+            
+            // Обработка ошибок
+            function showError(message) {
+                errorList.innerHTML = `<li>${message}</li>`;
+                errorMessage.classList.add('show');
+                
+                // Скрываем через 5 секунд
+                setTimeout(() => {
+                    errorMessage.classList.remove('show');
+                }, 5000);
+            }
+            
+            function hideError() {
+                errorMessage.classList.remove('show');
+            }
+        });
+    </script>
 </body>
 </html>
