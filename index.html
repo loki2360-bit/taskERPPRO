@@ -767,79 +767,37 @@ order.type = descMatch[2].trim();
 order.description = lines[1].trim();
 }
 }
-// Обрабатываем параметры
+// Обрабатываем параметры - упрощенный парсинг через структуру
 for (let i = 2; i < lines.length; i++) {
 const line = lines[i].trim();
 if (!line) continue;
-// Парсим параметры (Длина, Ширина и т.д.)
-const paramMatch = line.match(/([^:]+):\s*([^\s]+)/);
-if (paramMatch) {
-const paramName = paramMatch[1].trim();
-let paramValue = paramMatch[2].trim();
-// Сохраняем параметр
-order.parameters[paramName] = paramValue;
-// Обработка квадратных и погонных метров
-if (paramName === 'Кв.м' || paramName === 'Пог.м') {
-order.parameters[paramName] = parseFloat(paramValue.replace(',', '.'));
+// Парсим параметры, используя предсказуемую структуру
+if (line.startsWith('Длина:')) {
+order.parameters['Длина'] = parseFloat(line.replace('Длина:', '').replace('м', '').trim());
+} else if (line.startsWith('Ширина:')) {
+order.parameters['Ширина'] = parseFloat(line.replace('Ширина:', '').replace('м', '').trim());
+} else if (line.startsWith('Кол-во:')) {
+order.parameters['Кол-во'] = parseInt(line.replace('Кол-во:', '').trim());
+} else if (line.startsWith('Объем:')) {
+// Объем может быть в разных форматах: "5.28 м²", "23.1 пог. м", "0.2 часы"
+const volumeText = line.replace('Объем:', '').trim();
+// Ищем числовое значение
+const valueMatch = volumeText.match(/(\d+[\.,]?\d*)/);
+if (valueMatch) {
+const value = parseFloat(valueMatch[1].replace(',', '.'));
+// Проверяем тип объема
+if (volumeText.toLowerCase().includes('м²') || volumeText.toLowerCase().includes('кв.м')) {
+order.parameters['Кв.м'] = value;
+} else if (volumeText.toLowerCase().includes('пог.м')) {
+order.parameters['Пог.м'] = value;
+} else if (volumeText.toLowerCase().includes('час') || volumeText.toLowerCase().includes('ч')) {
+order.parameters['Время'] = value;
 }
-// Если это сумма, извлекаем значение
-if (paramName === 'Сумма' || line.includes('Сумма')) {
+}
+} else if (line.startsWith('Сумма:')) {
 const sumMatch = line.match(/Сумма:\s*([\d.,]+)/);
 if (sumMatch) {
 order.amount = parseFloat(sumMatch[1].replace(',', '.'));
-}
-}
-}
-
-// ДОПОЛНИТЕЛЬНАЯ ОБРАБОТКА ДЛЯ КВ.М И ПОГ.М
-// Ищем значения в различных форматах
-if (!order.parameters['Кв.м']) {
-// Формат "10,5 кв.м"
-const sqmMatch1 = line.match(/(\d+[\.,]?\d*)\s*кв\.м/i);
-// Формат "10,5кв.м" (без пробела)
-const sqmMatch2 = line.match(/(\d+[\.,]?\d*)кв\.м/i);
-// Формат "кв.м: 10,5"
-const sqmMatch3 = line.match(/кв\.м\s*:\s*(\d+[\.,]?\d*)/i);
-// Формат "10,5 кв.м (пог.м: 5,2)"
-const sqmMatch4 = line.match(/(\d+[\.,]?\d*)\s*кв\.м\s*\(?пог\.м\s*:\s*\d+[\.,]?\d*\)?/i);
-// Формат "кв.м: 10,5 пог.м: 5,2"
-const sqmMatch5 = line.match(/кв\.м\s*:\s*(\d+[\.,]?\d*)\s*пог\.м\s*:\s*\d+[\.,]?\d*/i);
-// Формат "кв.м 10,5"
-const sqmMatch6 = line.match(/кв\.м\s+(\d+[\.,]?\d*)/i);
-// Формат "10.5 кв.м"
-const sqmMatch7 = line.match(/(\d+[\.,]?\d*)\s*кв\.м/i);
-
-const matches = [sqmMatch1, sqmMatch2, sqmMatch3, sqmMatch4, sqmMatch5, sqmMatch6, sqmMatch7];
-for (const match of matches) {
-if (match && match[1]) {
-order.parameters['Кв.м'] = parseFloat(match[1].replace(',', '.'));
-break;
-}
-}
-}
-
-if (!order.parameters['Пог.м']) {
-// Формат "10,5 пог.м"
-const lmMatch1 = line.match(/(\d+[\.,]?\d*)\s*пог\.м/i);
-// Формат "10,5пог.м" (без пробела)
-const lmMatch2 = line.match(/(\d+[\.,]?\d*)пог\.м/i);
-// Формат "пог.м: 10,5"
-const lmMatch3 = line.match(/пог\.м\s*:\s*(\d+[\.,]?\d*)/i);
-// Формат "10,5 пог.м (кв.м: 5,2)"
-const lmMatch4 = line.match(/(\d+[\.,]?\d*)\s*пог\.м\s*\(?кв\.м\s*:\s*\d+[\.,]?\d*\)?/i);
-// Формат "пог.м: 10,5 кв.м: 5,2"
-const lmMatch5 = line.match(/пог\.м\s*:\s*(\d+[\.,]?\d*)\s*кв\.м\s*:\s*\d+[\.,]?\d*/i);
-// Формат "пог.м 10,5"
-const lmMatch6 = line.match(/пог\.м\s+(\d+[\.,]?\d*)/i);
-// Формат "10.5 пог.м"
-const lmMatch7 = line.match(/(\d+[\.,]?\d*)\s*пог\.м/i);
-
-const matches = [lmMatch1, lmMatch2, lmMatch3, lmMatch4, lmMatch5, lmMatch6, lmMatch7];
-for (const match of matches) {
-if (match && match[1]) {
-order.parameters['Пог.м'] = parseFloat(match[1].replace(',', '.'));
-break;
-}
 }
 }
 }
