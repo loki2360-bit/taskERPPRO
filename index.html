@@ -45,7 +45,7 @@ body {
 }
 
 .container {
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
   padding: 24px;
 }
@@ -162,7 +162,7 @@ body {
   margin-bottom: 24px;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
   .main-grid {
     grid-template-columns: 1fr;
   }
@@ -346,6 +346,7 @@ th {
   letter-spacing: 0.5px;
   color: var(--text-secondary);
   font-weight: 500;
+  white-space: nowrap;
 }
 
 td {
@@ -366,6 +367,38 @@ tr:hover td {
 .amount-negative {
   color: var(--accent-danger);
   font-weight: 600;
+}
+
+/* Parameter badges in table */
+.param-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.param-badge.time {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--accent-primary);
+}
+
+.param-badge.sqm {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--accent-success);
+}
+
+.param-badge.lm {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--accent-warning);
+}
+
+.param-badge.empty {
+  color: var(--text-muted);
+  font-size: 12px;
 }
 
 /* Controls */
@@ -985,6 +1018,9 @@ tr:hover td {
                 <th>№</th>
                 <th>Описание</th>
                 <th>Тип</th>
+                <th>Время</th>
+                <th>Кв.м</th>
+                <th>Пог.м</th>
                 <th>Сумма</th>
                 <th></th>
               </tr>
@@ -1114,15 +1150,31 @@ function parseOrderFile(content, fileName) {
     
     for (let i = 2; i < lines.length; i++) {
       const line = lines[i].trim();
+      
+      // Parse amount
       if (line.startsWith('Сумма:')) {
         const sum = line.match(/[\d.,]+/)?.[0]?.replace(',', '.');
         if (sum) order.amount = parseFloat(sum);
       }
+      
+      // Parse volume/area measurements
       if (line.startsWith('Объем:')) {
         const vol = line.replace('Объем:', '').trim();
         const val = parseFloat(vol.match(/[\d.,]+/)?.[0]?.replace(',', '.'));
-        if (vol.includes('м²')) order.parameters['Кв.м'] = val;
-        else if (vol.includes('пог.м')) order.parameters['Пог.м'] = val;
+        
+        if (vol.includes('м²') || vol.includes('кв.м') || vol.includes('кв м')) {
+          order.parameters['sqm'] = val;
+        } else if (vol.includes('пог.м') || vol.includes('пог м') || vol.includes('погонных')) {
+          order.parameters['lm'] = val;
+        } else if (vol.match(/час|ч\b|часа|часов/i)) {
+          order.parameters['time'] = val;
+        }
+      }
+      
+      // Also check for explicit time parameter
+      if (line.match(/время|час|ч\b/i) && !line.startsWith('Объем:')) {
+        const val = parseFloat(line.match(/[\d.,]+/)?.[0]?.replace(',', '.'));
+        if (val) order.parameters['time'] = val;
       }
     }
     
@@ -1173,7 +1225,7 @@ function renderBudgetTracking() {
   const total = Object.values(types).reduce((a, b) => a + b, 0);
   
   grid.innerHTML = Object.entries(types).map(([type, amount]) => {
-    const pct = (amount / total) * 100;
+    const pct = total > 0 ? (amount / total) * 100 : 0;
     let status = 'success';
     if (pct < 20) status = 'danger';
     else if (pct < 40) status = 'warning';
@@ -1191,17 +1243,26 @@ function renderBudgetTracking() {
 function renderDebtDetails() {
   const grid = document.getElementById('debtGrid');
   
-  // Example debt cards - customize based on your data
+  // Calculate totals from parameters
+  const totalTime = allOrders.reduce((s, o) => s + (o.parameters.time || 0), 0);
+  const totalSqm = allOrders.reduce((s, o) => s + (o.parameters.sqm || 0), 0);
+  const totalLm = allOrders.reduce((s, o) => s + (o.parameters.lm || 0), 0);
+  
   grid.innerHTML = `
     <div class="debt-card">
-      <div class="debt-name">Credit card</div>
-      <div class="debt-amount">$7,430.00</div>
-      <div class="debt-info">Due: 2024-03-15</div>
+      <div class="debt-name"><i class="fas fa-clock"></i> Всего времени</div>
+      <div class="debt-amount" style="color: var(--accent-primary);">${totalTime.toFixed(1)} ч</div>
+      <div class="debt-info">Общее время работ</div>
     </div>
     <div class="debt-card">
-      <div class="debt-name">Student loan</div>
-      <div class="debt-amount">$12,400.00</div>
-      <div class="debt-info">Due: 2024-04-01</div>
+      <div class="debt-name"><i class="fas fa-vector-square"></i> Всего площади</div>
+      <div class="debt-amount" style="color: var(--accent-success);">${totalSqm.toFixed(2)} м²</div>
+      <div class="debt-info">Квадратные метры</div>
+    </div>
+    <div class="debt-card">
+      <div class="debt-name"><i class="fas fa-ruler-horizontal"></i> Всего длины</div>
+      <div class="debt-amount" style="color: var(--accent-warning);">${totalLm.toFixed(2)} пог.м</div>
+      <div class="debt-info">Погонные метры</div>
     </div>
   `;
 }
@@ -1266,11 +1327,27 @@ function renderTable() {
     const orderId = generateOrderId(order);
     const comments = orderComments[orderId] || [];
     
+    // Format parameters with badges
+    const timeBadge = order.parameters.time 
+      ? `<span class="param-badge time"><i class="fas fa-clock"></i> ${order.parameters.time.toFixed(1)} ч</span>`
+      : `<span class="param-badge empty">—</span>`;
+    
+    const sqmBadge = order.parameters.sqm 
+      ? `<span class="param-badge sqm"><i class="fas fa-vector-square"></i> ${order.parameters.sqm.toFixed(2)} м²</span>`
+      : `<span class="param-badge empty">—</span>`;
+    
+    const lmBadge = order.parameters.lm 
+      ? `<span class="param-badge lm"><i class="fas fa-ruler-horizontal"></i> ${order.parameters.lm.toFixed(2)}</span>`
+      : `<span class="param-badge empty">—</span>`;
+    
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${order.number}</td>
       <td>${order.description}</td>
       <td><span style="color: var(--text-secondary);">${order.type}</span></td>
+      <td>${timeBadge}</td>
+      <td>${sqmBadge}</td>
+      <td>${lmBadge}</td>
       <td class="amount-positive">${formatCurrency(order.amount)}</td>
       <td>
         <button class="comment-btn ${comments.length ? 'has-comments' : ''}" 
