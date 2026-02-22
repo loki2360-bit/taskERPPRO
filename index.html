@@ -167,7 +167,6 @@ padding: 20px;
 min-height: 300px;
 display: flex;
 flex-direction: column;
-overflow: hidden;
 }
 .chart-box h2 {
 margin-bottom: 15px;
@@ -650,7 +649,8 @@ dataTable.style.display = 'none';
 updateHistoryList();
 // Сбрасываем таблицу
 document.getElementById('tableBody').innerHTML = '';
-saveDataToLocalStorage(); // Сохраняем пустые данные
+// Сохраняем пустые данные
+saveDataToLocalStorage();
 }
 });
 // Обработчик поиска и фильтров
@@ -725,8 +725,7 @@ const orderSections = content.split('---');
 const orders = [];
 // Обрабатываем каждый заказ
 for (const section of orderSections) {
-const lines = section.trim().split('
-');
+const lines = section.trim().split('\n');
 // Пропускаем пустые секции
 if (lines.length < 3) continue;
 // Ищем номер и код заказа
