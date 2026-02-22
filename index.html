@@ -790,18 +790,48 @@ order.amount = parseFloat(sumMatch[1].replace(',', '.'));
 }
 }
 }
+
 // ДОПОЛНИТЕЛЬНАЯ ОБРАБОТКА ДЛЯ КВ.М И ПОГ.М
-// Ищем значения в формате "10,5 кв.м" или "10.5 пог.м"
+// Ищем значения в различных форматах
 if (!order.parameters['Кв.м']) {
-const sqmMatch = line.match(/(\d+[\.,]?\d*)\s*кв\.м/i);
-if (sqmMatch) {
-order.parameters['Кв.м'] = parseFloat(sqmMatch[1].replace(',', '.'));
+// Формат "10,5 кв.м"
+const sqmMatch1 = line.match(/(\d+[\.,]?\d*)\s*кв\.м/i);
+// Формат "10,5кв.м" (без пробела)
+const sqmMatch2 = line.match(/(\d+[\.,]?\d*)кв\.м/i);
+// Формат "кв.м: 10,5"
+const sqmMatch3 = line.match(/кв\.м\s*:\s*(\d+[\.,]?\d*)/i);
+// Формат "10,5 кв.м (пог.м: 5,2)"
+const sqmMatch4 = line.match(/(\d+[\.,]?\d*)\s*кв\.м\s*\(?пог\.м\s*:\s*\d+[\.,]?\d*\)?/i);
+// Формат "кв.м: 10,5 пог.м: 5,2"
+const sqmMatch5 = line.match(/кв\.м\s*:\s*(\d+[\.,]?\d*)\s*пог\.м\s*:\s*\d+[\.,]?\d*/i);
+
+const matches = [sqmMatch1, sqmMatch2, sqmMatch3, sqmMatch4, sqmMatch5];
+for (const match of matches) {
+if (match && match[1]) {
+order.parameters['Кв.м'] = parseFloat(match[1].replace(',', '.'));
+break;
 }
 }
+}
+
 if (!order.parameters['Пог.м']) {
-const lmMatch = line.match(/(\d+[\.,]?\d*)\s*пог\.м/i);
-if (lmMatch) {
-order.parameters['Пог.м'] = parseFloat(lmMatch[1].replace(',', '.'));
+// Формат "10,5 пог.м"
+const lmMatch1 = line.match(/(\d+[\.,]?\d*)\s*пог\.м/i);
+// Формат "10,5пог.м" (без пробела)
+const lmMatch2 = line.match(/(\d+[\.,]?\d*)пог\.м/i);
+// Формат "пог.м: 10,5"
+const lmMatch3 = line.match(/пог\.м\s*:\s*(\d+[\.,]?\d*)/i);
+// Формат "10,5 пог.м (кв.м: 5,2)"
+const lmMatch4 = line.match(/(\d+[\.,]?\d*)\s*пог\.м\s*\(?кв\.м\s*:\s*\d+[\.,]?\d*\)?/i);
+// Формат "пог.м: 10,5 кв.м: 5,2"
+const lmMatch5 = line.match(/пог\.м\s*:\s*(\d+[\.,]?\d*)\s*кв\.м\s*:\s*\d+[\.,]?\d*/i);
+
+const matches = [lmMatch1, lmMatch2, lmMatch3, lmMatch4, lmMatch5];
+for (const match of matches) {
+if (match && match[1]) {
+order.parameters['Пог.м'] = parseFloat(match[1].replace(',', '.'));
+break;
+}
 }
 }
 }
