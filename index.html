@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>📊 Дашборд анализа заказов</title>
+<title>📊 Дашборд анализа заказов + Комментарии</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -335,7 +335,7 @@ body {
   min-height: 300px;
 }
 
-/* === Revenue Trend Chart (New) === */
+/* === Revenue Trend Chart === */
 .trend-controls {
   display: flex;
   gap: 12px;
@@ -699,6 +699,426 @@ table tbody tr:hover {
   color: var(--primary);
 }
 
+/* === Comments Column & Modal === */
+.comment-cell {
+  text-align: center;
+  padding: 8px !important;
+}
+
+.comment-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 2px solid var(--border);
+  background: var(--bg-secondary);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  position: relative;
+  font-size: 14px;
+}
+
+.comment-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: rgba(99, 102, 241, 0.05);
+  transform: scale(1.05);
+}
+
+.comment-btn.has-comment {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(99, 102, 241, 0.05));
+  border-color: var(--primary-light);
+  color: var(--primary);
+}
+
+.comment-btn.has-comment::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  background: var(--success);
+  border-radius: 50%;
+  border: 2px solid var(--bg-secondary);
+}
+
+.comment-count {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: var(--danger);
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 5px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+  line-height: 1;
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: var(--transition);
+  padding: 20px;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Modal Box */
+.modal {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 520px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  animation: modalSlide 0.3s ease-out;
+  border: 1px solid var(--border);
+}
+
+@keyframes modalSlide {
+  from { opacity: 0; transform: translateY(-20px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.modal-header h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-close {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: none;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  font-size: 16px;
+}
+
+.modal-close:hover {
+  background: var(--danger-light);
+  color: white;
+}
+
+.modal-order-info {
+  padding: 12px 24px;
+  background: var(--bg-tertiary);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-order-info strong {
+  color: var(--text-primary);
+}
+
+.modal-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.comment-item {
+  background: var(--bg-tertiary);
+  border-radius: 12px;
+  padding: 14px 16px;
+  position: relative;
+  border-left: 3px solid var(--primary);
+}
+
+.comment-item.important {
+  border-left-color: var(--warning);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), var(--bg-tertiary));
+}
+
+.comment-item.urgent {
+  border-left-color: var(--danger);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), var(--bg-tertiary));
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  gap: 10px;
+}
+
+.comment-author {
+  font-weight: 500;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.comment-author i {
+  color: var(--primary);
+  font-size: 14px;
+}
+
+.comment-time {
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+.comment-text {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.comment-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+}
+
+.comment-action-btn {
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: var(--transition);
+}
+
+.comment-action-btn:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.comment-action-btn.delete:hover {
+  color: var(--danger);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.comment-priority {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-left: 8px;
+}
+
+.comment-priority.important {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--warning);
+}
+
+.comment-priority.urgent {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--danger);
+}
+
+/* Comment Form */
+.comment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.comment-form textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 12px 14px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+  resize: vertical;
+  transition: var(--transition);
+}
+
+.comment-form textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: var(--bg-secondary);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.comment-form textarea::placeholder {
+  color: var(--text-tertiary);
+}
+
+.comment-form-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.comment-priority-select {
+  display: flex;
+  gap: 6px;
+}
+
+.priority-btn {
+  padding: 6px 12px;
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.priority-btn:hover,
+.priority-btn.active {
+  border-color: currentColor;
+}
+
+.priority-btn.normal { color: var(--text-secondary); }
+.priority-btn.important { color: var(--warning); }
+.priority-btn.urgent { color: var(--danger); }
+
+.priority-btn.important:hover,
+.priority-btn.important.active {
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.priority-btn.urgent:hover,
+.priority-btn.urgent.active {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.comment-submit {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: var(--transition);
+  box-shadow: var(--shadow);
+}
+
+.comment-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.comment-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.empty-comments {
+  text-align: center;
+  padding: 30px 20px;
+  color: var(--text-tertiary);
+}
+
+.empty-comments i {
+  font-size: 40px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+/* Toast notification */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--text-primary);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 2000;
+  animation: toastSlide 0.3s ease-out;
+  font-size: 0.95rem;
+}
+
+.toast.success { background: var(--success); }
+.toast.error { background: var(--danger); }
+
+@keyframes toastSlide {
+  from { opacity: 0; transform: translateX(100px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
 /* === Error Message === */
 .error-message {
   background: linear-gradient(135deg, #fef2f2, #fff);
@@ -802,7 +1222,7 @@ footer a:hover {
   }
 }
 
-/* === Animations for cards on load === */
+/* === Animations === */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -981,6 +1401,7 @@ footer a:hover {
             <th>Сумма</th>
             <th>Кв.м</th>
             <th>Пог.м</th>
+            <th style="width: 50px;"><i class="fas fa-comment-alt" title="Комментарии"></i></th>
           </tr>
         </thead>
         <tbody id="tableBody"></tbody>
@@ -1012,6 +1433,124 @@ document.addEventListener('DOMContentLoaded', function() {
   let allOrders = [];
   let trendChartInstance = null;
   
+  // === Comments System ===
+  let orderComments = {};
+
+  // Загрузка комментариев из localStorage
+  function loadComments() {
+    try {
+      const saved = localStorage.getItem('orderComments');
+      if (saved) {
+        orderComments = JSON.parse(saved);
+      }
+    } catch (e) {
+      console.warn('Не удалось загрузить комментарии:', e);
+      orderComments = {};
+    }
+  }
+
+  // Сохранение комментариев
+  function saveComments() {
+    try {
+      localStorage.setItem('orderComments', JSON.stringify(orderComments));
+    } catch (e) {
+      console.warn('Не удалось сохранить комментарии:', e);
+      showToast('Не удалось сохранить комментарий', 'error');
+    }
+  }
+
+  // Генерация уникального ID для заказа
+  function generateOrderId(order) {
+    return `${order.sourceFile}_${order.number}_${order.code}`.replace(/\s+/g, '_');
+  }
+
+  // Получение комментариев для заказа
+  function getOrderComments(order) {
+    const orderId = generateOrderId(order);
+    return orderComments[orderId] || [];
+  }
+
+  // Добавление комментария
+  function addComment(order, text, priority = 'normal') {
+    const orderId = generateOrderId(order);
+    const comment = {
+      id: Date.now().toString(36) + Math.random().toString(36).substr(2),
+      text: text.trim(),
+      priority,
+      author: 'Вы',
+      timestamp: new Date().toISOString()
+    };
+    
+    if (!orderComments[orderId]) {
+      orderComments[orderId] = [];
+    }
+    orderComments[orderId].push(comment);
+    
+    saveComments();
+    return comment;
+  }
+
+  // Удаление комментария
+  function deleteComment(order, commentId) {
+    const orderId = generateOrderId(order);
+    if (orderComments[orderId]) {
+      orderComments[orderId] = orderComments[orderId].filter(c => c.id !== commentId);
+      if (orderComments[orderId].length === 0) {
+        delete orderComments[orderId];
+      }
+      saveComments();
+      return true;
+    }
+    return false;
+  }
+
+  // Форматирование времени
+  function formatCommentTime(isoString) {
+    const date = new Date(isoString);
+    const now = new Date();
+    const diff = now - date;
+    
+    if (date.toDateString() === now.toDateString()) {
+      return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+    }
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    if (date.toDateString() === yesterday.toDateString()) {
+      return 'Вчера';
+    }
+    if (diff < 7 * 24 * 60 * 60 * 1000) {
+      return date.toLocaleDateString('ru-RU', { weekday: 'short' });
+    }
+    return date.toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' });
+  }
+
+  // Экранирование HTML
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Toast уведомления
+  function showToast(message, type = 'success') {
+    const existing = document.querySelector('.toast');
+    if (existing) existing.remove();
+    
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `
+      <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+      ${message}
+    `;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(100px)';
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }
+
   // === LocalStorage Functions ===
   function saveDataToLocalStorage() {
     try {
@@ -1086,7 +1625,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (confirm('Удалить все загруженные данные?')) {
       allFilesData = [];
       allOrders = [];
+      orderComments = {};
       localStorage.removeItem('dashboardData');
+      localStorage.removeItem('orderComments');
       resetUI();
     }
   });
@@ -1132,16 +1673,13 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // === Parser ===
   function parseOrderFile(content, fileName) {
-    // Extract date
     let date = fileName.match(/(\d{2}\.\d{2}\.\d{4})/)?.[1] || 'Неизвестно';
     const contentDate = content.match(/ЗАКАЗЫ ЗА (\d{2}\.\d{2}\.\d{4})/);
     if (contentDate) date = contentDate[1];
     
-    // Export datetime
     const exportMatch = content.match(/Экспорт: ([\d.,:\s]+)/);
     const exportDateTime = exportMatch ? exportMatch[1].trim() : new Date().toLocaleString('ru-RU');
     
-    // Parse orders
     const orders = [];
     const sections = content.split('---');
     
@@ -1163,7 +1701,6 @@ document.addEventListener('DOMContentLoaded', function() {
         parameters: {}
       };
       
-      // Description & type
       if (lines[1]) {
         const descMatch = lines[1].match(/([^(]+)\s*(?:\(([^)]+)\))?/);
         if (descMatch) {
@@ -1172,7 +1709,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
       
-      // Parameters
       for (let i = 2; i < lines.length; i++) {
         const line = lines[i].trim();
         if (line.startsWith('Длина:')) order.parameters['Длина'] = parseFloat(line.match(/[\d.,]+/)?.[0]?.replace(',', '.'));
@@ -1191,7 +1727,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
       
-      // Fallback for amount
       if (!order.amount) {
         const lastSum = content.match(/Сумма:\s*([\d.,]+)/);
         if (lastSum) order.amount = parseFloat(lastSum[1].replace(',', '.'));
@@ -1200,7 +1735,6 @@ document.addEventListener('DOMContentLoaded', function() {
       if (order.description) orders.push(order);
     }
     
-    // Total
     const totalMatch = content.match(/ИТОГО:\s*([\d.,]+)/);
     const total = totalMatch ? parseFloat(totalMatch[1].replace(',', '.')) : 
                   orders.reduce((s, o) => s + (o.amount || 0), 0);
@@ -1236,20 +1770,17 @@ document.addEventListener('DOMContentLoaded', function() {
   function renderTrendChart() {
     const period = document.getElementById('trendPeriod').value;
     
-    // Group orders by date
     const revenueByDate = {};
     allOrders.forEach(order => {
       if (!revenueByDate[order.date]) revenueByDate[order.date] = 0;
       revenueByDate[order.date] += order.amount;
     });
     
-    // Sort dates
     const sortedDates = Object.keys(revenueByDate).sort((a, b) => {
       const [da, db] = [a, b].map(d => d.split('.').reverse().join('-'));
       return new Date(da) - new Date(db);
     });
     
-    // Filter by period
     let filteredDates = sortedDates;
     if (period !== 'all') {
       const cutoff = new Date();
@@ -1263,17 +1794,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const labels = filteredDates;
     const values = filteredDates.map(d => revenueByDate[d]);
     
-    // Calculate trend colors
     const bgColors = values.map((v, i) => {
       if (i === 0) return 'rgba(99, 102, 241, 0.6)';
       return values[i] >= values[i-1] 
-        ? 'rgba(16, 185, 129, 0.7)'  // up
-        : 'rgba(239, 68, 68, 0.7)';   // down
+        ? 'rgba(16, 185, 129, 0.7)'
+        : 'rgba(239, 68, 68, 0.7)';
     });
     
     const borderColors = bgColors.map(c => c.replace('0.7', '1').replace('0.6', '1'));
     
-    // Destroy previous
     const ctx = document.getElementById('trendChart').getContext('2d');
     if (trendChartInstance) trendChartInstance.destroy();
     
@@ -1427,7 +1956,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
     
-    // Update type filter
     const filter = document.getElementById('typeFilter');
     filter.innerHTML = '<option value="">Все типы работ</option>';
     Object.keys(counts).forEach(type => {
@@ -1495,7 +2023,6 @@ document.addEventListener('DOMContentLoaded', function() {
     createProgress(container, 'Выручка', revenue, targetRev, '₽', '#6366f1');
     createProgress(container, 'Заказы', count, targetOrd, '', '#10b981');
     
-    // Most popular type
     const types = {};
     allOrders.forEach(o => types[o.type] = (types[o.type]||0)+1);
     const topType = Object.entries(types).sort((a,b) => b[1]-a[1])[0];
@@ -1526,6 +2053,10 @@ document.addEventListener('DOMContentLoaded', function() {
     tbody.innerHTML = '';
     
     allOrders.forEach(order => {
+      const orderId = generateOrderId(order);
+      const comments = orderComments[orderId] || [];
+      const hasComments = comments.length > 0;
+      
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${order.number}</td>
@@ -1537,11 +2068,19 @@ document.addEventListener('DOMContentLoaded', function() {
         <td class="amount-cell">${formatCurrency(order.amount)}</td>
         <td>${order.parameters['Кв.м']?.toFixed(2) || '-'}</td>
         <td>${order.parameters['Пог.м']?.toFixed(2) || '-'}</td>
+        <td class="comment-cell">
+          <button class="comment-btn ${hasComments ? 'has-comment' : ''}" 
+                  data-order-id="${orderId}"
+                  title="${hasComments ? `${comments.length} комментарий(ев)` : 'Добавить комментарий'}"
+                  onclick="openCommentsModal(${JSON.stringify(order).replace(/"/g, '&quot;')})">
+            <i class="fas fa-comment"></i>
+            ${hasComments ? `<span class="comment-count">${comments.length}</span>` : ''}
+          </button>
+        </td>
       `;
       tbody.appendChild(tr);
     });
     
-    // Update date filter
     const dates = [...new Set(allOrders.map(o => o.date))].sort();
     const dateFilter = document.getElementById('dateFilter');
     dateFilter.innerHTML = '<option value="">Все даты</option>';
@@ -1596,6 +2135,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const name = btn.dataset.file;
         allFilesData = allFilesData.filter(f => f.fileName !== name);
         allOrders = allFilesData.flatMap(f => f.orders);
+        
+        // Удаляем комментарии для удаленного файла
+        Object.keys(orderComments).forEach(orderId => {
+          if (orderId.includes(name)) {
+            delete orderComments[orderId];
+          }
+        });
+        saveComments();
+        
         updateUI();
         saveDataToLocalStorage();
       };
@@ -1634,10 +2182,195 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('tableBody').innerHTML = '';
     document.getElementById('historyList').innerHTML = '';
   }
+
+  // === === === COMMENTS MODAL LOGIC === === ===
   
+  function openCommentsModal(order) {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+      <div class="modal">
+        <div class="modal-header">
+          <h3><i class="fas fa-comments"></i> Комментарии</h3>
+          <button class="modal-close" aria-label="Закрыть">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-order-info">
+          <strong>Заказ №${order.number}</strong> • ${order.code}<br>
+          ${order.description} • ${formatCurrency(order.amount)}
+        </div>
+        <div class="modal-body">
+          <div class="comments-list" id="commentsList"></div>
+          <div class="comment-form">
+            <textarea id="commentInput" placeholder="Добавьте комментарий..."></textarea>
+            <div class="comment-form-controls">
+              <div class="comment-priority-select">
+                <button class="priority-btn normal active" data-priority="normal">
+                  <i class="fas fa-circle"></i> Обычный
+                </button>
+                <button class="priority-btn important" data-priority="important">
+                  <i class="fas fa-exclamation"></i> Важно
+                </button>
+                <button class="priority-btn urgent" data-priority="urgent">
+                  <i class="fas fa-bolt"></i> Срочно
+                </button>
+              </div>
+              <button class="comment-submit" id="commentSubmit">
+                <i class="fas fa-paper-plane"></i> Отправить
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    const commentsList = modal.querySelector('#commentsList');
+    const commentInput = modal.querySelector('#commentInput');
+    const commentSubmit = modal.querySelector('#commentSubmit');
+    const priorityBtns = modal.querySelectorAll('.priority-btn');
+    const modalClose = modal.querySelector('.modal-close');
+    
+    let selectedPriority = 'normal';
+    
+    priorityBtns.forEach(btn => {
+      btn.onclick = () => {
+        priorityBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedPriority = btn.dataset.priority;
+      };
+    });
+    
+    function renderComments() {
+      const comments = getOrderComments(order);
+      
+      if (comments.length === 0) {
+        commentsList.innerHTML = `
+          <div class="empty-comments">
+            <i class="fas fa-comment-slash"></i>
+            <p>Нет комментариев</p>
+            <small>Будьте первым, кто оставит заметку</small>
+          </div>
+        `;
+        return;
+      }
+      
+      commentsList.innerHTML = comments
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+        .map(comment => `
+          <div class="comment-item ${comment.priority}" data-id="${comment.id}">
+            <div class="comment-header">
+              <div class="comment-author">
+                <i class="fas fa-user-circle"></i>
+                ${comment.author}
+                ${comment.priority !== 'normal' ? 
+                  `<span class="comment-priority ${comment.priority}">
+                    <i class="fas fa-${comment.priority === 'important' ? 'exclamation' : 'bolt'}"></i>
+                    ${comment.priority === 'important' ? 'Важно' : 'Срочно'}
+                  </span>` : ''}
+              </div>
+              <span class="comment-time" title="${new Date(comment.timestamp).toLocaleString('ru-RU')}">
+                ${formatCommentTime(comment.timestamp)}
+              </span>
+            </div>
+            <div class="comment-text">${escapeHtml(comment.text)}</div>
+            <div class="comment-actions">
+              <button class="comment-action-btn copy" data-text="${escapeHtml(comment.text)}">
+                <i class="fas fa-copy"></i> Копировать
+              </button>
+              <button class="comment-action-btn delete">
+                <i class="fas fa-trash"></i> Удалить
+              </button>
+            </div>
+          </div>
+        `).join('');
+      
+      commentsList.querySelectorAll('.delete').forEach(btn => {
+        btn.onclick = (e) => {
+          const commentItem = e.target.closest('.comment-item');
+          const commentId = commentItem.dataset.id;
+          if (confirm('Удалить этот комментарий?')) {
+            deleteComment(order, commentId);
+            renderComments();
+            updateCommentButton(order);
+            showToast('Комментарий удалён', 'success');
+          }
+        };
+      });
+      
+      commentsList.querySelectorAll('.copy').forEach(btn => {
+        btn.onclick = (e) => {
+          const text = e.currentTarget.dataset.text;
+          navigator.clipboard.writeText(text);
+          showToast('Скопировано в буфер', 'success');
+        };
+      });
+    }
+    
+    commentSubmit.onclick = () => {
+      const text = commentInput.value.trim();
+      if (!text) {
+        commentInput.focus();
+        return;
+      }
+      
+      addComment(order, text, selectedPriority);
+      commentInput.value = '';
+      priorityBtns.forEach(b => b.classList.remove('active'));
+      priorityBtns[0].classList.add('active');
+      selectedPriority = 'normal';
+      
+      renderComments();
+      updateCommentButton(order);
+      showToast('Комментарий добавлен', 'success');
+      commentInput.focus();
+    };
+    
+    commentInput.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.key === 'Enter') {
+        e.preventDefault();
+        commentSubmit.click();
+      }
+    });
+    
+    modalClose.onclick = closeModal;
+    modal.onclick = (e) => {
+      if (e.target === modal) closeModal();
+    };
+    
+    function closeModal() {
+      modal.classList.remove('active');
+      setTimeout(() => modal.remove(), 300);
+    }
+    
+    setTimeout(() => modal.classList.add('active'), 10);
+    renderComments();
+    commentInput.focus();
+  }
+
+  function updateCommentButton(order) {
+    const orderId = generateOrderId(order);
+    const btn = document.querySelector(`[data-order-id="${orderId}"]`);
+    if (btn) {
+      const comments = orderComments[orderId] || [];
+      if (comments.length > 0) {
+        btn.classList.add('has-comment');
+        btn.innerHTML = `<i class="fas fa-comment"></i><span class="comment-count">${comments.length}</span>`;
+      } else {
+        btn.classList.remove('has-comment');
+        btn.innerHTML = `<i class="fas fa-comment"></i>`;
+        btn.querySelector('.comment-count')?.remove();
+      }
+    }
+  }
+
   // === Init ===
+  loadComments();
+  window.openCommentsModal = openCommentsModal;
+  
   if (!loadDataFromLocalStorage()) {
-    // Show upload area prominently
     dropZone.style.animation = 'fadeInUp 0.6s ease-out';
   }
 });
