@@ -155,8 +155,8 @@ color: #888;
 /* Графики */
 .charts-container {
 display: grid;
-grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
-gap: 20px;
+grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+gap: 25px;
 margin-bottom: 30px;
 }
 .chart-box {
@@ -164,9 +164,11 @@ background: white;
 border-radius: 10px;
 box-shadow: var(--card-shadow);
 padding: 20px;
-height: 300px;
+height: 350px;
 display: flex;
 flex-direction: column;
+min-width: 300px;
+overflow: hidden; /* КРИТИЧЕСКОЕ ИЗМЕНЕНИЕ - предотвращает вылезание графика */
 }
 .chart-box h2 {
 margin-bottom: 15px;
@@ -562,6 +564,8 @@ background-color: #c13515;
 <th>Дата</th>
 <th>Файл</th>
 <th>Сумма</th>
+<th>Кв.м</th>
+<th>Пог.м</th>
 </tr>
 </thead>
 <tbody id="tableBody">
@@ -587,6 +591,42 @@ const resetAllButton = document.getElementById('resetAllButton');
 // Глобальные переменные для хранения данных
 let allFilesData = []; // Массив для хранения данных всех файлов
 let allOrders = []; // Все заказы из всех файлов
+
+// Функция для сохранения данных в localStorage
+function saveDataToLocalStorage() {
+  localStorage.setItem('dashboardData', JSON.stringify({
+    allFilesData: allFilesData,
+    allOrders: allOrders
+  }));
+}
+
+// Функция для загрузки данных из localStorage
+function loadDataFromLocalStorage() {
+  const savedData = localStorage.getItem('dashboardData');
+  if (savedData) {
+    try {
+      const { allFilesData: savedFilesData, allOrders: savedOrders } = JSON.parse(savedData);
+      allFilesData = savedFilesData || [];
+      allOrders = savedOrders || [];
+      
+      // Обновляем интерфейс
+      updateSummaryCards();
+      renderCharts();
+      renderProgressBars();
+      renderDataTable();
+      updateHistoryList();
+      
+      // Показываем элементы
+      chartsContainer.style.display = 'grid';
+      summaryCards.style.display = 'flex';
+      historySection.style.display = 'block';
+      dataTable.style.display = 'block';
+    } catch (e) {
+      console.error('Ошибка при загрузке данных из localStorage:', e);
+    }
+  }
+}
+
 // Обработчики событий для зоны загрузки
 dropZone.addEventListener('click', () => {
 fileInput.click();
@@ -624,6 +664,8 @@ dataTable.style.display = 'none';
 updateHistoryList();
 // Сбрасываем таблицу
 document.getElementById('tableBody').innerHTML = '';
+// Удаляем данные из localStorage
+localStorage.removeItem('dashboardData');
 }
 });
 // Обработчик поиска и фильтров
@@ -665,6 +707,8 @@ historySection.style.display = 'block';
 dataTable.style.display = 'block';
 // Сбрасываем выбор файла для возможности загрузки того же файла
 fileInput.value = '';
+// Сохраняем данные в localStorage
+saveDataToLocalStorage();
 } catch (error) {
 console.error('Ошибка обработки файла:', error);
 showError(`Не удалось обработать файл. Ошибка: ${error.message}`);
@@ -734,6 +778,10 @@ const paramName = paramMatch[1].trim();
 let paramValue = paramMatch[2].trim();
 // Сохраняем параметр
 order.parameters[paramName] = paramValue;
+// Обработка квадратных и погонных метров
+if (paramName === 'Кв.м' || paramName === 'Пог.м') {
+order.parameters[paramName] = parseFloat(paramValue.replace(',', '.'));
+}
 // Если это сумма, извлекаем значение
 if (paramName === 'Сумма' || line.includes('Сумма')) {
 const sumMatch = line.match(/Сумма:\s*([\d.,]+)/);
@@ -1075,6 +1123,8 @@ row.innerHTML = `
 <td>${order.date}</td>
 <td title="${order.sourceFile}">${order.sourceFile.substring(0, 15)}${order.sourceFile.length > 15 ? '...' : ''}</td>
 <td class="amount-cell">${formatCurrency(order.amount)}</td>
+<td>${order.parameters['Кв.м'] ? parseFloat(order.parameters['Кв.м']).toFixed(2) : '-'}</td>
+<td>${order.parameters['Пог.м'] ? parseFloat(order.parameters['Пог.м']).toFixed(2) : '-'}</td>
 `;
 tableBody.appendChild(row);
 });
@@ -1160,6 +1210,8 @@ summaryCards.style.display = 'none';
 historySection.style.display = 'none';
 dataTable.style.display = 'none';
 }
+// Сохраняем данные в localStorage
+saveDataToLocalStorage();
 }
 // Вспомогательные функции
 function formatCurrency(amount) {
@@ -1197,6 +1249,9 @@ errorMessage.classList.remove('show');
 function hideError() {
 errorMessage.classList.remove('show');
 }
+
+// Загружаем данные из localStorage при инициализации
+loadDataFromLocalStorage();
 });
 </script>
 </body>
