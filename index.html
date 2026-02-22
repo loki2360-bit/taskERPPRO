@@ -730,7 +730,7 @@
                 reader.readAsText(file, 'utf-8');
             }
             
-            // Парсинг файла с заказами (ПОЛНОСТЬЮ ПЕРЕПИСАН)
+            // Парсинг файла с заказами
             function parseOrderFile(content, fileName) {
                 // Извлекаем дату из названия файла или содержимого
                 let dateMatch = fileName.match(/(\d{2}\.\d{2}\.\d{4})/);
@@ -885,7 +885,7 @@
                 // Создаем или обновляем график
                 const ctx = document.getElementById('typeChart').getContext('2d');
                 
-                // ИСПРАВЛЕНИЕ: Проверяем наличие графика через Chart.js API
+                // Удаляем предыдущий график, если он существует
                 if (Chart.getChart(ctx)) {
                     Chart.getChart(ctx).destroy();
                 }
@@ -952,7 +952,7 @@
                 // Создаем или обновляем график
                 const ctx = document.getElementById('ordersChart').getContext('2d');
                 
-                // ИСПРАВЛЕНИЕ: Проверяем наличие графика через Chart.js API
+                // Удаляем предыдущий график, если он существует
                 if (Chart.getChart(ctx)) {
                     Chart.getChart(ctx).destroy();
                 }
@@ -1001,7 +1001,7 @@
                 });
             }
             
-            // Топ-5 самых дорогих заказов
+            // Топ-5 самых дорогих заказов (ИСПРАВЛЕНО)
             function renderTopOrdersChart(data) {
                 // Сортируем заказы по сумме в убывающем порядке и берем первые 5
                 const topOrders = [...data.orders]
@@ -1022,13 +1022,13 @@
                 // Создаем или обновляем график
                 const ctx = document.getElementById('topOrdersChart').getContext('2d');
                 
-                // ИСПРАВЛЕНИЕ: Проверяем наличие графика через Chart.js API
+                // Удаляем предыдущий график, если он существует
                 if (Chart.getChart(ctx)) {
                     Chart.getChart(ctx).destroy();
                 }
                 
                 new Chart(ctx, {
-                    type: 'horizontalBar',
+                    type: 'bar',  // ИСПРАВЛЕНО: заменен с horizontalBar на bar
                     data: {
                         labels: labels,
                         datasets: [{
@@ -1040,7 +1040,7 @@
                         }]
                     },
                     options: {
-                        indexAxis: 'y',
+                        indexAxis: 'y',  // ИСПРАВЛЕНО: добавлена опция для горизонтального бара
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
