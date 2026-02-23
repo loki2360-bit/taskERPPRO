@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>📊 Дашборд анализа заказов</title>
+<title>📊 Дашборд анализа заказов + Комментарии</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -51,6 +51,20 @@ background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)
 border-radius: var(--radius-lg);
 box-shadow: var(--shadow-lg), var(--shadow-glow);
 color: white;
+position: relative;
+overflow: hidden;
+}
+.dashboard-header::before {
+content: '';
+position: absolute;
+top: -50%; left: -50%;
+width: 200%; height: 200%;
+background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+animation: pulse 4s ease-in-out infinite;
+}
+@keyframes pulse {
+0%, 100% { transform: scale(1); opacity: 0.5; }
+50% { transform: scale(1.1); opacity: 0.8; }
 }
 .dashboard-header h1 {
 font-size: 2rem;
@@ -59,9 +73,15 @@ display: flex;
 justify-content: center;
 align-items: center;
 gap: 12px;
+position: relative;
+z-index: 1;
 }
-.dashboard-header h1 i { color: white; }
-.dashboard-header p { color: rgba(255,255,255,0.9); }
+.dashboard-header h1 i { animation: float 3s ease-in-out infinite; }
+@keyframes float {
+0%, 100% { transform: translateY(0); }
+50% { transform: translateY(-8px); }
+}
+.dashboard-header p { color: rgba(255,255,255,0.9); position: relative; z-index: 1; }
 .upload-area {
 border: 3px dashed var(--border);
 border-radius: var(--radius-lg);
@@ -71,6 +91,7 @@ background: var(--bg-secondary);
 cursor: pointer;
 transition: var(--transition);
 margin-bottom: 32px;
+box-shadow: var(--shadow);
 }
 .upload-area:hover, .upload-area.dragover {
 border-color: var(--primary);
@@ -96,12 +117,16 @@ display: flex;
 align-items: center;
 gap: 16px;
 border: 1px solid var(--border);
+box-shadow: var(--shadow);
 }
 .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
 .card-icon {
-width: 64px; height: 64px; border-radius: 16px;
+width: 64px; height: 64px;
+border-radius: 16px;
 display: flex; align-items: center; justify-content: center;
-font-size: 26px; background: rgba(99, 102, 241, 0.15); color: var(--primary);
+font-size: 26px;
+background: rgba(99, 102, 241, 0.15);
+color: var(--primary);
 }
 .card-content h3 { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 4px; }
 .value { font-size: 1.75rem; font-weight: 700; color: var(--text-primary); }
@@ -121,6 +146,7 @@ display: flex;
 flex-direction: column;
 min-height: 400px;
 transition: var(--transition);
+box-shadow: var(--shadow);
 }
 .chart-box:hover { box-shadow: var(--shadow-lg); border-color: var(--primary-light); }
 .chart-box h2 {
@@ -134,11 +160,107 @@ padding-bottom: 16px;
 border-bottom: 1px solid var(--border);
 }
 .chart-box h2 i { color: var(--primary); }
-.chart-container {
-flex: 1;
-position: relative;
-min-height: 300px;
+.chart-container { flex: 1; position: relative; min-height: 300px; }
+.calendar-widget {
+background: var(--bg-secondary);
+border-radius: var(--radius);
+padding: 24px;
+border: 1px solid var(--border);
+display: flex;
+flex-direction: column;
+gap: 20px;
+box-shadow: var(--shadow);
+min-height: 450px;
 }
+.calendar-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding-bottom: 16px;
+border-bottom: 1px solid var(--border);
+}
+.calendar-title {
+font-size: 1.2rem;
+font-weight: 600;
+display: flex;
+align-items: center;
+gap: 10px;
+}
+.calendar-title i { color: var(--primary); }
+.current-date { font-size: 0.95rem; color: var(--text-secondary); font-weight: 500; }
+.calendar-stats {
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 12px;
+}
+.stat-item {
+background: var(--bg-tertiary);
+padding: 14px;
+border-radius: 12px;
+text-align: center;
+border: 1px solid var(--border);
+}
+.stat-value { font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
+.stat-label { font-size: 0.85rem; color: var(--text-secondary); }
+.calendar-grid {
+display: grid;
+grid-template-columns: repeat(7, 1fr);
+gap: 6px;
+}
+.calendar-day-header {
+text-align: center;
+font-size: 0.8rem;
+font-weight: 600;
+color: var(--text-tertiary);
+padding: 8px 4px;
+text-transform: uppercase;
+}
+.calendar-day {
+aspect-ratio: 1;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+border-radius: 10px;
+font-size: 0.9rem;
+font-weight: 500;
+cursor: pointer;
+transition: var(--transition);
+position: relative;
+border: 2px solid transparent;
+}
+.calendar-day:hover { transform: scale(1.1); z-index: 10; }
+.calendar-day.weekend { background: rgba(239, 68, 68, 0.1); color: var(--danger); border-color: rgba(239, 68, 68, 0.3); }
+.calendar-day.holiday { background: rgba(245, 158, 11, 0.15); color: var(--warning); border-color: rgba(245, 158, 11, 0.4); }
+.calendar-day.loaded {
+background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(99, 102, 241, 0.1));
+color: var(--primary);
+border-color: var(--primary);
+box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
+}
+.calendar-day.loaded::after {
+content: '8ч';
+position: absolute;
+bottom: 2px;
+font-size: 0.65rem;
+font-weight: 600;
+color: var(--primary);
+}
+.calendar-day.today { border-color: var(--info); box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); }
+.calendar-day.empty { visibility: hidden; }
+.calendar-legend {
+display: flex;
+gap: 16px;
+flex-wrap: wrap;
+padding-top: 12px;
+border-top: 1px solid var(--border);
+font-size: 0.85rem;
+}
+.legend-item { display: flex; align-items: center; gap: 6px; color: var(--text-secondary); }
+.legend-box { width: 16px; height: 16px; border-radius: 6px; border: 2px solid; }
+.legend-box.loaded { background: rgba(99, 102, 241, 0.2); border-color: var(--primary); }
+.legend-box.weekend { background: rgba(239, 68, 68, 0.1); border-color: var(--danger); }
+.legend-box.holiday { background: rgba(245, 158, 11, 0.15); border-color: var(--warning); }
 .trend-controls { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
 .trend-controls select {
 padding: 8px 16px;
@@ -149,8 +271,13 @@ color: var(--text-primary);
 cursor: pointer;
 }
 .trend-controls select:focus { outline: none; border-color: var(--primary); }
+.trend-legend { display: flex; gap: 20px; margin-top: 12px; font-size: 0.85rem; color: var(--text-secondary); }
+.trend-legend-item { display: flex; align-items: center; gap: 6px; }
+.trend-legend-color { width: 12px; height: 12px; border-radius: 3px; }
+.trend-legend-color.up { background: var(--success); }
+.trend-legend-color.down { background: var(--danger); }
 .progress-group { margin-bottom: 24px; padding: 16px; background: var(--bg-tertiary); border-radius: 12px; }
-.progress-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+.progress-header { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.95rem; }
 .progress { height: 12px; background: var(--border); border-radius: 6px; overflow: hidden; }
 .progress-fill { height: 100%; border-radius: 6px; transition: width 0.6s; }
 .history-section {
@@ -159,6 +286,7 @@ border-radius: var(--radius);
 padding: 24px;
 margin-bottom: 32px;
 border: 1px solid var(--border);
+box-shadow: var(--shadow);
 }
 .history-section h2 { font-size: 1.2rem; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
 .reset-button {
@@ -180,12 +308,16 @@ padding: 16px;
 border-radius: 12px;
 background: var(--bg-tertiary);
 transition: var(--transition);
+border: 1px solid transparent;
 }
 .history-item:hover { border-color: var(--primary-light); transform: translateX(4px); }
 .history-item-icon {
-width: 44px; height: 44px; border-radius: 12px;
-background: rgba(99, 102, 241, 0.15); color: var(--primary);
-display: flex; align-items: center; justify-content: center; margin-right: 16px;
+width: 44px; height: 44px;
+border-radius: 12px;
+background: rgba(99, 102, 241, 0.15);
+color: var(--primary);
+display: flex; align-items: center; justify-content: center;
+margin-right: 16px;
 }
 .history-item-details { flex: 1; }
 .history-item-details h4 { margin-bottom: 4px; }
@@ -201,6 +333,7 @@ border-radius: var(--radius);
 padding: 24px;
 margin-bottom: 32px;
 border: 1px solid var(--border);
+box-shadow: var(--shadow);
 }
 .data-table h2 { font-size: 1.2rem; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
 .table-controls { display: flex; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 16px; }
@@ -234,10 +367,14 @@ table tbody tr:hover { background: rgba(99, 102, 241, 0.03); }
 .amount-cell { font-weight: 600; color: var(--primary); }
 .comment-cell { text-align: center; }
 .comment-btn {
-width: 32px; height: 32px; border-radius: 8px;
-border: 2px solid var(--border); background: var(--bg-secondary);
-color: var(--text-tertiary); cursor: pointer;
-display: flex; align-items: center; justify-content: center; position: relative;
+width: 32px; height: 32px;
+border-radius: 8px;
+border: 2px solid var(--border);
+background: var(--bg-secondary);
+color: var(--text-tertiary);
+cursor: pointer;
+display: flex; align-items: center; justify-content: center;
+position: relative;
 }
 .comment-btn.has-comment { background: rgba(99, 102, 241, 0.15); border-color: var(--primary); color: var(--primary); }
 .comment-btn.has-comment::after {
@@ -272,6 +409,7 @@ footer { text-align: center; padding: 24px; color: var(--text-tertiary); margin-
 .container { padding: 16px; }
 .charts-container { grid-template-columns: 1fr; }
 .summary-cards { grid-template-columns: 1fr; }
+.calendar-stats { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -336,6 +474,10 @@ footer { text-align: center; padding: 24px; color: var(--text-tertiary); margin-
 </select>
 </div>
 <div class="chart-container"><canvas id="trendChart"></canvas></div>
+<div class="trend-legend">
+<div class="trend-legend-item"><div class="trend-legend-color up"></div><span>Рост</span></div>
+<div class="trend-legend-item"><div class="trend-legend-color down"></div><span>Спад</span></div>
+</div>
 </div>
 <div class="chart-box">
 <h2><i class="fas fa-chart-bar"></i> Выручка по типам</h2>
@@ -350,23 +492,24 @@ footer { text-align: center; padding: 24px; color: var(--text-tertiary); margin-
 <div class="chart-container"><canvas id="topOrdersChart"></canvas></div>
 </div>
 <div class="chart-box">
-<h2><i class="fas fa-ruler-horizontal"></i> Погонные и квадратные метры</h2>
-<div class="trend-controls">
-<select id="metricsPeriod">
-<option value="all">Весь период</option>
-<option value="7">7 дней</option>
-<option value="30">30 дней</option>
-</select>
-</div>
-<div class="chart-container"><canvas id="metricsChart"></canvas></div>
-</div>
-<div class="chart-box">
-<h2><i class="fas fa-chart-scatter"></i> Сравнительный анализ</h2>
-<div class="chart-container"><canvas id="comparisonChart"></canvas></div>
-</div>
-<div class="chart-box">
 <h2><i class="fas fa-tasks"></i> Прогресс</h2>
 <div id="progressBars"></div>
+</div>
+<div class="calendar-widget">
+<div class="calendar-header">
+<div class="calendar-title"><i class="fas fa-calendar-alt"></i><span>Календарь</span></div>
+<div class="current-date" id="currentDateDisplay"></div>
+</div>
+<div class="calendar-stats">
+<div class="stat-item"><div class="stat-value" id="totalHoursWorked">0ч</div><div class="stat-label">Отработано</div></div>
+<div class="stat-item"><div class="stat-value" id="totalWorkingDays">0</div><div class="stat-label">Рабочих дней</div></div>
+</div>
+<div class="calendar-grid" id="calendarGrid"></div>
+<div class="calendar-legend">
+<div class="legend-item"><div class="legend-box loaded"></div><span>Загружено (8ч)</span></div>
+<div class="legend-item"><div class="legend-box weekend"></div><span>Выходной</span></div>
+<div class="legend-item"><div class="legend-box holiday"></div><span>Праздник</span></div>
+</div>
 </div>
 </div>
 <div class="history-section" id="historySection" style="display: none;">
@@ -412,68 +555,42 @@ const resetAllButton = document.getElementById('resetAllButton');
 let allFilesData = [];
 let allOrders = [];
 let trendChartInstance = null;
-let metricsChartInstance = null;
-let comparisonChartInstance = null;
 let orderComments = {};
+const holidays2026 = { '01': [1,2,3,4,5,6,7,8], '02': [23], '03': [8], '05': [1,9], '06': [12], '11': [4] };
 
-function formatCurrency(n) {
-return new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(n).replace('RUB', '₽');
-}
+function formatCurrency(n) { return new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(n).replace('RUB', '₽'); }
 function formatNumber(n) { return new Intl.NumberFormat('ru-RU').format(Math.round(n)); }
-function showError(msg) {
-errorList.innerHTML = `<li>${msg}</li>`;
-errorMessage.classList.add('show');
-setTimeout(() => errorMessage.classList.remove('show'), 6000);
-}
+function showError(msg) { errorList.innerHTML = `<li>${msg}</li>`; errorMessage.classList.add('show'); setTimeout(() => errorMessage.classList.remove('show'), 6000); }
 function hideError() { errorMessage.classList.remove('show'); }
 function showToast(message, type = 'success') {
-const existing = document.querySelector('.toast');
-if (existing) existing.remove();
-const toast = document.createElement('div');
-toast.className = `toast ${type}`;
+const existing = document.querySelector('.toast'); if (existing) existing.remove();
+const toast = document.createElement('div'); toast.className = `toast ${type}`;
 toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>${message}`;
 document.body.appendChild(toast);
 setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
 }
-function escapeHtml(text) {
-const div = document.createElement('div');
-div.textContent = text;
-return div.innerHTML;
-}
-function generateOrderId(order) {
-return `${order.sourceFile}_${order.number}_${order.code}`.replace(/\s+/g, '_');
-}
-function loadComments() {
-try {
-const saved = localStorage.getItem('orderComments');
-if (saved) orderComments = JSON.parse(saved);
-} catch (e) { orderComments = {}; }
-}
-function saveComments() {
-try { localStorage.setItem('orderComments', JSON.stringify(orderComments)); } catch (e) {}
-}
+function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+function generateOrderId(order) { return `${order.sourceFile}_${order.number}_${order.code}`.replace(/\s+/g, '_'); }
+function loadComments() { try { const saved = localStorage.getItem('orderComments'); if (saved) orderComments = JSON.parse(saved); } catch (e) { orderComments = {}; } }
+function saveComments() { try { localStorage.setItem('orderComments', JSON.stringify(orderComments)); } catch (e) {} }
 function getOrderComments(order) { return orderComments[generateOrderId(order)] || []; }
 function addComment(order, text, priority = 'normal') {
 const orderId = generateOrderId(order);
 const comment = { id: Date.now().toString(36), text: text.trim(), priority, author: 'Вы', timestamp: new Date().toISOString() };
 if (!orderComments[orderId]) orderComments[orderId] = [];
-orderComments[orderId].push(comment);
-saveComments();
-return comment;
+orderComments[orderId].push(comment); saveComments(); return comment;
 }
 function deleteComment(order, commentId) {
 const orderId = generateOrderId(order);
 if (orderComments[orderId]) {
 orderComments[orderId] = orderComments[orderId].filter(c => c.id !== commentId);
 if (orderComments[orderId].length === 0) delete orderComments[orderId];
-saveComments();
-return true;
+saveComments(); return true;
 }
 return false;
 }
 function formatCommentTime(isoString) {
-const date = new Date(isoString);
-const now = new Date();
+const date = new Date(isoString); const now = new Date();
 if (date.toDateString() === now.toDateString()) return date.toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'});
 const yesterday = new Date(now); yesterday.setDate(yesterday.getDate() - 1);
 if (date.toDateString() === yesterday.toDateString()) return 'Вчера';
@@ -492,9 +609,7 @@ const latest = allFilesData.map(f => f.exportDateTime).sort().pop();
 document.getElementById('lastUpdate').textContent = latest || '-';
 }
 }
-function saveDataToLocalStorage() {
-try { localStorage.setItem('dashboardData', JSON.stringify({ allFilesData, allOrders, timestamp: Date.now() })); } catch (e) {}
-}
+function saveDataToLocalStorage() { try { localStorage.setItem('dashboardData', JSON.stringify({ allFilesData, allOrders, timestamp: Date.now() })); } catch (e) {} }
 function loadDataFromLocalStorage() {
 try {
 const saved = localStorage.getItem('dashboardData');
@@ -506,300 +621,94 @@ if (savedFiles?.length) { allFilesData = savedFiles; allOrders = savedOrders || 
 return false;
 }
 function updateUI() {
-updateSummaryCards();
-renderCharts();
-renderProgressBars();
-renderDataTable();
-updateHistoryList();
-chartsContainer.style.display = 'grid';
-summaryCards.style.display = 'grid';
-historySection.style.display = 'block';
-dataTable.style.display = 'block';
+updateSummaryCards(); renderCharts(); renderProgressBars(); renderDataTable(); updateHistoryList(); renderCalendar();
+chartsContainer.style.display = 'grid'; summaryCards.style.display = 'grid'; historySection.style.display = 'block'; dataTable.style.display = 'block';
 }
 function resetUI() {
-chartsContainer.style.display = 'none';
-summaryCards.style.display = 'none';
-historySection.style.display = 'none';
-dataTable.style.display = 'none';
-document.getElementById('tableBody').innerHTML = '';
-document.getElementById('historyList').innerHTML = '';
+chartsContainer.style.display = 'none'; summaryCards.style.display = 'none'; historySection.style.display = 'none'; dataTable.style.display = 'none';
+document.getElementById('tableBody').innerHTML = ''; document.getElementById('historyList').innerHTML = '';
 }
-function renderCharts() {
-renderTrendChart();
-renderTypeChart();
-renderOrdersChart();
-renderTopOrdersChart();
-renderMetricsChart();
-renderComparisonChart();
+function renderCalendar() {
+const now = new Date(); const currentYear = now.getFullYear(); const currentMonth = now.getMonth(); const today = now.getDate();
+const monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+document.getElementById('currentDateDisplay').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+const loadedDates = new Set();
+allFilesData.forEach(file => {
+const dateMatch = file.date.match(/(\d{2})\.(\d{2})\.(\d{4})/);
+if (dateMatch) { const [_, day, month, year] = dateMatch; if (parseInt(year) === currentYear && parseInt(month) === currentMonth + 1) loadedDates.add(parseInt(day)); }
+});
+document.getElementById('totalHoursWorked').textContent = `${loadedDates.size * 8}ч`;
+const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+let workingDays = 0;
+for (let day = 1; day <= daysInMonth; day++) {
+const date = new Date(currentYear, currentMonth, day);
+const dayOfWeek = date.getDay();
+const monthStr = String(currentMonth + 1).padStart(2, '0');
+const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+const isHoliday = holidays2026[monthStr] && holidays2026[monthStr].includes(day);
+if (!isWeekend && !isHoliday) workingDays++;
 }
+document.getElementById('totalWorkingDays').textContent = workingDays;
+const grid = document.getElementById('calendarGrid'); grid.innerHTML = '';
+['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].forEach(h => { const div = document.createElement('div'); div.className = 'calendar-day-header'; div.textContent = h; grid.appendChild(div); });
+const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+const startingDay = firstDay === 0 ? 6 : firstDay - 1;
+for (let i = 0; i < startingDay; i++) { const div = document.createElement('div'); div.className = 'calendar-day empty'; grid.appendChild(div); }
+for (let day = 1; day <= daysInMonth; day++) {
+const div = document.createElement('div'); div.className = 'calendar-day'; div.textContent = day;
+const date = new Date(currentYear, currentMonth, day);
+const dayOfWeek = date.getDay();
+const monthStr = String(currentMonth + 1).padStart(2, '0');
+const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+const isHoliday = holidays2026[monthStr] && holidays2026[monthStr].includes(day);
+const isLoaded = loadedDates.has(day);
+const isToday = day === today;
+if (isToday) div.classList.add('today');
+if (isWeekend) div.classList.add('weekend');
+if (isHoliday) div.classList.add('holiday');
+if (isLoaded) div.classList.add('loaded');
+grid.appendChild(div);
+}
+}
+function renderCharts() { renderTrendChart(); renderTypeChart(); renderOrdersChart(); renderTopOrdersChart(); }
 function renderTrendChart() {
 const period = document.getElementById('trendPeriod').value;
 const revenueByDate = {};
 allOrders.forEach(order => { if (!revenueByDate[order.date]) revenueByDate[order.date] = 0; revenueByDate[order.date] += order.amount; });
 const sortedDates = Object.keys(revenueByDate).sort((a, b) => new Date(a.split('.').reverse().join('-')) - new Date(b.split('.').reverse().join('-')));
 let filteredDates = sortedDates;
-if (period !== 'all') {
-const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - parseInt(period));
-filteredDates = sortedDates.filter(d => new Date(d.split('.').reverse().join('-')) >= cutoff);
-}
-const labels = filteredDates;
-const values = filteredDates.map(d => revenueByDate[d]);
+if (period !== 'all') { const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - parseInt(period)); filteredDates = sortedDates.filter(d => new Date(d.split('.').reverse().join('-')) >= cutoff); }
+const labels = filteredDates; const values = filteredDates.map(d => revenueByDate[d]);
 const ctx = document.getElementById('trendChart').getContext('2d');
-const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-gradient.addColorStop(0, 'rgba(99, 102, 241, 0.5)');
-gradient.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
+const gradient = ctx.createLinearGradient(0, 0, 0, 400); gradient.addColorStop(0, 'rgba(99, 102, 241, 0.5)'); gradient.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
 if (trendChartInstance) trendChartInstance.destroy();
-trendChartInstance = new Chart(ctx, {
-type: 'line',
-data: { labels, datasets: [{ label: 'Выручка', data: values, borderColor: '#6366f1', backgroundColor: gradient, borderWidth: 3, pointBackgroundColor: values.map((v, i) => i === 0 ? '#6366f1' : values[i] >= values[i-1] ? '#10b981' : '#ef4444'), pointBorderColor: '#1e293b', pointBorderWidth: 2, pointRadius: 6, pointHoverRadius: 8, fill: true, tension: 0.4 }] },
-options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(30,41,59,0.95)', titleColor: '#fff', bodyColor: '#fff', callbacks: { label: ctx => `💰 ${formatCurrency(ctx.parsed.y)}` } } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { callback: v => formatCurrency(v), color: '#64748b' } }, x: { grid: { display: false }, ticks: { color: '#64748b', maxRotation: 45, minRotation: 45 } } } }
-});
+trendChartInstance = new Chart(ctx, { type: 'line', data: { labels, datasets: [{ label: 'Выручка', data: values, borderColor: '#6366f1', backgroundColor: gradient, borderWidth: 3, pointBackgroundColor: values.map((v, i) => i === 0 ? '#6366f1' : values[i] >= values[i-1] ? '#10b981' : '#ef4444'), pointBorderColor: '#1e293b', pointBorderWidth: 2, pointRadius: 6, pointHoverRadius: 8, fill: true, tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(30,41,59,0.95)', titleColor: '#fff', bodyColor: '#fff', callbacks: { label: ctx => `💰 ${formatCurrency(ctx.parsed.y)}` } } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { callback: v => formatCurrency(v), color: '#64748b' } }, x: { grid: { display: false }, ticks: { color: '#64748b', maxRotation: 45, minRotation: 45 } } } } });
 }
 function renderTypeChart() {
-const data = {};
-allOrders.forEach(o => { data[o.type] = (data[o.type] || 0) + o.amount; });
-const labels = Object.keys(data);
-const values = Object.values(data);
-const total = values.reduce((a,b) => a+b, 0);
-const ctx = document.getElementById('typeChart').getContext('2d');
-if (Chart.getChart(ctx)) Chart.getChart(ctx).destroy();
+const data = {}; allOrders.forEach(o => { data[o.type] = (data[o.type] || 0) + o.amount; });
+const labels = Object.keys(data); const values = Object.values(data); const total = values.reduce((a,b) => a+b, 0);
+const ctx = document.getElementById('typeChart').getContext('2d'); if (Chart.getChart(ctx)) Chart.getChart(ctx).destroy();
 const colors = ['rgba(99,102,241,0.8)','rgba(16,185,129,0.8)','rgba(6,182,212,0.8)','rgba(245,158,11,0.8)','rgba(239,68,68,0.8)'];
-new Chart(ctx, {
-type: 'bar',
-data: { labels, datasets: [{ label: 'Выручка', data: values, backgroundColor: labels.map((_, i) => colors[i % colors.length]), borderRadius: 6, borderSkipped: false }] },
-options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => { const pct = ((ctx.parsed.y / total) * 100).toFixed(1); return `${formatCurrency(ctx.parsed.y)} (${pct}%)`; } } } }, scales: { y: { beginAtZero: true, ticks: { callback: v => formatCurrency(v) } } } }
-});
+new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ label: 'Выручка', data: values, backgroundColor: labels.map((_, i) => colors[i % colors.length]), borderRadius: 6, borderSkipped: false }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => { const pct = ((ctx.parsed.y / total) * 100).toFixed(1); return `${formatCurrency(ctx.parsed.y)} (${pct}%)`; } } } }, scales: { y: { beginAtZero: true, ticks: { callback: v => formatCurrency(v) } } } } });
 }
 function renderOrdersChart() {
-const counts = {};
-allOrders.forEach(o => counts[o.type] = (counts[o.type] || 0) + 1);
-const ctx = document.getElementById('ordersChart').getContext('2d');
-if (Chart.getChart(ctx)) Chart.getChart(ctx).destroy();
+const counts = {}; allOrders.forEach(o => counts[o.type] = (counts[o.type] || 0) + 1);
+const ctx = document.getElementById('ordersChart').getContext('2d'); if (Chart.getChart(ctx)) Chart.getChart(ctx).destroy();
 const colors = ['#6366f1','#10b981','#06b6d4','#f59e0b','#ef4444'];
-new Chart(ctx, {
-type: 'doughnut',
-data: { labels: Object.keys(counts), datasets: [{ data: Object.values(counts), backgroundColor: Object.keys(counts).map((_, i) => colors[i % colors.length]), borderWidth: 3, borderColor: '#fff' }] },
-options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'right', labels: { padding: 15 } }, tooltip: { callbacks: { label: ctx => { const total = ctx.dataset.data.reduce((a,b) => a+b, 0); const pct = ((ctx.parsed / total) * 100).toFixed(1); return `${ctx.label}: ${ctx.parsed} (${pct}%)`; } } } } }
-});
-const filter = document.getElementById('typeFilter');
-filter.innerHTML = '<option value="">Все типы работ</option>';
+new Chart(ctx, { type: 'doughnut', data: { labels: Object.keys(counts), datasets: [{ data: Object.values(counts), backgroundColor: Object.keys(counts).map((_, i) => colors[i % colors.length]), borderWidth: 3, borderColor: '#fff' }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'right', labels: { padding: 15 } }, tooltip: { callbacks: { label: ctx => { const total = ctx.dataset.data.reduce((a,b) => a+b, 0); const pct = ((ctx.parsed / total) * 100).toFixed(1); return `${ctx.label}: ${ctx.parsed} (${pct}%)`; } } } } } });
+const filter = document.getElementById('typeFilter'); filter.innerHTML = '<option value="">Все типы работ</option>';
 Object.keys(counts).forEach(type => { const opt = document.createElement('option'); opt.value = type; opt.textContent = `${type} (${counts[type]})`; filter.appendChild(opt); });
 }
 function renderTopOrdersChart() {
 const top = [...allOrders].sort((a,b) => b.amount - a.amount).slice(0, 5);
-const ctx = document.getElementById('topOrdersChart').getContext('2d');
-if (Chart.getChart(ctx)) Chart.getChart(ctx).destroy();
+const ctx = document.getElementById('topOrdersChart').getContext('2d'); if (Chart.getChart(ctx)) Chart.getChart(ctx).destroy();
 const colors = ['rgba(99,102,241,0.9)','rgba(16,185,129,0.9)','rgba(6,182,212,0.9)','rgba(245,158,11,0.9)','rgba(239,68,68,0.9)'];
-new Chart(ctx, {
-type: 'bar',
-data: { labels: top.map(o => o.description.length > 25 ? o.description.slice(0,25)+'…' : o.description), datasets: [{ label: 'Сумма', data: top.map(o => o.amount), backgroundColor: top.map((_, i) => colors[i]), borderRadius: 8, borderSkipped: false }] },
-options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { title: items => top[items[0].dataIndex].description, label: ctx => `💰 ${formatCurrency(ctx.parsed.x)}` } } }, scales: { x: { ticks: { callback: v => formatCurrency(v) } } } }
-});
-}
-function renderMetricsChart() {
-const period = document.getElementById('metricsPeriod').value;
-const metricsByDate = {};
-allOrders.forEach(order => {
-if (!metricsByDate[order.date]) {
-metricsByDate[order.date] = { sqm: 0, lm: 0 };
-}
-if (order.parameters['Кв.м']) metricsByDate[order.date].sqm += order.parameters['Кв.м'];
-if (order.parameters['Пог.м']) metricsByDate[order.date].lm += order.parameters['Пог.м'];
-});
-const sortedDates = Object.keys(metricsByDate).sort((a, b) => new Date(a.split('.').reverse().join('-')) - new Date(b.split('.').reverse().join('-')));
-let filteredDates = sortedDates;
-if (period !== 'all') {
-const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - parseInt(period));
-filteredDates = sortedDates.filter(d => new Date(d.split('.').reverse().join('-')) >= cutoff);
-}
-const labels = filteredDates;
-const sqmData = filteredDates.map(d => metricsByDate[d].sqm);
-const lmData = filteredDates.map(d => metricsByDate[d].lm);
-const ctx = document.getElementById('metricsChart').getContext('2d');
-if (metricsChartInstance) metricsChartInstance.destroy();
-metricsChartInstance = new Chart(ctx, {
-type: 'bar',
-data: {
-labels,
-datasets: [
-{
-label: 'Квадратные метры',
-data: sqmData,
-backgroundColor: 'rgba(99, 102, 241, 0.8)',
-borderColor: '#6366f1',
-borderWidth: 2,
-borderRadius: 6,
-yAxisID: 'y'
-},
-{
-label: 'Погонные метры',
-data: lmData,
-backgroundColor: 'rgba(16, 185, 129, 0.8)',
-borderColor: '#10b981',
-borderWidth: 2,
-borderRadius: 6,
-yAxisID: 'y1'
-}
-]
-},
-options: {
-responsive: true,
-maintainAspectRatio: false,
-interaction: { mode: 'index', intersect: false },
-plugins: {
-legend: { position: 'top', labels: { padding: 15 } },
-tooltip: {
-callbacks: {
-label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)} м${ctx.dataset.label.includes('Квадрат') ? '²' : ''}`
-}
-}
-},
-scales: {
-y: {
-type: 'linear',
-display: true,
-position: 'left',
-beginAtZero: true,
-title: { display: true, text: 'Кв. метры', color: '#6366f1' },
-ticks: { color: '#6366f1' },
-grid: { color: 'rgba(99, 102, 241, 0.1)' }
-},
-y1: {
-type: 'linear',
-display: true,
-position: 'right',
-beginAtZero: true,
-title: { display: true, text: 'Пог. метры', color: '#10b981' },
-ticks: { color: '#10b981' },
-grid: { drawOnChartArea: false }
-},
-x: {
-ticks: { color: '#64748b', maxRotation: 45, minRotation: 45 },
-grid: { display: false }
-}
-}
-}
-});
-}
-function renderComparisonChart() {
-const metricsByDate = {};
-allOrders.forEach(order => {
-if (!metricsByDate[order.date]) {
-metricsByDate[order.date] = { sqm: 0, lm: 0 };
-}
-if (order.parameters['Кв.м']) metricsByDate[order.date].sqm += order.parameters['Кв.м'];
-if (order.parameters['Пог.м']) metricsByDate[order.date].lm += order.parameters['Пог.м'];
-});
-const sortedDates = Object.keys(metricsByDate).sort((a, b) => new Date(a.split('.').reverse().join('-')) - new Date(b.split('.').reverse().join('-')));
-const labels = sortedDates;
-const sqmData = sortedDates.map(d => metricsByDate[d].sqm);
-const lmData = sortedDates.map(d => metricsByDate[d].lm);
-const totalSqm = sqmData.reduce((a, b) => a + b, 0);
-const totalLm = lmData.reduce((a, b) => a + b, 0);
-const ctx = document.getElementById('comparisonChart').getContext('2d');
-if (comparisonChartInstance) comparisonChartInstance.destroy();
-comparisonChartInstance = new Chart(ctx, {
-type: 'line',
-data: {
-labels,
-datasets: [
-{
-label: 'Квадратные метры',
-data: sqmData,
-borderColor: '#6366f1',
-backgroundColor: 'rgba(99, 102, 241, 0.1)',
-borderWidth: 3,
-pointRadius: 6,
-pointHoverRadius: 8,
-pointBackgroundColor: '#6366f1',
-fill: true,
-tension: 0.4,
-yAxisID: 'y'
-},
-{
-label: 'Погонные метры',
-data: lmData,
-borderColor: '#10b981',
-backgroundColor: 'rgba(16, 185, 129, 0.1)',
-borderWidth: 3,
-pointRadius: 6,
-pointHoverRadius: 8,
-pointBackgroundColor: '#10b981',
-fill: true,
-tension: 0.4,
-yAxisID: 'y1'
-}
-]
-},
-options: {
-responsive: true,
-maintainAspectRatio: false,
-interaction: { mode: 'index', intersect: false },
-plugins: {
-legend: { position: 'top', labels: { padding: 15 } },
-tooltip: {
-callbacks: {
-label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)} м${ctx.dataset.label.includes('Квадрат') ? '²' : ''}`
-}
-},
-annotation: {
-drawTime: 'afterDatasetsDraw',
-annotations: {
-totalSqm: {
-type: 'line',
-yMin: totalSqm,
-yMax: totalSqm,
-borderColor: 'rgba(99, 102, 241, 0.3)',
-borderWidth: 1,
-borderDash: [5, 5],
-label: { display: true, content: `Всего: ${totalSqm.toFixed(1)} м²`, position: 'start' }
-},
-totalLm: {
-type: 'line',
-yMin: totalLm,
-yMax: totalLm,
-borderColor: 'rgba(16, 185, 129, 0.3)',
-borderWidth: 1,
-borderDash: [5, 5],
-label: { display: true, content: `Всего: ${totalLm.toFixed(1)} м`, position: 'end' }
-}
-}
-}
-},
-scales: {
-y: {
-type: 'linear',
-display: true,
-position: 'left',
-beginAtZero: true,
-title: { display: true, text: 'Кв. метры', color: '#6366f1' },
-ticks: { color: '#6366f1' },
-grid: { color: 'rgba(99, 102, 241, 0.1)' }
-},
-y1: {
-type: 'linear',
-display: true,
-position: 'right',
-beginAtZero: true,
-title: { display: true, text: 'Пог. метры', color: '#10b981' },
-ticks: { color: '#10b981' },
-grid: { drawOnChartArea: false }
-},
-x: {
-ticks: { color: '#64748b', maxRotation: 45, minRotation: 45 },
-grid: { display: false }
-}
-}
-}
-});
+new Chart(ctx, { type: 'bar', data: { labels: top.map(o => o.description.length > 25 ? o.description.slice(0,25)+'…' : o.description), datasets: [{ label: 'Сумма', data: top.map(o => o.amount), backgroundColor: top.map((_, i) => colors[i]), borderRadius: 8, borderSkipped: false }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { title: items => top[items[0].dataIndex].description, label: ctx => `💰 ${formatCurrency(ctx.parsed.x)}` } } }, scales: { x: { ticks: { callback: v => formatCurrency(v) } } } } });
 }
 function renderProgressBars() {
-const container = document.getElementById('progressBars');
-container.innerHTML = '';
-const revenue = allOrders.reduce((s,o) => s + o.amount, 0);
-const count = allOrders.length;
-const targetRev = 5000 * allFilesData.length;
-const targetOrd = 20 * allFilesData.length;
+const container = document.getElementById('progressBars'); container.innerHTML = '';
+const revenue = allOrders.reduce((s,o) => s + o.amount, 0); const count = allOrders.length;
+const targetRev = 5000 * allFilesData.length; const targetOrd = 20 * allFilesData.length;
 createProgress(container, 'Выручка', revenue, targetRev, '₽', '#6366f1');
 createProgress(container, 'Заказы', count, targetOrd, '', '#10b981');
 const types = {}; allOrders.forEach(o => types[o.type] = (types[o.type]||0)+1);
@@ -808,31 +717,24 @@ if (topType) createProgress(container, `Тип "${topType[0]}"`, topType[1], Mat
 }
 function createProgress(container, title, current, target, unit, color) {
 const pct = Math.min((current/target)*100, 100);
-const el = document.createElement('div');
-el.className = 'progress-group';
+const el = document.createElement('div'); el.className = 'progress-group';
 el.innerHTML = `<div class="progress-header"><span class="progress-title">${title}</span><span class="progress-value">${formatNumber(current)}${unit} / ${formatNumber(target)}${unit}</span></div><div class="progress"><div class="progress-fill" style="width: ${pct}%; background: ${color}"></div></div>`;
 container.appendChild(el);
 }
 function renderDataTable() {
-const tbody = document.getElementById('tableBody');
-tbody.innerHTML = '';
+const tbody = document.getElementById('tableBody'); tbody.innerHTML = '';
 allOrders.forEach(order => {
-const orderId = generateOrderId(order);
-const comments = orderComments[orderId] || [];
-const hasComments = comments.length > 0;
+const orderId = generateOrderId(order); const comments = orderComments[orderId] || []; const hasComments = comments.length > 0;
 const tr = document.createElement('tr');
 tr.innerHTML = `<td>${order.number}</td><td><strong>${order.code}</strong></td><td title="${order.description}">${order.description.slice(0,35)}${order.description.length>35?'…':''}</td><td><span style="background:var(--bg-tertiary);padding:4px 10px;border-radius:20px;font-size:0.85rem">${order.type}</span></td><td>${order.date}</td><td class="amount-cell">${formatCurrency(order.amount)}</td><td>${order.parameters['Кв.м']?.toFixed(2) || '-'}</td><td>${order.parameters['Пог.м']?.toFixed(2) || '-'}</td><td class="comment-cell"><button class="comment-btn ${hasComments ? 'has-comment' : ''}" data-order-id="${orderId}" title="${hasComments ? `${comments.length} комментарий(ев)` : 'Добавить комментарий'}" onclick="openCommentsModal(${JSON.stringify(order).replace(/"/g, '&quot;')})"><i class="fas fa-comment"></i>${hasComments ? `<span class="comment-count">${comments.length}</span>` : ''}</button></td>`;
 tbody.appendChild(tr);
 });
 const dates = [...new Set(allOrders.map(o => o.date))].sort();
-const dateFilter = document.getElementById('dateFilter');
-dateFilter.innerHTML = '<option value="">Все даты</option>';
+const dateFilter = document.getElementById('dateFilter'); dateFilter.innerHTML = '<option value="">Все даты</option>';
 dates.forEach(d => { const opt = document.createElement('option'); opt.value = d; opt.textContent = d; dateFilter.appendChild(opt); });
 }
 function filterTable() {
-const search = document.getElementById('searchInput').value.toLowerCase();
-const type = document.getElementById('typeFilter').value;
-const date = document.getElementById('dateFilter').value;
+const search = document.getElementById('searchInput').value.toLowerCase(); const type = document.getElementById('typeFilter').value; const date = document.getElementById('dateFilter').value;
 document.querySelectorAll('#tableBody tr').forEach(row => {
 const cells = row.cells;
 const match = (!search || cells[2].textContent.toLowerCase().includes(search) || cells[1].textContent.toLowerCase().includes(search)) && (!type || cells[3].textContent === type) && (!date || cells[4].textContent === date);
@@ -840,121 +742,54 @@ row.style.display = match ? '' : 'none';
 });
 }
 function updateHistoryList() {
-const list = document.getElementById('historyList');
-list.innerHTML = '';
+const list = document.getElementById('historyList'); list.innerHTML = '';
 [...allFilesData].reverse().forEach(file => {
-const item = document.createElement('div');
-item.className = 'history-item';
+const item = document.createElement('div'); item.className = 'history-item';
 item.innerHTML = `<div class="history-item-icon"><i class="fas fa-file-lines"></i></div><div class="history-item-details"><h4>${file.fileName}</h4><p><i class="far fa-clock"></i> ${file.exportDateTime} • <i class="fas fa-coins"></i> ${formatCurrency(file.total)}</p></div><div class="history-item-actions"><button class="btn-remove" data-file="${file.fileName}" title="Удалить"><i class="fas fa-xmark"></i></button></div>`;
 list.appendChild(item);
 });
 document.querySelectorAll('.btn-remove').forEach(btn => {
-btn.onclick = () => {
-const name = btn.dataset.file;
-allFilesData = allFilesData.filter(f => f.fileName !== name);
-allOrders = allFilesData.flatMap(f => f.orders);
-Object.keys(orderComments).forEach(orderId => { if (orderId.includes(name)) delete orderComments[orderId]; });
-saveComments();
-updateUI();
-saveDataToLocalStorage();
-};
+btn.onclick = () => { const name = btn.dataset.file; allFilesData = allFilesData.filter(f => f.fileName !== name); allOrders = allFilesData.flatMap(f => f.orders); Object.keys(orderComments).forEach(orderId => { if (orderId.includes(name)) delete orderComments[orderId]; }); saveComments(); updateUI(); saveDataToLocalStorage(); };
 });
 }
 function handleFile(file) {
 if (!file.name.endsWith('.txt')) { showError('Загрузите файл .txt'); return; }
 const reader = new FileReader();
-reader.onload = e => {
-try {
-hideError();
-const fileData = parseOrderFile(e.target.result, file.name);
-if (allFilesData.some(f => f.fileName === file.name)) { showError('Файл уже загружен'); return; }
-allFilesData.push(fileData);
-allOrders = allFilesData.flatMap(f => f.orders);
-updateUI();
-saveDataToLocalStorage();
-fileInput.value = '';
-} catch (err) { showError(`Ошибка: ${err.message}`); }
-};
+reader.onload = e => { try { hideError(); const fileData = parseOrderFile(e.target.result, file.name); if (allFilesData.some(f => f.fileName === file.name)) { showError('Файл уже загружен'); return; } allFilesData.push(fileData); allOrders = allFilesData.flatMap(f => f.orders); updateUI(); saveDataToLocalStorage(); fileInput.value = ''; } catch (err) { showError(`Ошибка: ${err.message}`); } };
 reader.onerror = () => showError('Не удалось прочитать файл');
 reader.readAsText(file, 'utf-8');
 }
 function parseOrderFile(content, fileName) {
 let date = fileName.match(/(\d{2}\.\d{2}\.\d{4})/)?.[1] || 'Неизвестно';
-const contentDate = content.match(/ЗАКАЗЫ ЗА (\d{2}\.\d{2}\.\d{4})/);
-if (contentDate) date = contentDate[1];
-const exportMatch = content.match(/Экспорт: ([\d.,:\s]+)/);
-const exportDateTime = exportMatch ? exportMatch[1].trim() : new Date().toLocaleString('ru-RU');
-const orders = [];
-const sections = content.split('---');
+const contentDate = content.match(/ЗАКАЗЫ ЗА (\d{2}\.\d{2}\.\d{4})/); if (contentDate) date = contentDate[1];
+const exportMatch = content.match(/Экспорт: ([\d.,:\s]+)/); const exportDateTime = exportMatch ? exportMatch[1].trim() : new Date().toLocaleString('ru-RU');
+const orders = []; const sections = content.split('---');
 for (const section of sections) {
-const lines = section.trim().split('\n').filter(l => l.trim());
-if (lines.length < 2) continue;
-const numMatch = lines[0].match(/№(\d+)\.\s*(.+)/);
-if (!numMatch) continue;
+const lines = section.trim().split('\n').filter(l => l.trim()); if (lines.length < 2) continue;
+const numMatch = lines[0].match(/№(\d+)\.\s*(.+)/); if (!numMatch) continue;
 const order = { number: numMatch[1], code: numMatch[2].trim(), description: '', type: '', amount: 0, date, sourceFile: fileName, parameters: {} };
-if (lines[1]) {
-const descMatch = lines[1].match(/([^(]+)\s*(?:\(([^)]+)\))?/);
-if (descMatch) { order.description = descMatch[1].trim(); order.type = descMatch[2]?.trim() || 'Без типа'; }
-}
-for (let i = 2; i < lines.length; i++) {
-const line = lines[i].trim();
-if (line.startsWith('Длина:')) order.parameters['Длина'] = parseFloat(line.match(/[\d.,]+/)?.[0]?.replace(',', '.'));
-if (line.startsWith('Ширина:')) order.parameters['Ширина'] = parseFloat(line.match(/[\d.,]+/)?.[0]?.replace(',', '.'));
-if (line.startsWith('Кол-во:')) order.parameters['Кол-во'] = parseInt(line.match(/\d+/)?.[0]);
-if (line.startsWith('Объем:')) {
-const vol = line.replace('Объем:', '').trim();
-const val = parseFloat(vol.match(/[\d.,]+/)?.[0]?.replace(',', '.'));
-if (vol.includes('м²') || vol.includes('кв.м')) order.parameters['Кв.м'] = val;
-else if (vol.includes('пог.м')) order.parameters['Пог.м'] = val;
-}
-if (line.startsWith('Сумма:')) { const sum = line.match(/[\d.,]+/)?.[0]?.replace(',', '.'); if (sum) order.amount = parseFloat(sum); }
-}
+if (lines[1]) { const descMatch = lines[1].match(/([^(]+)\s*(?:\(([^)]+)\))?/); if (descMatch) { order.description = descMatch[1].trim(); order.type = descMatch[2]?.trim() || 'Без типа'; } }
+for (let i = 2; i < lines.length; i++) { const line = lines[i].trim(); if (line.startsWith('Длина:')) order.parameters['Длина'] = parseFloat(line.match(/[\d.,]+/)?.[0]?.replace(',', '.')); if (line.startsWith('Ширина:')) order.parameters['Ширина'] = parseFloat(line.match(/[\d.,]+/)?.[0]?.replace(',', '.')); if (line.startsWith('Кол-во:')) order.parameters['Кол-во'] = parseInt(line.match(/\d+/)?.[0]); if (line.startsWith('Объем:')) { const vol = line.replace('Объем:', '').trim(); const val = parseFloat(vol.match(/[\d.,]+/)?.[0]?.replace(',', '.')); if (vol.includes('м²') || vol.includes('кв.м')) order.parameters['Кв.м'] = val; else if (vol.includes('пог.м')) order.parameters['Пог.м'] = val; } if (line.startsWith('Сумма:')) { const sum = line.match(/[\d.,]+/)?.[0]?.replace(',', '.'); if (sum) order.amount = parseFloat(sum); } }
 if (!order.amount) { const lastSum = content.match(/Сумма:\s*([\d.,]+)/); if (lastSum) order.amount = parseFloat(lastSum[1].replace(',', '.')); }
 if (order.description) orders.push(order);
 }
-const totalMatch = content.match(/ИТОГО:\s*([\d.,]+)/);
-const total = totalMatch ? parseFloat(totalMatch[1].replace(',', '.')) : orders.reduce((s, o) => s + (o.amount || 0), 0);
+const totalMatch = content.match(/ИТОГО:\s*([\d.,]+)/); const total = totalMatch ? parseFloat(totalMatch[1].replace(',', '.')) : orders.reduce((s, o) => s + (o.amount || 0), 0);
 return { orders, total, date, exportDateTime, fileName };
 }
 function openCommentsModal(order) {
-const modal = document.createElement('div');
-modal.className = 'modal-overlay';
+const modal = document.createElement('div'); modal.className = 'modal-overlay';
 modal.innerHTML = `<div class="modal" style="background:var(--bg-secondary);border-radius:16px;box-shadow:var(--shadow-lg);width:100%;max-width:520px;max-height:85vh;display:flex;flex-direction:column;border:1px solid var(--border);"><div class="modal-header" style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;"><h3 style="font-size:1.1rem;"><i class="fas fa-comments"></i> Комментарии</h3><button class="modal-close" style="width:36px;height:36px;border-radius:10px;border:none;background:var(--bg-tertiary);cursor:pointer;"><i class="fas fa-times"></i></button></div><div class="modal-order-info" style="padding:12px 24px;background:var(--bg-tertiary);font-size:0.9rem;border-bottom:1px solid var(--border);"><strong>Заказ №${order.number}</strong> • ${order.code}<br>${order.description} • ${formatCurrency(order.amount)}</div><div class="modal-body" style="padding:20px 24px;overflow-y:auto;flex:1;"><div class="comments-list" id="commentsList"></div><div class="comment-form" style="display:flex;flex-direction:column;gap:12px;padding-top:16px;border-top:1px solid var(--border);"><textarea id="commentInput" placeholder="Добавьте комментарий..." style="width:100%;min-height:80px;padding:12px 14px;border:2px solid var(--border);border-radius:12px;background:var(--bg-tertiary);color:var(--text-primary);resize:vertical;"></textarea><div class="comment-form-controls" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;"><div class="comment-priority-select" style="display:flex;gap:6px;"><button class="priority-btn normal active" data-priority="normal" style="padding:6px 12px;border:2px solid var(--border);border-radius:20px;background:var(--bg-secondary);cursor:pointer;"><i class="fas fa-circle"></i> Обычный</button><button class="priority-btn important" data-priority="important" style="padding:6px 12px;border:2px solid var(--border);border-radius:20px;background:var(--bg-secondary);cursor:pointer;color:var(--warning);"><i class="fas fa-exclamation"></i> Важно</button><button class="priority-btn urgent" data-priority="urgent" style="padding:6px 12px;border:2px solid var(--border);border-radius:20px;background:var(--bg-secondary);cursor:pointer;color:var(--danger);"><i class="fas fa-bolt"></i> Срочно</button></div><button class="comment-submit" id="commentSubmit" style="background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;border:none;padding:10px 24px;border-radius:12px;cursor:pointer;display:flex;align-items:center;gap:8px;"><i class="fas fa-paper-plane"></i> Отправить</button></div></div></div></div>`;
 document.body.appendChild(modal);
-const commentsList = modal.querySelector('#commentsList');
-const commentInput = modal.querySelector('#commentInput');
-const commentSubmit = modal.querySelector('#commentSubmit');
-const priorityBtns = modal.querySelectorAll('.priority-btn');
-const modalClose = modal.querySelector('.modal-close');
-let selectedPriority = 'normal';
-priorityBtns.forEach(btn => {
-btn.onclick = () => { priorityBtns.forEach(b => b.classList.remove('active')); btn.classList.add('active'); selectedPriority = btn.dataset.priority; };
-});
-function renderComments() {
-const comments = getOrderComments(order);
-if (comments.length === 0) { commentsList.innerHTML = `<div class="empty-comments" style="text-align:center;padding:30px;color:var(--text-tertiary);"><i class="fas fa-comment-slash" style="font-size:40px;margin-bottom:12px;opacity:0.5;"></i><p>Нет комментариев</p></div>`; return; }
-commentsList.innerHTML = comments.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).map(comment => `<div class="comment-item ${comment.priority}" data-id="${comment.id}" style="background:var(--bg-tertiary);border-radius:12px;padding:14px 16px;margin-bottom:12px;border-left:3px solid ${comment.priority==='urgent'? 'var(--danger)' : comment.priority==='important'? 'var(--warning)' : 'var(--primary)'};"><div class="comment-header" style="display:flex;justify-content:space-between;margin-bottom:8px;"><div class="comment-author" style="font-weight:500;"><i class="fas fa-user-circle" style="color:var(--primary);margin-right:6px;"></i>${comment.author}${comment.priority !== 'normal' ? `<span style="margin-left:8px;padding:3px 8px;border-radius:20px;font-size:0.75rem;background:${comment.priority==='urgent'? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.15)'};color:${comment.priority==='urgent'? 'var(--danger)' : 'var(--warning)'}">${comment.priority==='urgent'? 'Срочно' : 'Важно'}</span>` : ''}</div><span class="comment-time" style="font-size:0.8rem;color:var(--text-tertiary);">${formatCommentTime(comment.timestamp)}</span></div><div class="comment-text" style="color:var(--text-secondary);white-space:pre-wrap;">${escapeHtml(comment.text)}</div><div class="comment-actions" style="display:flex;gap:8px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);"><button class="comment-action-btn copy" data-text="${escapeHtml(comment.text)}" style="background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:6px;font-size:0.85rem;"><i class="fas fa-copy"></i> Копировать</button><button class="comment-action-btn delete" style="background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:6px;font-size:0.85rem;color:var(--danger);"><i class="fas fa-trash"></i> Удалить</button></div></div>`).join('');
-commentsList.querySelectorAll('.delete').forEach(btn => { btn.onclick = () => { const commentItem = btn.closest('.comment-item'); const commentId = commentItem.dataset.id; if (confirm('Удалить?')) { deleteComment(order, commentId); renderComments(); updateCommentButton(order); showToast('Удалён', 'success'); } }; });
-commentsList.querySelectorAll('.copy').forEach(btn => { btn.onclick = () => { navigator.clipboard.writeText(btn.dataset.text); showToast('Скопировано', 'success'); }; });
-}
+const commentsList = modal.querySelector('#commentsList'); const commentInput = modal.querySelector('#commentInput'); const commentSubmit = modal.querySelector('#commentSubmit'); const priorityBtns = modal.querySelectorAll('.priority-btn'); const modalClose = modal.querySelector('.modal-close'); let selectedPriority = 'normal';
+priorityBtns.forEach(btn => { btn.onclick = () => { priorityBtns.forEach(b => b.classList.remove('active')); btn.classList.add('active'); selectedPriority = btn.dataset.priority; }; });
+function renderComments() { const comments = getOrderComments(order); if (comments.length === 0) { commentsList.innerHTML = `<div class="empty-comments" style="text-align:center;padding:30px;color:var(--text-tertiary);"><i class="fas fa-comment-slash" style="font-size:40px;margin-bottom:12px;opacity:0.5;"></i><p>Нет комментариев</p></div>`; return; } commentsList.innerHTML = comments.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).map(comment => `<div class="comment-item ${comment.priority}" data-id="${comment.id}" style="background:var(--bg-tertiary);border-radius:12px;padding:14px 16px;margin-bottom:12px;border-left:3px solid ${comment.priority==='urgent'? 'var(--danger)' : comment.priority==='important'? 'var(--warning)' : 'var(--primary)'};"><div class="comment-header" style="display:flex;justify-content:space-between;margin-bottom:8px;"><div class="comment-author" style="font-weight:500;"><i class="fas fa-user-circle" style="color:var(--primary);margin-right:6px;"></i>${comment.author}${comment.priority !== 'normal' ? `<span style="margin-left:8px;padding:3px 8px;border-radius:20px;font-size:0.75rem;background:${comment.priority==='urgent'? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.15)'};color:${comment.priority==='urgent'? 'var(--danger)' : 'var(--warning)'}">${comment.priority==='urgent'? 'Срочно' : 'Важно'}</span>` : ''}</div><span class="comment-time" style="font-size:0.8rem;color:var(--text-tertiary);">${formatCommentTime(comment.timestamp)}</span></div><div class="comment-text" style="color:var(--text-secondary);white-space:pre-wrap;">${escapeHtml(comment.text)}</div><div class="comment-actions" style="display:flex;gap:8px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);"><button class="comment-action-btn copy" data-text="${escapeHtml(comment.text)}" style="background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:6px;font-size:0.85rem;"><i class="fas fa-copy"></i> Копировать</button><button class="comment-action-btn delete" style="background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:6px;font-size:0.85rem;color:var(--danger);"><i class="fas fa-trash"></i> Удалить</button></div></div>`).join(''); commentsList.querySelectorAll('.delete').forEach(btn => { btn.onclick = () => { const commentItem = btn.closest('.comment-item'); const commentId = commentItem.dataset.id; if (confirm('Удалить?')) { deleteComment(order, commentId); renderComments(); updateCommentButton(order); showToast('Удалён', 'success'); } }; }); commentsList.querySelectorAll('.copy').forEach(btn => { btn.onclick = () => { navigator.clipboard.writeText(btn.dataset.text); showToast('Скопировано', 'success'); }; }); }
 commentSubmit.onclick = () => { const text = commentInput.value.trim(); if (!text) { commentInput.focus(); return; } addComment(order, text, selectedPriority); commentInput.value = ''; priorityBtns.forEach(b => b.classList.remove('active')); priorityBtns[0].classList.add('active'); selectedPriority = 'normal'; renderComments(); updateCommentButton(order); showToast('Добавлен', 'success'); commentInput.focus(); };
 commentInput.addEventListener('keydown', (e) => { if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); commentSubmit.click(); } });
-modalClose.onclick = closeModal;
-modal.onclick = (e) => { if (e.target === modal) closeModal(); };
+modalClose.onclick = closeModal; modal.onclick = (e) => { if (e.target === modal) closeModal(); };
 function closeModal() { modal.classList.remove('active'); setTimeout(() => modal.remove(), 300); }
-setTimeout(() => modal.classList.add('active'), 10);
-renderComments();
-commentInput.focus();
+setTimeout(() => modal.classList.add('active'), 10); renderComments(); commentInput.focus();
 }
-function updateCommentButton(order) {
-const orderId = generateOrderId(order);
-const btn = document.querySelector(`[data-order-id="${orderId}"]`);
-if (btn) {
-const comments = orderComments[orderId] || [];
-if (comments.length > 0) { btn.classList.add('has-comment'); btn.innerHTML = `<i class="fas fa-comment"></i><span class="comment-count">${comments.length}</span>`; }
-else { btn.classList.remove('has-comment'); btn.innerHTML = `<i class="fas fa-comment"></i>`; }
-}
-}
+function updateCommentButton(order) { const orderId = generateOrderId(order); const btn = document.querySelector(`[data-order-id="${orderId}"]`); if (btn) { const comments = orderComments[orderId] || []; if (comments.length > 0) { btn.classList.add('has-comment'); btn.innerHTML = `<i class="fas fa-comment"></i><span class="comment-count">${comments.length}</span>`; } else { btn.classList.remove('has-comment'); btn.innerHTML = `<i class="fas fa-comment"></i>`; } } }
 dropZone.addEventListener('click', () => fileInput.click());
 ['dragover','dragenter'].forEach(evt => dropZone.addEventListener(evt, e => { e.preventDefault(); dropZone.classList.add('dragover'); }));
 ['dragleave','drop'].forEach(evt => dropZone.addEventListener(evt, e => { e.preventDefault(); dropZone.classList.remove('dragover'); }));
@@ -965,21 +800,8 @@ document.getElementById('searchInput').addEventListener('input', filterTable);
 document.getElementById('typeFilter').addEventListener('change', filterTable);
 document.getElementById('dateFilter').addEventListener('change', filterTable);
 document.getElementById('trendPeriod').addEventListener('change', () => renderTrendChart());
-document.getElementById('metricsPeriod').addEventListener('change', () => { renderMetricsChart(); renderComparisonChart(); });
-loadComments();
-window.openCommentsModal = openCommentsModal;
+loadComments(); window.openCommentsModal = openCommentsModal;
 if (!loadDataFromLocalStorage()) dropZone.style.animation = 'fadeInUp 0.6s ease-out';
-window.addEventListener('resize', () => {
-setTimeout(() => {
-if (trendChartInstance) trendChartInstance.resize();
-if (metricsChartInstance) metricsChartInstance.resize();
-if (comparisonChartInstance) comparisonChartInstance.resize();
-document.querySelectorAll('canvas').forEach(canvas => {
-const chart = Chart.getChart(canvas);
-if (chart && chart !== trendChartInstance && chart !== metricsChartInstance && chart !== comparisonChartInstance) chart.resize();
-});
-}, 300);
-});
 });
 </script>
 </body>
