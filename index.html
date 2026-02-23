@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>📊 Дашборд анализа заказов + Комментарии + Календарь</title>
+<title>📊 Дашборд анализа заказов + Комментарии</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -299,6 +299,18 @@ flex-direction: column;
 min-height: 400px;
 border: 1px solid var(--border);
 transition: var(--transition);
+position: relative;
+}
+.chart-box.dragging {
+opacity: 0.5;
+transform: scale(0.98);
+}
+.chart-box.drag-over {
+border-color: var(--primary);
+box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.3);
+}
+.chart-box.resizing {
+transition: none;
 }
 .chart-box:hover {
 box-shadow: var(--shadow-lg);
@@ -314,6 +326,7 @@ align-items: center;
 gap: 10px;
 padding-bottom: 16px;
 border-bottom: 1px solid var(--border);
+cursor: move;
 }
 .chart-box h2 i {
 color: var(--primary);
@@ -325,7 +338,83 @@ position: relative;
 min-height: 300px;
 }
 
-/* === Calendar Widget === */
+/* === Drag & Resize Controls === */
+.widget-controls {
+position: absolute;
+top: 12px;
+right: 12px;
+display: flex;
+gap: 6px;
+opacity: 0;
+transition: opacity 0.2s;
+z-index: 10;
+}
+.chart-box:hover .widget-controls {
+opacity: 1;
+}
+.control-btn {
+width: 28px;
+height: 28px;
+border-radius: 6px;
+border: none;
+background: var(--bg-tertiary);
+color: var(--text-secondary);
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: var(--transition);
+font-size: 12px;
+}
+.control-btn:hover {
+background: var(--primary);
+color: var(--bg-primary);
+transform: scale(1.1);
+}
+.control-btn:active {
+transform: scale(0.95);
+}
+
+/* Resize Handles */
+.resize-handle {
+position: absolute;
+width: 12px;
+height: 12px;
+background: var(--primary);
+border-radius: 50%;
+opacity: 0;
+transition: opacity 0.2s;
+z-index: 20;
+}
+.chart-box:hover .resize-handle {
+opacity: 0.7;
+}
+.resize-handle:hover {
+opacity: 1;
+transform: scale(1.3);
+}
+.resize-handle.se {
+bottom: 6px;
+right: 6px;
+cursor: se-resize;
+}
+.resize-handle.sw {
+bottom: 6px;
+left: 6px;
+cursor: sw-resize;
+}
+.resize-handle.ne {
+top: 6px;
+right: 6px;
+cursor: ne-resize;
+}
+.resize-handle.nw {
+top: 6px;
+left: 6px;
+cursor: nw-resize;
+}
+
+/* Calendar Widget */
 .calendar-widget {
 background: var(--bg-secondary);
 border-radius: var(--radius);
@@ -335,6 +424,8 @@ border: 1px solid var(--border);
 display: flex;
 flex-direction: column;
 gap: 20px;
+position: relative;
+min-height: 400px;
 }
 .calendar-header {
 display: flex;
@@ -1265,6 +1356,12 @@ min-height: 350px;
 .calendar-stats {
 grid-template-columns: 1fr;
 }
+.widget-controls {
+opacity: 1;
+}
+.resize-handle {
+display: none;
+}
 }
 /* === Animations === */
 @keyframes fadeInUp {
@@ -1347,7 +1444,11 @@ opacity: 0;
 </div>
 <div class="charts-container" id="chartsContainer" style="display: none;">
 <!-- НОВЫЙ ГРАФИК: Динамика выручки -->
-<div class="chart-box">
+<div class="chart-box" data-widget="trend">
+<div class="widget-controls">
+<button class="control-btn" title="Уменьшить" onclick="resizeWidget(this, -1)"><i class="fas fa-minus"></i></button>
+<button class="control-btn" title="Увеличить" onclick="resizeWidget(this, 1)"><i class="fas fa-plus"></i></button>
+</div>
 <h2><i class="fas fa-chart-area"></i> Динамика выручки по датам</h2>
 <div class="trend-controls">
 <select id="trendPeriod">
@@ -1369,31 +1470,56 @@ opacity: 0;
 <span>Спад</span>
 </div>
 </div>
+<div class="resize-handle se"></div>
 </div>
-<div class="chart-box">
+<div class="chart-box" data-widget="type">
+<div class="widget-controls">
+<button class="control-btn" title="Уменьшить" onclick="resizeWidget(this, -1)"><i class="fas fa-minus"></i></button>
+<button class="control-btn" title="Увеличить" onclick="resizeWidget(this, 1)"><i class="fas fa-plus"></i></button>
+</div>
 <h2><i class="fas fa-chart-bar"></i> Выручка по типам работ</h2>
 <div class="chart-container">
 <canvas id="typeChart"></canvas>
 </div>
+<div class="resize-handle se"></div>
 </div>
-<div class="chart-box">
+<div class="chart-box" data-widget="orders">
+<div class="widget-controls">
+<button class="control-btn" title="Уменьшить" onclick="resizeWidget(this, -1)"><i class="fas fa-minus"></i></button>
+<button class="control-btn" title="Увеличить" onclick="resizeWidget(this, 1)"><i class="fas fa-plus"></i></button>
+</div>
 <h2><i class="fas fa-chart-pie"></i> Распределение заказов</h2>
 <div class="chart-container">
 <canvas id="ordersChart"></canvas>
 </div>
+<div class="resize-handle se"></div>
 </div>
-<div class="chart-box">
+<div class="chart-box" data-widget="top">
+<div class="widget-controls">
+<button class="control-btn" title="Уменьшить" onclick="resizeWidget(this, -1)"><i class="fas fa-minus"></i></button>
+<button class="control-btn" title="Увеличить" onclick="resizeWidget(this, 1)"><i class="fas fa-plus"></i></button>
+</div>
 <h2><i class="fas fa-trophy"></i> Топ-5 самых дорогих заказов</h2>
 <div class="chart-container">
 <canvas id="topOrdersChart"></canvas>
 </div>
+<div class="resize-handle se"></div>
 </div>
-<div class="chart-box">
+<div class="chart-box" data-widget="progress">
+<div class="widget-controls">
+<button class="control-btn" title="Уменьшить" onclick="resizeWidget(this, -1)"><i class="fas fa-minus"></i></button>
+<button class="control-btn" title="Увеличить" onclick="resizeWidget(this, 1)"><i class="fas fa-plus"></i></button>
+</div>
 <h2><i class="fas fa-tasks"></i> Прогресс выполнения</h2>
 <div id="progressBars"></div>
+<div class="resize-handle se"></div>
 </div>
 <!-- НОВЫЙ ВИДЖЕТ: Календарь -->
-<div class="calendar-widget">
+<div class="calendar-widget" data-widget="calendar">
+<div class="widget-controls">
+<button class="control-btn" title="Уменьшить" onclick="resizeWidget(this, -1)"><i class="fas fa-minus"></i></button>
+<button class="control-btn" title="Увеличить" onclick="resizeWidget(this, 1)"><i class="fas fa-plus"></i></button>
+</div>
 <div class="calendar-header">
 <div class="calendar-title">
 <i class="fas fa-calendar-alt"></i>
@@ -1426,6 +1552,7 @@ opacity: 0;
 <span>Праздник</span>
 </div>
 </div>
+<div class="resize-handle se"></div>
 </div>
 </div>
 <div class="history-section" id="historySection" style="display: none;">
@@ -1497,14 +1624,13 @@ let trendChartInstance = null;
 // === Comments System ===
 let orderComments = {};
 // === Holidays Russia 2026 ===
-// Based on official Russian holidays [[1]][[2]][[7]][[8]]
 const holidays2026 = {
-'01': [1, 2, 3, 4, 5, 6, 7, 8], // New Year holidays
-'02': [23], // Defender of the Fatherland Day
-'03': [8], // International Women's Day
-'05': [1, 9], // Spring and Labor Day, Victory Day
-'06': [12], // Russia Day
-'11': [4] // National Unity Day
+'01': [1, 2, 3, 4, 5, 6, 7, 8],
+'02': [23],
+'03': [8],
+'05': [1, 9],
+'06': [12],
+'11': [4]
 };
 
 // Загрузка комментариев из localStorage
@@ -1650,139 +1776,174 @@ summaryCards.style.display = 'grid';
 historySection.style.display = 'block';
 dataTable.style.display = 'block';
 }
-// === Event Listeners ===
-dropZone.addEventListener('click', () => fileInput.click());
-['dragover', 'dragenter'].forEach(evt =>
-dropZone.addEventListener(evt, e => {
+
+// === Drag and Drop ===
+function initDragAndDrop() {
+const containers = [chartsContainer, summaryCards];
+let draggedElement = null;
+
+containers.forEach(container => {
+if (!container) return;
+
+const widgets = container.querySelectorAll('.chart-box, .card, .calendar-widget');
+widgets.forEach(widget => {
+widget.setAttribute('draggable', 'true');
+    
+widget.addEventListener('dragstart', handleDragStart);
+widget.addEventListener('dragend', handleDragEnd);
+widget.addEventListener('dragover', handleDragOver);
+widget.addEventListener('dragenter', handleDragEnter);
+widget.addEventListener('dragleave', handleDragLeave);
+widget.addEventListener('drop', handleDrop);
+});
+});
+}
+
+function handleDragStart(e) {
+draggedElement = this;
+this.classList.add('dragging');
+e.dataTransfer.effectAllowed = 'move';
+e.dataTransfer.setData('text/html', this.innerHTML);
+}
+
+function handleDragEnd(e) {
+this.classList.remove('dragging');
+document.querySelectorAll('.chart-box, .card, .calendar-widget').forEach(box => {
+box.classList.remove('drag-over');
+});
+saveLayout();
+}
+
+function handleDragOver(e) {
+if (e.preventDefault) {
 e.preventDefault();
-dropZone.classList.add('dragover');
-})
-);
-['dragleave', 'drop'].forEach(evt =>
-dropZone.addEventListener(evt, e => {
+}
+e.dataTransfer.dropEffect = 'move';
+return false;
+}
+
+function handleDragEnter(e) {
+if (this !== draggedElement) {
+this.classList.add('drag-over');
+}
+}
+
+function handleDragLeave(e) {
+this.classList.remove('drag-over');
+}
+
+function handleDrop(e) {
+if (e.stopPropagation) {
+e.stopPropagation();
+}
+
+if (draggedElement !== this) {
+const allWidgets = document.querySelectorAll('.chart-box, .card, .calendar-widget');
+const draggedIndex = Array.from(allWidgets).indexOf(draggedElement);
+const dropIndex = Array.from(allWidgets).indexOf(this);
+
+if (draggedIndex < dropIndex) {
+this.parentNode.insertBefore(draggedElement, this.nextSibling);
+} else {
+this.parentNode.insertBefore(draggedElement, this);
+}
+}
+
+return false;
+}
+
+// === Resize Functionality ===
+window.resizeWidget = function(btn, delta) {
+const widget = btn.closest('.chart-box, .calendar-widget');
+if (!widget) return;
+
+const currentCol = parseInt(widget.style.gridColumn) || 1;
+const newCol = Math.max(1, Math.min(3, currentCol + delta));
+
+widget.style.gridColumn = `span ${newCol}`;
+widget.dataset.cols = newCol;
+
+// Update charts after resize
+setTimeout(() => {
+const canvas = widget.querySelector('canvas');
+if (canvas) {
+const chart = Chart.getChart(canvas);
+if (chart) {
+chart.resize();
+}
+}
+}, 300);
+
+saveLayout();
+};
+
+function initResizeHandles() {
+document.querySelectorAll('.resize-handle').forEach(handle => {
+handle.addEventListener('mousedown', initResize);
+});
+}
+
+function initResize(e) {
 e.preventDefault();
-dropZone.classList.remove('dragover');
-})
-);
-dropZone.addEventListener('drop', e => {
-if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+const widget = this.parentElement;
+const startX = e.clientX;
+const startY = e.clientY;
+const startWidth = widget.offsetWidth;
+const startHeight = widget.offsetHeight;
+
+widget.classList.add('resizing');
+
+function doResize(e) {
+const width = startWidth + (e.clientX - startX);
+const height = startHeight + (e.clientY - startY);
+
+widget.style.width = width + 'px';
+widget.style.minHeight = height + 'px';
+
+// Update charts during resize
+const canvas = widget.querySelector('canvas');
+if (canvas) {
+const chart = Chart.getChart(canvas);
+if (chart) {
+chart.resize();
+}
+}
+}
+
+function stopResize() {
+widget.classList.remove('resizing');
+document.removeEventListener('mousemove', doResize);
+document.removeEventListener('mouseup', stopResize);
+saveLayout();
+}
+
+document.addEventListener('mousemove', doResize);
+document.addEventListener('mouseup', stopResize);
+}
+
+function saveLayout() {
+const layout = [];
+document.querySelectorAll('.chart-box, .calendar-widget').forEach((widget, index) => {
+layout.push({
+id: widget.dataset.widget || index,
+cols: widget.dataset.cols || 1,
+order: index
 });
-fileInput.addEventListener('change', e => {
-if (e.target.files[0]) handleFile(e.target.files[0]);
 });
-resetAllButton.addEventListener('click', () => {
-if (confirm('Удалить все загруженные данные?')) {
-allFilesData = [];
-allOrders = [];
-orderComments = {};
-localStorage.removeItem('dashboardData');
-localStorage.removeItem('orderComments');
-resetUI();
+localStorage.setItem('dashboardLayout', JSON.stringify(layout));
+}
+
+function loadLayout() {
+const saved = localStorage.getItem('dashboardLayout');
+if (saved) {
+const layout = JSON.parse(saved);
+layout.forEach(item => {
+const widget = document.querySelector(`[data-widget="${item.id}"]`);
+if (widget) {
+widget.style.gridColumn = `span ${item.cols}`;
+widget.dataset.cols = item.cols;
 }
 });
-// Filters
-document.getElementById('searchInput').addEventListener('input', filterTable);
-document.getElementById('typeFilter').addEventListener('change', filterTable);
-document.getElementById('dateFilter').addEventListener('change', filterTable);
-document.getElementById('trendPeriod').addEventListener('change', () => renderTrendChart());
-// === File Handling ===
-function handleFile(file) {
-if (!file.name.endsWith('.txt')) {
-showError('Пожалуйста, загрузите файл в формате .txt');
-return;
-}
-const reader = new FileReader();
-reader.onload = e => {
-try {
-hideError();
-const fileData = parseOrderFile(e.target.result, file.name);
-if (allFilesData.some(f => f.fileName === file.name)) {
-showError('Этот файл уже загружен');
-return;
-}
-allFilesData.push(fileData);
-allOrders = allFilesData.flatMap(f => f.orders);
-updateUI();
-saveDataToLocalStorage();
-fileInput.value = '';
-} catch (err) {
-console.error('Ошибка:', err);
-showError(`Ошибка обработки: ${err.message}`);
-}
-};
-reader.onerror = () => showError('Не удалось прочитать файл');
-reader.readAsText(file, 'utf-8');
-}
-// === Parser ===
-function parseOrderFile(content, fileName) {
-let date = fileName.match(/(\d{2}\.\d{2}\.\d{4})/)?.[1] || 'Неизвестно';
-const contentDate = content.match(/ЗАКАЗЫ ЗА (\d{2}\.\d{2}\.\d{4})/);
-if (contentDate) date = contentDate[1];
-const exportMatch = content.match(/Экспорт: ([\d.,:\s]+)/);
-const exportDateTime = exportMatch ? exportMatch[1].trim() : new Date().toLocaleString('ru-RU');
-const orders = [];
-const sections = content.split('---');
-for (const section of sections) {
-const lines = section.trim().split('\n').filter(l => l.trim());
-if (lines.length < 2) continue;
-const numMatch = lines[0].match(/№(\d+)\.\s*(.+)/);
-if (!numMatch) continue;
-const order = {
-number: numMatch[1],
-code: numMatch[2].trim(),
-description: '',
-type: '',
-amount: 0,
-date,
-sourceFile: fileName,
-parameters: {}
-};
-if (lines[1]) {
-const descMatch = lines[1].match(/([^(]+)\s*(?:\(([^)]+)\))?/);
-if (descMatch) {
-order.description = descMatch[1].trim();
-order.type = descMatch[2]?.trim() || 'Без типа';
-}
-}
-for (let i = 2; i < lines.length; i++) {
-const line = lines[i].trim();
-if (line.startsWith('Длина:')) order.parameters['Длина'] = parseFloat(line.match(/[\d.,]+/)?.[0]?.replace(',', '.'));
-if (line.startsWith('Ширина:')) order.parameters['Ширина'] = parseFloat(line.match(/[\d.,]+/)?.[0]?.replace(',', '.'));
-if (line.startsWith('Кол-во:')) order.parameters['Кол-во'] = parseInt(line.match(/\d+/)?.[0]);
-if (line.startsWith('Объем:')) {
-const vol = line.replace('Объем:', '').trim();
-const val = parseFloat(vol.match(/[\d.,]+/)?.[0]?.replace(',', '.'));
-if (vol.includes('м²') || vol.includes('кв.м')) order.parameters['Кв.м'] = val;
-else if (vol.includes('пог.м')) order.parameters['Пог.м'] = val;
-else if (vol.match(/час|ч\b/i)) order.parameters['Время'] = val;
-}
-if (line.startsWith('Сумма:')) {
-const sum = line.match(/[\d.,]+/)?.[0]?.replace(',', '.');
-if (sum) order.amount = parseFloat(sum);
-}
-}
-if (!order.amount) {
-const lastSum = content.match(/Сумма:\s*([\d.,]+)/);
-if (lastSum) order.amount = parseFloat(lastSum[1].replace(',', '.'));
-}
-if (order.description) orders.push(order);
-}
-const totalMatch = content.match(/ИТОГО:\s*([\d.,]+)/);
-const total = totalMatch ? parseFloat(totalMatch[1].replace(',', '.')) :
-orders.reduce((s, o) => s + (o.amount || 0), 0);
-return { orders, total, date, exportDateTime, fileName };
-}
-// === Summary Cards ===
-function updateSummaryCards() {
-const revenue = allOrders.reduce((s, o) => s + o.amount, 0);
-const count = allOrders.length;
-const avg = count ? revenue / count : 0;
-document.getElementById('totalRevenue').textContent = formatCurrency(revenue);
-document.getElementById('totalOrders').textContent = formatNumber(count);
-document.getElementById('avgCheck').textContent = formatCurrency(avg);
-if (allFilesData.length) {
-const latest = allFilesData.map(f => f.exportDateTime).sort().pop();
-document.getElementById('lastUpdate').textContent = latest || '-';
 }
 }
 
@@ -1793,13 +1954,11 @@ const currentYear = now.getFullYear();
 const currentMonth = now.getMonth();
 const today = now.getDate();
 
-// Display current date
 const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 
                     'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 document.getElementById('currentDateDisplay').textContent = 
 `${monthNames[currentMonth]} ${currentYear}`;
 
-// Get unique loaded dates
 const loadedDates = new Set();
 allFilesData.forEach(file => {
 const dateMatch = file.date.match(/(\d{2})\.(\d{2})\.(\d{4})/);
@@ -1811,11 +1970,9 @@ loadedDates.add(parseInt(day));
 }
 });
 
-// Calculate total hours worked (8 hours per loaded date)
 const totalHours = loadedDates.size * 8;
 document.getElementById('totalHoursWorked').textContent = `${totalHours}ч`;
 
-// Calculate working days in month
 const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 let workingDays = 0;
 for (let day = 1; day <= daysInMonth; day++) {
@@ -1830,11 +1987,9 @@ workingDays++;
 }
 document.getElementById('totalWorkingDays').textContent = workingDays;
 
-// Generate calendar grid
 const grid = document.getElementById('calendarGrid');
 grid.innerHTML = '';
 
-// Day headers
 const dayHeaders = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 dayHeaders.forEach(header => {
 const div = document.createElement('div');
@@ -1843,18 +1998,15 @@ div.textContent = header;
 grid.appendChild(div);
 });
 
-// Get first day of month (adjust for Monday start)
 const firstDay = new Date(currentYear, currentMonth, 1).getDay();
 const startingDay = firstDay === 0 ? 6 : firstDay - 1;
 
-// Empty cells before first day
 for (let i = 0; i < startingDay; i++) {
 const div = document.createElement('div');
 div.className = 'calendar-day empty';
 grid.appendChild(div);
 }
 
-// Days of month
 for (let day = 1; day <= daysInMonth; day++) {
 const div = document.createElement('div');
 div.className = 'calendar-day';
@@ -1886,7 +2038,6 @@ renderOrdersChart();
 renderTopOrdersChart();
 }
 
-// 🔥 ИСПРАВЛЕННЫЙ ГРАФИК: Динамика выручки по датам (ЦВЕТНОЙ)
 function renderTrendChart() {
 const period = document.getElementById('trendPeriod').value;
 const revenueByDate = {};
@@ -1910,7 +2061,6 @@ return orderDate >= cutoff;
 const labels = filteredDates;
 const values = filteredDates.map(d => revenueByDate[d]);
 
-// Генерируем градиент для линии
 const ctx = document.getElementById('trendChart').getContext('2d');
 const gradient = ctx.createLinearGradient(0, 0, 0, 400);
 gradient.addColorStop(0, 'rgba(52, 211, 153, 0.5)');
@@ -1982,7 +2132,6 @@ mode: 'index'
 });
 }
 
-// 🔥 ИСПРАВЛЕННЫЙ ГРАФИК: Выручка по типам работ (РАЗНОЦВЕТНЫЙ)
 function renderTypeChart() {
 const data = {};
 allOrders.forEach(o => {
@@ -1994,16 +2143,15 @@ const total = values.reduce((a,b) => a+b, 0);
 const ctx = document.getElementById('typeChart').getContext('2d');
 if (Chart.getChart(ctx)) Chart.getChart(ctx).destroy();
 
-// Цветная палитра для столбцов
 const colors = [
-'rgba(52, 211, 153, 0.8)',   // Mint
-'rgba(34, 211, 238, 0.8)',   // Cyan
-'rgba(167, 139, 250, 0.8)',  // Purple
-'rgba(251, 191, 36, 0.8)',   // Yellow
-'rgba(248, 113, 113, 0.8)',  // Red
-'rgba(99, 102, 241, 0.8)',   // Indigo
-'rgba(236, 72, 153, 0.8)',   // Pink
-'rgba(139, 92, 246, 0.8)'    // Violet
+'rgba(52, 211, 153, 0.8)',
+'rgba(34, 211, 238, 0.8)',
+'rgba(167, 139, 250, 0.8)',
+'rgba(251, 191, 36, 0.8)',
+'rgba(248, 113, 113, 0.8)',
+'rgba(99, 102, 241, 0.8)',
+'rgba(236, 72, 153, 0.8)',
+'rgba(139, 92, 246, 0.8)'
 ];
 
 new Chart(ctx, {
@@ -2056,14 +2204,12 @@ x: {
 });
 }
 
-// 🔥 ИСПРАВЛЕННЫЙ ГРАФИК: Распределение заказов (РАЗНОЦВЕТНОЙ DOUGHNUT)
 function renderOrdersChart() {
 const counts = {};
 allOrders.forEach(o => counts[o.type] = (counts[o.type] || 0) + 1);
 const ctx = document.getElementById('ordersChart').getContext('2d');
 if (Chart.getChart(ctx)) Chart.getChart(ctx).destroy();
 
-// Цветная палитра для пончика
 const colors = [
 '#34d399', '#22d3ee', '#a78bfa', '#fbbf24', 
 '#f87171', '#6366f1', '#ec4899', '#8b5cf6'
@@ -2120,7 +2266,6 @@ filter.appendChild(opt);
 });
 }
 
-// 🔥 ИСПРАВЛЕННЫЙ ГРАФИК: Топ-5 самых дорогих заказов (РАЗНОЦВЕТНОЙ)
 function renderTopOrdersChart() {
 const top = [...allOrders]
 .sort((a,b) => b.amount - a.amount)
@@ -2128,13 +2273,12 @@ const top = [...allOrders]
 const ctx = document.getElementById('topOrdersChart').getContext('2d');
 if (Chart.getChart(ctx)) Chart.getChart(ctx).destroy();
 
-// Градиентная палитра для топ заказов
 const colors = [
-'rgba(52, 211, 153, 0.9)',   // Mint
-'rgba(34, 211, 238, 0.9)',   // Cyan
-'rgba(167, 139, 250, 0.9)',  // Purple
-'rgba(251, 191, 36, 0.9)',   // Yellow
-'rgba(236, 72, 153, 0.9)'    // Pink
+'rgba(52, 211, 153, 0.9)',
+'rgba(34, 211, 238, 0.9)',
+'rgba(167, 139, 250, 0.9)',
+'rgba(251, 191, 36, 0.9)',
+'rgba(236, 72, 153, 0.9)'
 ];
 
 new Chart(ctx, {
@@ -2297,7 +2441,6 @@ btn.onclick = () => {
 const name = btn.dataset.file;
 allFilesData = allFilesData.filter(f => f.fileName !== name);
 allOrders = allFilesData.flatMap(f => f.orders);
-// Удаляем комментарии для удаленного файла
 Object.keys(orderComments).forEach(orderId => {
 if (orderId.includes(name)) {
 delete orderComments[orderId];
@@ -2507,6 +2650,23 @@ window.openCommentsModal = openCommentsModal;
 if (!loadDataFromLocalStorage()) {
 dropZone.style.animation = 'fadeInUp 0.6s ease-out';
 }
+
+// Initialize drag and drop and resize
+setTimeout(() => {
+initDragAndDrop();
+initResizeHandles();
+loadLayout();
+}, 100);
+
+// Re-initialize on window resize
+window.addEventListener('resize', () => {
+setTimeout(() => {
+document.querySelectorAll('canvas').forEach(canvas => {
+const chart = Chart.getChart(canvas);
+if (chart) chart.resize();
+});
+}, 300);
+});
 });
 </script>
 </body>
