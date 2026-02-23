@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>📊 Дашборд анализа заказов - Grid Layout</title>
+<title>📊 Дашборд анализа заказов</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -23,11 +23,11 @@
 --text-secondary: #94a3b8;
 --text-tertiary: #64748b;
 --border: #334155;
+--border-light: #475569;
 --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.5);
 --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
 --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 --radius: 16px;
---grid-size: 20px;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
@@ -36,9 +36,8 @@ background: linear-gradient(135deg, var(--bg-primary) 0%, #064e3b 100%);
 color: var(--text-primary);
 min-height: 100vh;
 padding-bottom: 40px;
-overflow-x: hidden;
 }
-.container { max-width: 100%; margin: 0 auto; padding: 24px; }
+.container { max-width: 1800px; margin: 0 auto; padding: 24px; }
 .dashboard-header {
 text-align: center;
 margin-bottom: 32px;
@@ -79,95 +78,6 @@ transform: translateY(-2px);
 .upload-area h2 { font-size: 1.4rem; margin-bottom: 8px; }
 .upload-area p { color: var(--text-secondary); }
 .upload-area input[type="file"] { display: none; }
-
-/* Grid Container */
-.dashboard-grid {
-display: grid;
-grid-template-columns: repeat(auto-fill, minmax(var(--grid-size), 1fr));
-grid-auto-rows: var(--grid-size);
-gap: 8px;
-position: relative;
-min-height: 600px;
-}
-
-/* Widget Base Styles */
-.widget {
-background: var(--bg-secondary);
-border-radius: var(--radius);
-border: 2px solid var(--border);
-position: absolute;
-transition: box-shadow 0.2s, border-color 0.2s;
-overflow: hidden;
-box-shadow: var(--shadow);
-}
-.widget:hover {
-box-shadow: var(--shadow-lg);
-border-color: var(--primary);
-z-index: 100;
-}
-.widget.dragging {
-opacity: 0.8;
-z-index: 1000;
-cursor: move;
-border-color: var(--primary);
-box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5);
-}
-.widget.resizing {
-transition: none;
-z-index: 1000;
-}
-.widget-header {
-display: flex;
-justify-content: space-between;
-align-items: center;
-padding: 16px;
-border-bottom: 1px solid var(--border);
-cursor: move;
-background: rgba(52, 211, 153, 0.05);
-}
-.widget-title {
-font-size: 1.1rem;
-font-weight: 600;
-display: flex;
-align-items: center;
-gap: 10px;
-}
-.widget-title i { color: var(--primary); }
-.widget-controls {
-display: flex;
-gap: 6px;
-opacity: 0;
-transition: opacity 0.2s;
-}
-.widget:hover .widget-controls { opacity: 1; }
-.control-btn {
-width: 28px; height: 28px; border-radius: 6px; border: none;
-background: var(--bg-tertiary); color: var(--text-secondary);
-cursor: pointer; display: flex; align-items: center; justify-content: center;
-font-size: 12px;
-}
-.control-btn:hover { background: var(--primary); color: var(--bg-primary); }
-.widget-content {
-padding: 16px;
-height: calc(100% - 65px);
-overflow: auto;
-}
-.resize-handle {
-position: absolute;
-width: 20px;
-height: 20px;
-background: var(--primary);
-border-radius: 50%;
-opacity: 0;
-transition: opacity 0.2s;
-z-index: 50;
-cursor: se-resize;
-}
-.widget:hover .resize-handle { opacity: 0.8; }
-.resize-handle:hover { opacity: 1; transform: scale(1.3); }
-.resize-handle.se { bottom: 8px; right: 8px; }
-
-/* Summary Cards */
 .summary-cards {
 display: grid;
 grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -193,15 +103,82 @@ font-size: 26px; background: rgba(52, 211, 153, 0.1); color: var(--primary);
 .card-content h3 { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 4px; }
 .value { font-size: 1.75rem; font-weight: 700; color: var(--text-primary); }
 .subtitle { font-size: 0.85rem; color: var(--text-tertiary); }
-
-/* Chart Container */
+.charts-container {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+gap: 24px;
+margin-bottom: 32px;
+}
+.chart-box {
+background: var(--bg-secondary);
+border-radius: var(--radius);
+padding: 24px;
+border: 1px solid var(--border);
+position: relative;
+min-width: 300px;
+min-height: 300px;
+transition: box-shadow 0.3s;
+}
+.chart-box:hover { box-shadow: var(--shadow-lg); border-color: var(--primary); }
+.chart-box.h2 {
+font-size: 1.2rem;
+font-weight: 600;
+margin-bottom: 20px;
+display: flex;
+align-items: center;
+gap: 10px;
+padding-bottom: 16px;
+border-bottom: 1px solid var(--border);
+cursor: move;
+}
+.chart-box h2 i { color: var(--primary); }
 .chart-container {
 position: relative;
-height: 100%;
 min-height: 250px;
 }
-
-/* Calendar Widget */
+.widget-controls {
+position: absolute;
+top: 12px;
+right: 12px;
+display: flex;
+gap: 6px;
+opacity: 0;
+transition: opacity 0.2s;
+z-index: 10;
+}
+.chart-box:hover .widget-controls { opacity: 1; }
+.control-btn {
+width: 28px; height: 28px; border-radius: 6px; border: none;
+background: var(--bg-tertiary); color: var(--text-secondary);
+cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.control-btn:hover { background: var(--primary); color: var(--bg-primary); }
+.resize-handle {
+position: absolute;
+width: 16px;
+height: 16px;
+background: var(--primary);
+border-radius: 50%;
+opacity: 0;
+transition: opacity 0.2s;
+z-index: 20;
+cursor: se-resize;
+}
+.chart-box:hover .resize-handle { opacity: 0.8; }
+.resize-handle:hover { opacity: 1; transform: scale(1.2); }
+.resize-handle.se { bottom: 8px; right: 8px; }
+.resize-handle.sw { bottom: 8px; left: 8px; cursor: sw-resize; }
+.resize-handle.ne { top: 8px; right: 8px; cursor: ne-resize; }
+.resize-handle.nw { top: 8px; left: 8px; cursor: nw-resize; }
+.calendar-widget {
+background: var(--bg-secondary);
+border-radius: var(--radius);
+padding: 24px;
+border: 1px solid var(--border);
+position: relative;
+min-width: 300px;
+min-height: 400px;
+}
 .calendar-header {
 display: flex;
 justify-content: space-between;
@@ -280,7 +257,6 @@ flex-wrap: wrap;
 .legend-box.loaded { background: rgba(52, 211, 153, 0.3); border-color: var(--primary); }
 .legend-box.weekend { background: rgba(248, 113, 113, 0.1); border-color: var(--danger); }
 .legend-box.holiday { background: rgba(251, 191, 36, 0.15); border-color: var(--warning); }
-
 .trend-controls { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
 .trend-controls select {
 padding: 8px 16px;
@@ -295,14 +271,12 @@ cursor: pointer;
 .trend-legend-color { width: 12px; height: 12px; border-radius: 3px; }
 .trend-legend-color.up { background: var(--success); }
 .trend-legend-color.down { background: var(--danger); }
-
 .progress-group { margin-bottom: 20px; padding: 16px; background: var(--bg-tertiary); border-radius: 12px; border: 1px solid var(--border); }
 .progress-header { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.95rem; }
 .progress-title { font-weight: 500; }
 .progress-value { color: var(--text-secondary); }
 .progress { height: 12px; background: var(--bg-primary); border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
 .progress-fill { height: 100%; border-radius: 6px; transition: width 0.6s; box-shadow: 0 0 10px currentColor; }
-
 .history-section {
 background: var(--bg-secondary);
 border-radius: var(--radius);
@@ -347,7 +321,6 @@ cursor: pointer; width: 36px; height: 36px; border-radius: 10px;
 display: flex; align-items: center; justify-content: center;
 }
 .btn-remove:hover { background: rgba(248, 113, 113, 0.1); }
-
 .data-table {
 background: var(--bg-secondary);
 border-radius: var(--radius);
@@ -404,7 +377,6 @@ position: absolute; top: -6px; right: -6px;
 background: var(--danger); color: white; font-size: 10px;
 padding: 2px 5px; border-radius: 10px;
 }
-
 .toast {
 position: fixed; bottom: 24px; right: 24px;
 background: var(--bg-secondary); color: var(--text-primary);
@@ -415,7 +387,6 @@ z-index: 2000; animation: toastSlide 0.3s;
 .toast.success { background: rgba(16, 185, 129, 0.9); color: white; }
 .toast.error { background: rgba(239, 68, 68, 0.9); color: white; }
 @keyframes toastSlide { from { opacity: 0; transform: translateX(100px); } to { opacity: 1; transform: translateX(0); } }
-
 .error-message {
 background: rgba(239, 68, 68, 0.1);
 border-left: 4px solid var(--danger);
@@ -424,11 +395,10 @@ margin: 20px 0; display: none;
 }
 .error-message.show { display: block; }
 .error-message h3 { color: var(--danger); margin-bottom: 6px; }
-
 footer { text-align: center; padding: 24px; color: var(--text-tertiary); margin-top: 20px; }
-
 @media (max-width: 768px) {
 .container { padding: 16px; }
+.charts-container { grid-template-columns: 1fr; }
 .summary-cards { grid-template-columns: 1fr; }
 .calendar-stats { grid-template-columns: 1fr; }
 .widget-controls { opacity: 1; }
@@ -486,8 +456,78 @@ footer { text-align: center; padding: 24px; color: var(--text-tertiary); margin-
 </div>
 </div>
 </div>
-<div class="dashboard-grid" id="dashboardGrid" style="display: none;">
-<!-- Widgets will be dynamically positioned here -->
+<div class="charts-container" id="chartsContainer" style="display: none;">
+<div class="chart-box" data-widget="trend" style="width: 100%; min-height: 400px;">
+<div class="widget-controls">
+<button class="control-btn" title="Сбросить размер" onclick="resetWidgetSize(this)"><i class="fas fa-compress"></i></button>
+</div>
+<h2><i class="fas fa-chart-area"></i> Динамика выручки</h2>
+<div class="trend-controls">
+<select id="trendPeriod">
+<option value="all">Весь период</option>
+<option value="7">7 дней</option>
+<option value="30">30 дней</option>
+</select>
+</div>
+<div class="chart-container"><canvas id="trendChart"></canvas></div>
+<div class="trend-legend">
+<div class="trend-legend-item"><div class="trend-legend-color up"></div><span>Рост</span></div>
+<div class="trend-legend-item"><div class="trend-legend-color down"></div><span>Спад</span></div>
+</div>
+<div class="resize-handle se"></div>
+</div>
+<div class="chart-box" data-widget="type" style="width: 100%; min-height: 400px;">
+<div class="widget-controls">
+<button class="control-btn" title="Сбросить размер" onclick="resetWidgetSize(this)"><i class="fas fa-compress"></i></button>
+</div>
+<h2><i class="fas fa-chart-bar"></i> Выручка по типам</h2>
+<div class="chart-container"><canvas id="typeChart"></canvas></div>
+<div class="resize-handle se"></div>
+</div>
+<div class="chart-box" data-widget="orders" style="width: 100%; min-height: 400px;">
+<div class="widget-controls">
+<button class="control-btn" title="Сбросить размер" onclick="resetWidgetSize(this)"><i class="fas fa-compress"></i></button>
+</div>
+<h2><i class="fas fa-chart-pie"></i> Распределение</h2>
+<div class="chart-container"><canvas id="ordersChart"></canvas></div>
+<div class="resize-handle se"></div>
+</div>
+<div class="chart-box" data-widget="top" style="width: 100%; min-height: 400px;">
+<div class="widget-controls">
+<button class="control-btn" title="Сбросить размер" onclick="resetWidgetSize(this)"><i class="fas fa-compress"></i></button>
+</div>
+<h2><i class="fas fa-trophy"></i> Топ-5 заказов</h2>
+<div class="chart-container"><canvas id="topOrdersChart"></canvas></div>
+<div class="resize-handle se"></div>
+</div>
+<div class="chart-box" data-widget="progress" style="width: 100%; min-height: 300px;">
+<div class="widget-controls">
+<button class="control-btn" title="Сбросить размер" onclick="resetWidgetSize(this)"><i class="fas fa-compress"></i></button>
+</div>
+<h2><i class="fas fa-tasks"></i> Прогресс</h2>
+<div id="progressBars"></div>
+<div class="resize-handle se"></div>
+</div>
+<div class="calendar-widget" data-widget="calendar" style="width: 100%; min-height: 450px;">
+<div class="widget-controls">
+<button class="control-btn" title="Сбросить размер" onclick="resetWidgetSize(this)"><i class="fas fa-compress"></i></button>
+</div>
+<div class="calendar-header">
+<div class="calendar-title"><i class="fas fa-calendar-alt"></i><span>Календарь</span></div>
+<div id="currentDateDisplay"></div>
+</div>
+<div class="calendar-stats">
+<div class="stat-item"><div class="stat-value" id="totalHoursWorked">0ч</div><div class="stat-label">Отработано</div></div>
+<div class="stat-item"><div class="stat-value" id="totalWorkingDays">0</div><div class="stat-label">Рабочих дней</div></div>
+</div>
+<div class="calendar-grid" id="calendarGrid"></div>
+<div class="calendar-legend">
+<div class="legend-item"><div class="legend-box loaded"></div><span>Загружено (8ч)</span></div>
+<div class="legend-item"><div class="legend-box weekend"></div><span>Выходной</span></div>
+<div class="legend-item"><div class="legend-box holiday"></div><span>Праздник</span></div>
+</div>
+<div class="resize-handle se"></div>
+</div>
 </div>
 <div class="history-section" id="historySection" style="display: none;">
 <h2><i class="fas fa-history"></i> История загрузок</h2>
@@ -522,22 +562,16 @@ footer { text-align: center; padding: 24px; color: var(--text-tertiary); margin-
 document.addEventListener('DOMContentLoaded', function() {
 const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
-const dashboardGrid = document.getElementById('dashboardGrid');
+const chartsContainer = document.getElementById('chartsContainer');
 const summaryCards = document.getElementById('summaryCards');
 const historySection = document.getElementById('historySection');
 const dataTable = document.getElementById('dataTable');
 const errorMessage = document.getElementById('errorMessage');
 const errorList = document.getElementById('errorList');
 const resetAllButton = document.getElementById('resetAllButton');
-const GRID_SIZE = 20;
 let allFilesData = [];
 let allOrders = [];
-let widgets = [];
-let draggedWidget = null;
-let resizedWidget = null;
-let dragOffset = { x: 0, y: 0 };
-let originalPos = { x: 0, y: 0 };
-let originalSize = { w: 0, h: 0 };
+let trendChartInstance = null;
 let orderComments = {};
 const holidays2026 = { '01': [1,2,3,4,5,6,7,8], '02': [23], '03': [8], '05': [1,9], '06': [12], '11': [4] };
 
@@ -618,41 +652,14 @@ document.getElementById('lastUpdate').textContent = latest || '-';
 }
 }
 function saveDataToLocalStorage() {
-try { 
-localStorage.setItem('dashboardData', JSON.stringify({ allFilesData, allOrders, timestamp: Date.now() }));
-localStorage.setItem('widgetLayout', JSON.stringify(widgets.map(w => ({
-id: w.id, x: w.x, y: w.y, w: w.w, h: w.h
-}))));
-} catch (e) {}
+try { localStorage.setItem('dashboardData', JSON.stringify({ allFilesData, allOrders, timestamp: Date.now() })); } catch (e) {}
 }
 function loadDataFromLocalStorage() {
 try {
 const saved = localStorage.getItem('dashboardData');
-const layout = localStorage.getItem('widgetLayout');
 if (saved) {
 const { allFilesData: savedFiles, allOrders: savedOrders } = JSON.parse(saved);
-if (savedFiles?.length) { 
-allFilesData = savedFiles; 
-allOrders = savedOrders || []; 
-if (layout) {
-const savedLayout = JSON.parse(layout);
-savedLayout.forEach(l => {
-const widget = document.querySelector(`[data-widget-id="${l.id}"]`);
-if (widget) {
-const widgetData = widgets.find(w => w.id === l.id);
-if (widgetData) {
-widgetData.x = l.x;
-widgetData.y = l.y;
-widgetData.w = l.w;
-widgetData.h = l.h;
-updateWidgetPosition(widgetData);
-}
-}
-});
-}
-updateUI(); 
-return true; 
-}
+if (savedFiles?.length) { allFilesData = savedFiles; allOrders = savedOrders || []; updateUI(); return true; }
 }
 } catch (e) {}
 return false;
@@ -664,224 +671,26 @@ renderProgressBars();
 renderDataTable();
 updateHistoryList();
 renderCalendar();
-dashboardGrid.style.display = 'grid';
+chartsContainer.style.display = 'grid';
 summaryCards.style.display = 'grid';
 historySection.style.display = 'block';
 dataTable.style.display = 'block';
 }
 function resetUI() {
-dashboardGrid.style.display = 'none';
+chartsContainer.style.display = 'none';
 summaryCards.style.display = 'none';
 historySection.style.display = 'none';
 dataTable.style.display = 'none';
 document.getElementById('tableBody').innerHTML = '';
 document.getElementById('historyList').innerHTML = '';
-dashboardGrid.innerHTML = '';
-widgets = [];
 }
-
-// Grid System Functions
-function snapToGrid(value) {
-return Math.round(value / GRID_SIZE) * GRID_SIZE;
-}
-
-function checkCollision(widget1, widget2) {
-return !(widget1.x + widget1.w <= widget2.x || 
-widget2.x + widget2.w <= widget1.x || 
-widget1.y + widget1.h <= widget2.y || 
-widget2.y + widget2.h <= widget1.y);
-}
-
-function getCollidingWidgets(widget, excludeWidget = null) {
-return widgets.filter(w => w !== excludeWidget && checkCollision(widget, w));
-}
-
-function pushWidgets(sourceWidget) {
-const collisions = getCollidingWidgets(sourceWidget, sourceWidget);
-collisions.forEach(target => {
-// Determine push direction based on relative position
-const dx = (sourceWidget.x + sourceWidget.w/2) - (target.x + target.w/2);
-const dy = (sourceWidget.y + sourceWidget.h/2) - (target.y + target.h/2);
-const absDx = Math.abs(dx);
-const absDy = Math.abs(dy);
-if (absDx > absDy) {
-// Horizontal push
-if (dx > 0) {
-// Push right
-target.x = sourceWidget.x + sourceWidget.w;
-} else {
-// Push left
-target.x = sourceWidget.x - target.w;
-}
-} else {
-// Vertical push
-if (dy > 0) {
-// Push down
-target.y = sourceWidget.y + sourceWidget.h;
-} else {
-// Push up
-target.y = sourceWidget.y - target.h;
-}
-}
-updateWidgetPosition(target);
-// Recursively push other widgets
-pushWidgets(target);
-});
-}
-
-function updateWidgetPosition(widget) {
-const el = document.querySelector(`[data-widget-id="${widget.id}"]`);
-if (el) {
-el.style.left = widget.x + 'px';
-el.style.top = widget.y + 'px';
-el.style.width = widget.w + 'px';
-el.style.height = widget.h + 'px';
-}
-}
-
-function createWidget(id, title, icon, content, defaultW = 400, defaultH = 300) {
-const widget = {
-id, title, icon, content,
-x: widgets.length * 50,
-y: widgets.length * 50,
-w: defaultW,
-h: defaultH
-};
-widgets.push(widget);
-const el = document.createElement('div');
-el.className = 'widget';
-el.dataset.widgetId = id;
-el.innerHTML = `
-<div class="widget-header">
-<div class="widget-title"><i class="${icon}"></i>${title}</div>
-<div class="widget-controls">
-<button class="control-btn" onclick="removeWidget('${id}')"><i class="fas fa-times"></i></button>
-</div>
-</div>
-<div class="widget-content">${content}</div>
-<div class="resize-handle se"></div>
-`;
-dashboardGrid.appendChild(el);
-updateWidgetPosition(widget);
-initWidgetDrag(el, widget);
-initWidgetResize(el, widget);
-return widget;
-}
-
-function initWidgetDrag(el, widget) {
-const header = el.querySelector('.widget-header');
-header.addEventListener('mousedown', (e) => {
-if (e.target.closest('.control-btn')) return;
-draggedWidget = widget;
-el.classList.add('dragging');
-const rect = el.getBoundingClientRect();
-const gridRect = dashboardGrid.getBoundingClientRect();
-dragOffset.x = e.clientX - rect.left;
-dragOffset.y = e.clientY - rect.top;
-originalPos.x = widget.x;
-originalPos.y = widget.y;
-e.preventDefault();
-});
-}
-
-function initWidgetResize(el, widget) {
-const handle = el.querySelector('.resize-handle');
-handle.addEventListener('mousedown', (e) => {
-resizedWidget = widget;
-el.classList.add('resizing');
-originalSize.w = widget.w;
-originalSize.h = widget.h;
-e.preventDefault();
-e.stopPropagation();
-});
-}
-
-document.addEventListener('mousemove', (e) => {
-if (draggedWidget) {
-const gridRect = dashboardGrid.getBoundingClientRect();
-let newX = e.clientX - gridRect.left - dragOffset.x;
-let newY = e.clientY - gridRect.top - dragOffset.y;
-newX = snapToGrid(Math.max(0, newX));
-newY = snapToGrid(Math.max(0, newY));
-draggedWidget.x = newX;
-draggedWidget.y = newY;
-updateWidgetPosition(draggedWidget);
-// Push other widgets
-pushWidgets(draggedWidget);
-}
-if (resizedWidget) {
-const gridRect = dashboardGrid.getBoundingClientRect();
-let newW = e.clientX - gridRect.left - resizedWidget.x;
-let newH = e.clientY - gridRect.top - resizedWidget.y;
-newW = snapToGrid(Math.max(200, newW));
-newH = snapToGrid(Math.max(200, newH));
-resizedWidget.w = newW;
-resizedWidget.h = newH;
-updateWidgetPosition(resizedWidget);
-// Push other widgets
-pushWidgets(resizedWidget);
-// Resize charts if present
-const canvas = document.querySelector(`[data-widget-id="${resizedWidget.id}"] canvas`);
-if (canvas) {
-const chart = Chart.getChart(canvas);
-if (chart) chart.resize();
-}
-}
-});
-
-document.addEventListener('mouseup', () => {
-if (draggedWidget) {
-const el = document.querySelector(`[data-widget-id="${draggedWidget.id}"]`);
-el.classList.remove('dragging');
-draggedWidget = null;
-saveDataToLocalStorage();
-}
-if (resizedWidget) {
-const el = document.querySelector(`[data-widget-id="${resizedWidget.id}"]`);
-el.classList.remove('resizing');
-resizedWidget = null;
-saveDataToLocalStorage();
-}
-});
-
-window.removeWidget = function(id) {
-if (confirm('Удалить этот виджет?')) {
-const index = widgets.findIndex(w => w.id === id);
-if (index > -1) {
-widgets.splice(index, 1);
-const el = document.querySelector(`[data-widget-id="${id}"]`);
-el.remove();
-saveDataToLocalStorage();
-}
-}
-};
-
 function renderCalendar() {
 const now = new Date();
 const currentYear = now.getFullYear();
 const currentMonth = now.getMonth();
 const today = now.getDate();
 const monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-const calendarContent = `
-<div class="calendar-header">
-<div class="calendar-title"><i class="fas fa-calendar-alt"></i><span>Календарь</span></div>
-<div>${monthNames[currentMonth]} ${currentYear}</div>
-</div>
-<div class="calendar-stats">
-<div class="stat-item"><div class="stat-value" id="totalHoursWorked">0ч</div><div class="stat-label">Отработано</div></div>
-<div class="stat-item"><div class="stat-value" id="totalWorkingDays">0</div><div class="stat-label">Рабочих дней</div></div>
-</div>
-<div class="calendar-grid" id="calendarGrid"></div>
-<div class="calendar-legend">
-<div class="legend-item"><div class="legend-box loaded"></div><span>Загружено (8ч)</span></div>
-<div class="legend-item"><div class="legend-box weekend"></div><span>Выходной</span></div>
-<div class="legend-item"><div class="legend-box holiday"></div><span>Праздник</span></div>
-</div>
-`;
-const existingWidget = document.querySelector('[data-widget-id="calendar"]');
-if (!existingWidget) {
-createWidget('calendar', 'Календарь', 'fas fa-calendar-alt', calendarContent, 400, 450);
-}
+document.getElementById('currentDateDisplay').textContent = `${monthNames[currentMonth]} ${currentYear}`;
 const loadedDates = new Set();
 allFilesData.forEach(file => {
 const dateMatch = file.date.match(/(\d{2})\.(\d{2})\.(\d{4})/);
@@ -935,39 +744,14 @@ if (isLoaded) div.classList.add('loaded');
 grid.appendChild(div);
 }
 }
-
 function renderCharts() {
-const trendContent = `
-<div class="trend-controls">
-<select id="trendPeriod">
-<option value="all">Весь период</option>
-<option value="7">7 дней</option>
-<option value="30">30 дней</option>
-</select>
-</div>
-<div class="chart-container"><canvas id="trendChart"></canvas></div>
-<div class="trend-legend">
-<div class="trend-legend-item"><div class="trend-legend-color up"></div><span>Рост</span></div>
-<div class="trend-legend-item"><div class="trend-legend-color down"></div><span>Спад</span></div>
-</div>
-`;
-const typeContent = `<div class="chart-container"><canvas id="typeChart"></canvas></div>`;
-const ordersContent = `<div class="chart-container"><canvas id="ordersChart"></canvas></div>`;
-const topContent = `<div class="chart-container"><canvas id="topOrdersChart"></canvas></div>`;
-const progressContent = `<div id="progressBars"></div>`;
-if (!document.querySelector('[data-widget-id="trend"]')) createWidget('trend', 'Динамика выручки', 'fas fa-chart-area', trendContent, 500, 350);
-if (!document.querySelector('[data-widget-id="type"]')) createWidget('type', 'Выручка по типам', 'fas fa-chart-bar', typeContent, 400, 350);
-if (!document.querySelector('[data-widget-id="orders"]')) createWidget('orders', 'Распределение', 'fas fa-chart-pie', ordersContent, 400, 350);
-if (!document.querySelector('[data-widget-id="top"]')) createWidget('top', 'Топ-5 заказов', 'fas fa-trophy', topContent, 400, 350);
-if (!document.querySelector('[data-widget-id="progress"]')) createWidget('progress', 'Прогресс', 'fas fa-tasks', progressContent, 400, 300);
 renderTrendChart();
 renderTypeChart();
 renderOrdersChart();
 renderTopOrdersChart();
 }
-
 function renderTrendChart() {
-const period = document.getElementById('trendPeriod')?.value || 'all';
+const period = document.getElementById('trendPeriod').value;
 const revenueByDate = {};
 allOrders.forEach(order => { if (!revenueByDate[order.date]) revenueByDate[order.date] = 0; revenueByDate[order.date] += order.amount; });
 const sortedDates = Object.keys(revenueByDate).sort((a, b) => new Date(a.split('.').reverse().join('-')) - new Date(b.split('.').reverse().join('-')));
@@ -978,30 +762,25 @@ filteredDates = sortedDates.filter(d => new Date(d.split('.').reverse().join('-'
 }
 const labels = filteredDates;
 const values = filteredDates.map(d => revenueByDate[d]);
-const ctx = document.getElementById('trendChart')?.getContext('2d');
-if (!ctx) return;
+const ctx = document.getElementById('trendChart').getContext('2d');
 const gradient = ctx.createLinearGradient(0, 0, 0, 400);
 gradient.addColorStop(0, 'rgba(52, 211, 153, 0.5)');
 gradient.addColorStop(1, 'rgba(52, 211, 153, 0.0)');
-const existingChart = Chart.getChart(ctx);
-if (existingChart) existingChart.destroy();
-new Chart(ctx, {
+if (trendChartInstance) trendChartInstance.destroy();
+trendChartInstance = new Chart(ctx, {
 type: 'line',
 data: { labels, datasets: [{ label: 'Выручка', data: values, borderColor: '#34d399', backgroundColor: gradient, borderWidth: 3, pointBackgroundColor: values.map((v, i) => i === 0 ? '#34d399' : values[i] >= values[i-1] ? '#34d399' : '#f87171'), pointBorderColor: '#1e293b', pointBorderWidth: 2, pointRadius: 6, pointHoverRadius: 8, fill: true, tension: 0.4 }] },
 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(30,41,59,0.95)', titleColor: '#f8fafc', bodyColor: '#f8fafc', callbacks: { label: ctx => `💰 ${formatCurrency(ctx.parsed.y)}` } } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(148,163,184,0.1)' }, ticks: { callback: v => formatCurrency(v), color: '#94a3b8' } }, x: { grid: { display: false }, ticks: { color: '#94a3b8', maxRotation: 45, minRotation: 45 } } } }
 });
 }
-
 function renderTypeChart() {
 const data = {};
 allOrders.forEach(o => { data[o.type] = (data[o.type] || 0) + o.amount; });
 const labels = Object.keys(data);
 const values = Object.values(data);
 const total = values.reduce((a,b) => a+b, 0);
-const ctx = document.getElementById('typeChart')?.getContext('2d');
-if (!ctx) return;
-const existingChart = Chart.getChart(ctx);
-if (existingChart) existingChart.destroy();
+const ctx = document.getElementById('typeChart').getContext('2d');
+if (Chart.getChart(ctx)) Chart.getChart(ctx).destroy();
 const colors = ['rgba(52,211,153,0.8)','rgba(34,211,238,0.8)','rgba(167,139,250,0.8)','rgba(251,191,36,0.8)','rgba(248,113,113,0.8)','rgba(99,102,241,0.8)'];
 new Chart(ctx, {
 type: 'bar',
@@ -1009,14 +788,11 @@ data: { labels, datasets: [{ label: 'Выручка', data: values, backgroundCo
 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(30,41,59,0.95)', titleColor: '#f8fafc', bodyColor: '#f8fafc', callbacks: { label: ctx => { const pct = ((ctx.parsed.y / total) * 100).toFixed(1); return `${formatCurrency(ctx.parsed.y)} (${pct}%)`; } } } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(148,163,184,0.1)' }, ticks: { callback: v => formatCurrency(v), color: '#94a3b8' } }, x: { grid: { color: 'rgba(148,163,184,0.1)' }, ticks: { color: '#94a3b8' } } } }
 });
 }
-
 function renderOrdersChart() {
 const counts = {};
 allOrders.forEach(o => counts[o.type] = (counts[o.type] || 0) + 1);
-const ctx = document.getElementById('ordersChart')?.getContext('2d');
-if (!ctx) return;
-const existingChart = Chart.getChart(ctx);
-if (existingChart) existingChart.destroy();
+const ctx = document.getElementById('ordersChart').getContext('2d');
+if (Chart.getChart(ctx)) Chart.getChart(ctx).destroy();
 const colors = ['#34d399','#22d3ee','#a78bfa','#fbbf24','#f87171','#6366f1'];
 new Chart(ctx, {
 type: 'doughnut',
@@ -1024,18 +800,13 @@ data: { labels: Object.keys(counts), datasets: [{ data: Object.values(counts), b
 options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'right', labels: { padding: 15, color: '#f8fafc', font: { size: 12 } } }, tooltip: { backgroundColor: 'rgba(30,41,59,0.95)', titleColor: '#f8fafc', bodyColor: '#f8fafc', callbacks: { label: ctx => { const total = ctx.dataset.data.reduce((a,b) => a+b, 0); const pct = ((ctx.parsed / total) * 100).toFixed(1); return `${ctx.label}: ${ctx.parsed} (${pct}%)`; } } } } }
 });
 const filter = document.getElementById('typeFilter');
-if (filter) {
 filter.innerHTML = '<option value="">Все типы работ</option>';
 Object.keys(counts).forEach(type => { const opt = document.createElement('option'); opt.value = type; opt.textContent = `${type} (${counts[type]})`; filter.appendChild(opt); });
 }
-}
-
 function renderTopOrdersChart() {
 const top = [...allOrders].sort((a,b) => b.amount - a.amount).slice(0, 5);
-const ctx = document.getElementById('topOrdersChart')?.getContext('2d');
-if (!ctx) return;
-const existingChart = Chart.getChart(ctx);
-if (existingChart) existingChart.destroy();
+const ctx = document.getElementById('topOrdersChart').getContext('2d');
+if (Chart.getChart(ctx)) Chart.getChart(ctx).destroy();
 const colors = ['rgba(52,211,153,0.9)','rgba(34,211,238,0.9)','rgba(167,139,250,0.9)','rgba(251,191,36,0.9)','rgba(236,72,153,0.9)'];
 new Chart(ctx, {
 type: 'bar',
@@ -1043,10 +814,8 @@ data: { labels: top.map(o => o.description.length > 25 ? o.description.slice(0,2
 options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(30,41,59,0.95)', titleColor: '#f8fafc', bodyColor: '#f8fafc', callbacks: { title: items => top[items[0].dataIndex].description, label: ctx => `💰 ${formatCurrency(ctx.parsed.x)}` } } }, scales: { x: { grid: { color: 'rgba(148,163,184,0.1)' }, ticks: { callback: v => formatCurrency(v), color: '#94a3b8' } }, y: { grid: { display: false }, ticks: { color: '#94a3b8' } } } }
 });
 }
-
 function renderProgressBars() {
 const container = document.getElementById('progressBars');
-if (!container) return;
 container.innerHTML = '';
 const revenue = allOrders.reduce((s,o) => s + o.amount, 0);
 const count = allOrders.length;
@@ -1058,7 +827,6 @@ const types = {}; allOrders.forEach(o => types[o.type] = (types[o.type]||0)+1);
 const topType = Object.entries(types).sort((a,b) => b[1]-a[1])[0];
 if (topType) createProgress(container, `Тип "${topType[0]}"`, topType[1], Math.max(topType[1]*1.5, 10), '', '#22d3ee');
 }
-
 function createProgress(container, title, current, target, unit, color) {
 const pct = Math.min((current/target)*100, 100);
 const el = document.createElement('div');
@@ -1066,10 +834,8 @@ el.className = 'progress-group';
 el.innerHTML = `<div class="progress-header"><span class="progress-title">${title}</span><span class="progress-value">${formatNumber(current)}${unit} / ${formatNumber(target)}${unit}</span></div><div class="progress"><div class="progress-fill" style="width: ${pct}%; background: ${color}"></div></div>`;
 container.appendChild(el);
 }
-
 function renderDataTable() {
 const tbody = document.getElementById('tableBody');
-if (!tbody) return;
 tbody.innerHTML = '';
 allOrders.forEach(order => {
 const orderId = generateOrderId(order);
@@ -1081,26 +847,21 @@ tbody.appendChild(tr);
 });
 const dates = [...new Set(allOrders.map(o => o.date))].sort();
 const dateFilter = document.getElementById('dateFilter');
-if (dateFilter) {
 dateFilter.innerHTML = '<option value="">Все даты</option>';
 dates.forEach(d => { const opt = document.createElement('option'); opt.value = d; opt.textContent = d; dateFilter.appendChild(opt); });
 }
-}
-
 function filterTable() {
-const search = document.getElementById('searchInput')?.value.toLowerCase() || '';
-const type = document.getElementById('typeFilter')?.value || '';
-const date = document.getElementById('dateFilter')?.value || '';
+const search = document.getElementById('searchInput').value.toLowerCase();
+const type = document.getElementById('typeFilter').value;
+const date = document.getElementById('dateFilter').value;
 document.querySelectorAll('#tableBody tr').forEach(row => {
 const cells = row.cells;
 const match = (!search || cells[2].textContent.toLowerCase().includes(search) || cells[1].textContent.toLowerCase().includes(search)) && (!type || cells[3].textContent === type) && (!date || cells[4].textContent === date);
 row.style.display = match ? '' : 'none';
 });
 }
-
 function updateHistoryList() {
 const list = document.getElementById('historyList');
-if (!list) return;
 list.innerHTML = '';
 [...allFilesData].reverse().forEach(file => {
 const item = document.createElement('div');
@@ -1120,7 +881,6 @@ saveDataToLocalStorage();
 };
 });
 }
-
 function handleFile(file) {
 if (!file.name.endsWith('.txt')) { showError('Загрузите файл .txt'); return; }
 const reader = new FileReader();
@@ -1139,7 +899,6 @@ fileInput.value = '';
 reader.onerror = () => showError('Не удалось прочитать файл');
 reader.readAsText(file, 'utf-8');
 }
-
 function parseOrderFile(content, fileName) {
 let date = fileName.match(/(\d{2}\.\d{2}\.\d{4})/)?.[1] || 'Неизвестно';
 const contentDate = content.match(/ЗАКАЗЫ ЗА (\d{2}\.\d{2}\.\d{4})/);
@@ -1178,7 +937,82 @@ const totalMatch = content.match(/ИТОГО:\s*([\d.,]+)/);
 const total = totalMatch ? parseFloat(totalMatch[1].replace(',', '.')) : orders.reduce((s, o) => s + (o.amount || 0), 0);
 return { orders, total, date, exportDateTime, fileName };
 }
-
+window.resizeWidget = function(btn, delta) {
+const widget = btn.closest('.chart-box, .calendar-widget');
+if (!widget) return;
+const currentWidth = widget.offsetWidth;
+const newWidth = Math.max(300, currentWidth + delta * 100);
+widget.style.width = newWidth + 'px';
+setTimeout(() => {
+const canvas = widget.querySelector('canvas');
+if (canvas) { const chart = Chart.getChart(canvas); if (chart) chart.resize(); }
+}, 300);
+saveLayout();
+};
+window.resetWidgetSize = function(btn) {
+const widget = btn.closest('.chart-box, .calendar-widget');
+if (!widget) return;
+widget.style.width = '100%';
+widget.style.minHeight = '';
+setTimeout(() => {
+const canvas = widget.querySelector('canvas');
+if (canvas) { const chart = Chart.getChart(canvas); if (chart) chart.resize(); }
+}, 300);
+saveLayout();
+};
+function initResizeHandles() {
+document.querySelectorAll('.resize-handle').forEach(handle => {
+handle.addEventListener('mousedown', initResize);
+});
+}
+function initResize(e) {
+e.preventDefault();
+e.stopPropagation();
+const widget = this.parentElement;
+const startX = e.clientX;
+const startY = e.clientY;
+const startWidth = widget.offsetWidth;
+const startHeight = widget.offsetHeight;
+widget.classList.add('resizing');
+const minWidth = 300;
+const minHeight = 300;
+function doResize(e) {
+const newWidth = Math.max(minWidth, startWidth + (e.clientX - startX));
+const newHeight = Math.max(minHeight, startHeight + (e.clientY - startY));
+widget.style.width = newWidth + 'px';
+widget.style.height = newHeight + 'px';
+const canvas = widget.querySelector('canvas');
+if (canvas) { const chart = Chart.getChart(canvas); if (chart) chart.resize(); }
+}
+function stopResize() {
+widget.classList.remove('resizing');
+document.removeEventListener('mousemove', doResize);
+document.removeEventListener('mouseup', stopResize);
+saveLayout();
+}
+document.addEventListener('mousemove', doResize);
+document.addEventListener('mouseup', stopResize);
+}
+function saveLayout() {
+const layout = [];
+document.querySelectorAll('.chart-box, .calendar-widget').forEach((widget, index) => {
+layout.push({ id: widget.dataset.widget || index, width: widget.style.width, height: widget.style.height, order: index });
+});
+localStorage.setItem('dashboardLayout', JSON.stringify(layout));
+}
+function loadLayout() {
+const saved = localStorage.getItem('dashboardLayout');
+if (saved) {
+const layout = JSON.parse(saved);
+layout.forEach(item => {
+const widget = document.querySelector(`[data-widget="${item.id}"]`);
+if (widget) {
+if (item.width) widget.style.width = item.width;
+if (item.height) widget.style.height = item.height;
+}
+});
+}
+}
 function openCommentsModal(order) {
 const modal = document.createElement('div');
 modal.className = 'modal-overlay';
@@ -1209,7 +1043,6 @@ setTimeout(() => modal.classList.add('active'), 10);
 renderComments();
 commentInput.focus();
 }
-
 function updateCommentButton(order) {
 const orderId = generateOrderId(order);
 const btn = document.querySelector(`[data-order-id="${orderId}"]`);
@@ -1219,20 +1052,20 @@ if (comments.length > 0) { btn.classList.add('has-comment'); btn.innerHTML = `<i
 else { btn.classList.remove('has-comment'); btn.innerHTML = `<i class="fas fa-comment"></i>`; }
 }
 }
-
 dropZone.addEventListener('click', () => fileInput.click());
 ['dragover','dragenter'].forEach(evt => dropZone.addEventListener(evt, e => { e.preventDefault(); dropZone.classList.add('dragover'); }));
 ['dragleave','drop'].forEach(evt => dropZone.addEventListener(evt, e => { e.preventDefault(); dropZone.classList.remove('dragover'); }));
 dropZone.addEventListener('drop', e => { if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
 fileInput.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
-resetAllButton.addEventListener('click', () => { if (confirm('Удалить все данные?')) { allFilesData = []; allOrders = []; orderComments = {}; localStorage.removeItem('dashboardData'); localStorage.removeItem('orderComments'); localStorage.removeItem('widgetLayout'); resetUI(); } });
-document.getElementById('searchInput')?.addEventListener('input', filterTable);
-document.getElementById('typeFilter')?.addEventListener('change', filterTable);
-document.getElementById('dateFilter')?.addEventListener('change', filterTable);
-document.getElementById('trendPeriod')?.addEventListener('change', () => renderTrendChart());
+resetAllButton.addEventListener('click', () => { if (confirm('Удалить все данные?')) { allFilesData = []; allOrders = []; orderComments = {}; localStorage.removeItem('dashboardData'); localStorage.removeItem('orderComments'); localStorage.removeItem('dashboardLayout'); resetUI(); } });
+document.getElementById('searchInput').addEventListener('input', filterTable);
+document.getElementById('typeFilter').addEventListener('change', filterTable);
+document.getElementById('dateFilter').addEventListener('change', filterTable);
+document.getElementById('trendPeriod').addEventListener('change', () => renderTrendChart());
 loadComments();
 window.openCommentsModal = openCommentsModal;
 if (!loadDataFromLocalStorage()) dropZone.style.animation = 'fadeInUp 0.6s ease-out';
+setTimeout(() => { initResizeHandles(); loadLayout(); }, 100);
 window.addEventListener('resize', () => { setTimeout(() => { document.querySelectorAll('canvas').forEach(canvas => { const chart = Chart.getChart(canvas); if (chart) chart.resize(); }); }, 300); });
 });
 </script>
