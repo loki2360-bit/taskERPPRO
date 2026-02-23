@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>📊 Дашборд анализа заказов + Комментарии</title>
+<title>📊 Дашборд анализа заказов + Комментарии + Календарь</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -324,6 +324,158 @@ flex: 1;
 position: relative;
 min-height: 300px;
 }
+
+/* === Calendar Widget === */
+.calendar-widget {
+background: var(--bg-secondary);
+border-radius: var(--radius);
+box-shadow: var(--shadow);
+padding: 24px;
+border: 1px solid var(--border);
+display: flex;
+flex-direction: column;
+gap: 20px;
+}
+.calendar-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding-bottom: 16px;
+border-bottom: 1px solid var(--border);
+}
+.calendar-title {
+font-size: 1.2rem;
+font-weight: 600;
+color: var(--text-primary);
+display: flex;
+align-items: center;
+gap: 10px;
+}
+.calendar-title i {
+color: var(--primary);
+}
+.current-date {
+font-size: 0.95rem;
+color: var(--text-secondary);
+font-weight: 500;
+}
+.calendar-stats {
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 12px;
+}
+.stat-item {
+background: var(--bg-tertiary);
+padding: 14px;
+border-radius: 12px;
+text-align: center;
+border: 1px solid var(--border);
+}
+.stat-value {
+font-size: 1.5rem;
+font-weight: 700;
+color: var(--primary);
+margin-bottom: 4px;
+}
+.stat-label {
+font-size: 0.85rem;
+color: var(--text-secondary);
+}
+.calendar-grid {
+display: grid;
+grid-template-columns: repeat(7, 1fr);
+gap: 6px;
+}
+.calendar-day-header {
+text-align: center;
+font-size: 0.8rem;
+font-weight: 600;
+color: var(--text-tertiary);
+padding: 8px 4px;
+text-transform: uppercase;
+}
+.calendar-day {
+aspect-ratio: 1;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+border-radius: 10px;
+font-size: 0.9rem;
+font-weight: 500;
+cursor: pointer;
+transition: var(--transition);
+position: relative;
+border: 2px solid transparent;
+}
+.calendar-day:hover {
+transform: scale(1.1);
+z-index: 10;
+}
+.calendar-day.weekend {
+background: rgba(248, 113, 113, 0.1);
+color: var(--danger-light);
+border-color: rgba(248, 113, 113, 0.3);
+}
+.calendar-day.holiday {
+background: rgba(251, 191, 36, 0.15);
+color: var(--warning);
+border-color: rgba(251, 191, 36, 0.4);
+}
+.calendar-day.loaded {
+background: linear-gradient(135deg, rgba(52, 211, 153, 0.3), rgba(16, 185, 129, 0.2));
+color: var(--primary-light);
+border-color: var(--primary);
+box-shadow: 0 0 10px rgba(52, 211, 153, 0.3);
+}
+.calendar-day.loaded::after {
+content: '8ч';
+position: absolute;
+bottom: 2px;
+font-size: 0.65rem;
+font-weight: 600;
+color: var(--primary);
+}
+.calendar-day.today {
+border-color: var(--info);
+box-shadow: 0 0 15px rgba(34, 211, 238, 0.4);
+}
+.calendar-day.empty {
+visibility: hidden;
+}
+.calendar-legend {
+display: flex;
+gap: 16px;
+flex-wrap: wrap;
+padding-top: 12px;
+border-top: 1px solid var(--border);
+font-size: 0.85rem;
+}
+.legend-item {
+display: flex;
+align-items: center;
+gap: 6px;
+color: var(--text-secondary);
+}
+.legend-box {
+width: 16px;
+height: 16px;
+border-radius: 6px;
+border: 2px solid;
+}
+.legend-box.loaded {
+background: rgba(52, 211, 153, 0.3);
+border-color: var(--primary);
+}
+.legend-box.weekend {
+background: rgba(248, 113, 113, 0.1);
+border-color: rgba(248, 113, 113, 0.3);
+}
+.legend-box.holiday {
+background: rgba(251, 191, 36, 0.15);
+border-color: rgba(251, 191, 36, 0.4);
+}
+
 /* === Revenue Trend Chart === */
 .trend-controls {
 display: flex;
@@ -1110,6 +1262,9 @@ justify-content: center;
 .chart-box {
 min-height: 350px;
 }
+.calendar-stats {
+grid-template-columns: 1fr;
+}
 }
 /* === Animations === */
 @keyframes fadeInUp {
@@ -1130,7 +1285,7 @@ opacity: 0;
 .summary-cards .card:nth-child(2) { animation-delay: 0.2s; }
 .summary-cards .card:nth-child(3) { animation-delay: 0.3s; }
 .summary-cards .card:nth-child(4) { animation-delay: 0.4s; }
-.chart-box {
+.chart-box, .calendar-widget {
 animation: fadeInUp 0.6s ease-out forwards;
 opacity: 0;
 }
@@ -1237,6 +1392,41 @@ opacity: 0;
 <h2><i class="fas fa-tasks"></i> Прогресс выполнения</h2>
 <div id="progressBars"></div>
 </div>
+<!-- НОВЫЙ ВИДЖЕТ: Календарь -->
+<div class="calendar-widget">
+<div class="calendar-header">
+<div class="calendar-title">
+<i class="fas fa-calendar-alt"></i>
+<span>Рабочий календарь</span>
+</div>
+<div class="current-date" id="currentDateDisplay"></div>
+</div>
+<div class="calendar-stats">
+<div class="stat-item">
+<div class="stat-value" id="totalHoursWorked">0ч</div>
+<div class="stat-label">Отработано часов</div>
+</div>
+<div class="stat-item">
+<div class="stat-value" id="totalWorkingDays">0</div>
+<div class="stat-label">Рабочих дней в месяце</div>
+</div>
+</div>
+<div class="calendar-grid" id="calendarGrid"></div>
+<div class="calendar-legend">
+<div class="legend-item">
+<div class="legend-box loaded"></div>
+<span>Загружено (8ч)</span>
+</div>
+<div class="legend-item">
+<div class="legend-box weekend"></div>
+<span>Выходной</span>
+</div>
+<div class="legend-item">
+<div class="legend-box holiday"></div>
+<span>Праздник</span>
+</div>
+</div>
+</div>
 </div>
 <div class="history-section" id="historySection" style="display: none;">
 <h2><i class="fas fa-history"></i> История загрузок</h2>
@@ -1306,6 +1496,17 @@ let allOrders = [];
 let trendChartInstance = null;
 // === Comments System ===
 let orderComments = {};
+// === Holidays Russia 2026 ===
+// Based on official Russian holidays [[1]][[2]][[7]][[8]]
+const holidays2026 = {
+'01': [1, 2, 3, 4, 5, 6, 7, 8], // New Year holidays
+'02': [23], // Defender of the Fatherland Day
+'03': [8], // International Women's Day
+'05': [1, 9], // Spring and Labor Day, Victory Day
+'06': [12], // Russia Day
+'11': [4] // National Unity Day
+};
+
 // Загрузка комментариев из localStorage
 function loadComments() {
 try {
@@ -1443,6 +1644,7 @@ renderCharts();
 renderProgressBars();
 renderDataTable();
 updateHistoryList();
+renderCalendar();
 chartsContainer.style.display = 'grid';
 summaryCards.style.display = 'grid';
 historySection.style.display = 'block';
@@ -1583,6 +1785,99 @@ const latest = allFilesData.map(f => f.exportDateTime).sort().pop();
 document.getElementById('lastUpdate').textContent = latest || '-';
 }
 }
+
+// === Calendar Widget ===
+function renderCalendar() {
+const now = new Date();
+const currentYear = now.getFullYear();
+const currentMonth = now.getMonth();
+const today = now.getDate();
+
+// Display current date
+const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 
+                    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+document.getElementById('currentDateDisplay').textContent = 
+`${monthNames[currentMonth]} ${currentYear}`;
+
+// Get unique loaded dates
+const loadedDates = new Set();
+allFilesData.forEach(file => {
+const dateMatch = file.date.match(/(\d{2})\.(\d{2})\.(\d{4})/);
+if (dateMatch) {
+const [_, day, month, year] = dateMatch;
+if (parseInt(year) === currentYear && parseInt(month) === currentMonth + 1) {
+loadedDates.add(parseInt(day));
+}
+}
+});
+
+// Calculate total hours worked (8 hours per loaded date)
+const totalHours = loadedDates.size * 8;
+document.getElementById('totalHoursWorked').textContent = `${totalHours}ч`;
+
+// Calculate working days in month
+const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+let workingDays = 0;
+for (let day = 1; day <= daysInMonth; day++) {
+const date = new Date(currentYear, currentMonth, day);
+const dayOfWeek = date.getDay();
+const monthStr = String(currentMonth + 1).padStart(2, '0');
+const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+const isHoliday = holidays2026[monthStr] && holidays2026[monthStr].includes(day);
+if (!isWeekend && !isHoliday) {
+workingDays++;
+}
+}
+document.getElementById('totalWorkingDays').textContent = workingDays;
+
+// Generate calendar grid
+const grid = document.getElementById('calendarGrid');
+grid.innerHTML = '';
+
+// Day headers
+const dayHeaders = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+dayHeaders.forEach(header => {
+const div = document.createElement('div');
+div.className = 'calendar-day-header';
+div.textContent = header;
+grid.appendChild(div);
+});
+
+// Get first day of month (adjust for Monday start)
+const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+const startingDay = firstDay === 0 ? 6 : firstDay - 1;
+
+// Empty cells before first day
+for (let i = 0; i < startingDay; i++) {
+const div = document.createElement('div');
+div.className = 'calendar-day empty';
+grid.appendChild(div);
+}
+
+// Days of month
+for (let day = 1; day <= daysInMonth; day++) {
+const div = document.createElement('div');
+div.className = 'calendar-day';
+div.textContent = day;
+
+const date = new Date(currentYear, currentMonth, day);
+const dayOfWeek = date.getDay();
+const monthStr = String(currentMonth + 1).padStart(2, '0');
+
+const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+const isHoliday = holidays2026[monthStr] && holidays2026[monthStr].includes(day);
+const isLoaded = loadedDates.has(day);
+const isToday = day === today;
+
+if (isToday) div.classList.add('today');
+if (isWeekend) div.classList.add('weekend');
+if (isHoliday) div.classList.add('holiday');
+if (isLoaded) div.classList.add('loaded');
+
+grid.appendChild(div);
+}
+}
+
 // === Charts ===
 function renderCharts() {
 renderTrendChart();
