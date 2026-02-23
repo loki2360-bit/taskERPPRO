@@ -22,6 +22,7 @@
 --danger-light: #fca5a5;
 --info: #22d3ee;
 --info-light: #67e8f9;
+--purple: #a78bfa;
 
 /* Нейтральные цвета (Dark) */
 --bg-primary: #020617; /* Deep Slate */
@@ -257,7 +258,6 @@ transform: scale(1.05);
 background: rgba(52, 211, 153, 0.2);
 color: var(--primary-light);
 }
-/* Specific card overrides removed for uniform mint theme, keeping logic */
 .card-content {
 flex: 1;
 min-width: 0;
@@ -1590,7 +1590,8 @@ renderTypeChart();
 renderOrdersChart();
 renderTopOrdersChart();
 }
-// 🔥 НОВЫЙ ГРАФИК: Динамика выручки по датам
+
+// 🔥 ИСПРАВЛЕННЫЙ ГРАФИК: Динамика выручки по датам (ЦВЕТНОЙ)
 function renderTrendChart() {
 const period = document.getElementById('trendPeriod').value;
 const revenueByDate = {};
@@ -1613,14 +1614,13 @@ return orderDate >= cutoff;
 }
 const labels = filteredDates;
 const values = filteredDates.map(d => revenueByDate[d]);
-const bgColors = values.map((v, i) => {
-if (i === 0) return 'rgba(52, 211, 153, 0.6)';
-return values[i] >= values[i-1]
-? 'rgba(52, 211, 153, 0.7)'
-: 'rgba(248, 113, 113, 0.7)';
-});
-const borderColors = bgColors.map(c => c.replace('0.7', '1').replace('0.6', '1'));
+
+// Генерируем градиент для линии
 const ctx = document.getElementById('trendChart').getContext('2d');
+const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+gradient.addColorStop(0, 'rgba(52, 211, 153, 0.5)');
+gradient.addColorStop(1, 'rgba(52, 211, 153, 0.0)');
+
 if (trendChartInstance) trendChartInstance.destroy();
 trendChartInstance = new Chart(ctx, {
 type: 'line',
@@ -1630,12 +1630,16 @@ datasets: [{
 label: 'Выручка',
 data: values,
 borderColor: '#34d399',
-backgroundColor: 'rgba(52, 211, 153, 0.1)',
+backgroundColor: gradient,
 borderWidth: 3,
-pointBackgroundColor: bgColors,
-pointBorderColor: borderColors,
-pointRadius: 5,
-pointHoverRadius: 7,
+pointBackgroundColor: values.map((v, i) => {
+if (i === 0) return '#34d399';
+return values[i] >= values[i-1] ? '#34d399' : '#f87171';
+}),
+pointBorderColor: '#1e293b',
+pointBorderWidth: 2,
+pointRadius: 6,
+pointHoverRadius: 8,
 fill: true,
 tension: 0.4
 }]
@@ -1651,6 +1655,7 @@ titleColor: '#f8fafc',
 bodyColor: '#f8fafc',
 padding: 12,
 displayColors: false,
+borderRadius: 8,
 callbacks: {
 label: ctx => `💰 ${formatCurrency(ctx.parsed.y)}`
 }
@@ -1681,6 +1686,8 @@ mode: 'index'
 }
 });
 }
+
+// 🔥 ИСПРАВЛЕННЫЙ ГРАФИК: Выручка по типам работ (РАЗНОЦВЕТНЫЙ)
 function renderTypeChart() {
 const data = {};
 allOrders.forEach(o => {
@@ -1691,6 +1698,19 @@ const values = Object.values(data);
 const total = values.reduce((a,b) => a+b, 0);
 const ctx = document.getElementById('typeChart').getContext('2d');
 if (Chart.getChart(ctx)) Chart.getChart(ctx).destroy();
+
+// Цветная палитра для столбцов
+const colors = [
+'rgba(52, 211, 153, 0.8)',   // Mint
+'rgba(34, 211, 238, 0.8)',   // Cyan
+'rgba(167, 139, 250, 0.8)',  // Purple
+'rgba(251, 191, 36, 0.8)',   // Yellow
+'rgba(248, 113, 113, 0.8)',  // Red
+'rgba(99, 102, 241, 0.8)',   // Indigo
+'rgba(236, 72, 153, 0.8)',   // Pink
+'rgba(139, 92, 246, 0.8)'    // Violet
+];
+
 new Chart(ctx, {
 type: 'bar',
 data: {
@@ -1698,10 +1718,10 @@ labels,
 datasets: [{
 label: 'Выручка',
 data: values,
-backgroundColor: labels.map((_, i) =>
-`hsla(${150 + (i * 20)} % 360, 70%, 60%, 0.7)`
-),
-borderRadius: 6,
+backgroundColor: labels.map((_, i) => colors[i % colors.length]),
+borderColor: labels.map((_, i) => colors[i % colors.length].replace('0.8', '1')),
+borderWidth: 2,
+borderRadius: 8,
 borderSkipped: false
 }]
 },
@@ -1714,6 +1734,7 @@ tooltip: {
 backgroundColor: 'rgba(30, 41, 59, 0.95)',
 titleColor: '#f8fafc',
 bodyColor: '#f8fafc',
+borderRadius: 8,
 callbacks: {
 label: ctx => {
 const pct = ((ctx.parsed.y / total) * 100).toFixed(1);
@@ -1739,22 +1760,30 @@ x: {
 }
 });
 }
+
+// 🔥 ИСПРАВЛЕННЫЙ ГРАФИК: Распределение заказов (РАЗНОЦВЕТНОЙ DOUGHNUT)
 function renderOrdersChart() {
 const counts = {};
 allOrders.forEach(o => counts[o.type] = (counts[o.type] || 0) + 1);
 const ctx = document.getElementById('ordersChart').getContext('2d');
 if (Chart.getChart(ctx)) Chart.getChart(ctx).destroy();
+
+// Цветная палитра для пончика
+const colors = [
+'#34d399', '#22d3ee', '#a78bfa', '#fbbf24', 
+'#f87171', '#6366f1', '#ec4899', '#8b5cf6'
+];
+
 new Chart(ctx, {
 type: 'doughnut',
 data: {
 labels: Object.keys(counts),
 datasets: [{
 data: Object.values(counts),
-backgroundColor: Object.keys(counts).map((_, i) =>
-`hsla(${150 + (i * 25)} % 360, 75%, 65%, 0.9)`
-),
+backgroundColor: Object.keys(counts).map((_, i) => colors[i % colors.length]),
+borderColor: '#1e293b',
 borderWidth: 3,
-borderColor: '#1e293b'
+hoverOffset: 10
 }]
 },
 options: {
@@ -1766,20 +1795,22 @@ legend: {
     position: 'right', 
     labels: { 
         padding: 15,
-        color: '#f8fafc'
+        color: '#f8fafc',
+        font: { size: 12 }
     } 
 },
 tooltip: {
     backgroundColor: 'rgba(30, 41, 59, 0.95)',
     titleColor: '#f8fafc',
     bodyColor: '#f8fafc',
-callbacks: {
-label: ctx => {
-const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
-const pct = ((ctx.parsed / total) * 100).toFixed(1);
-return `${ctx.label}: ${ctx.parsed} (${pct}%)`;
-}
-}
+    borderRadius: 8,
+    callbacks: {
+    label: ctx => {
+        const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
+        const pct = ((ctx.parsed / total) * 100).toFixed(1);
+        return `${ctx.label}: ${ctx.parsed} (${pct}%)`;
+    }
+    }
 }
 }
 }
@@ -1793,12 +1824,24 @@ opt.textContent = `${type} (${counts[type]})`;
 filter.appendChild(opt);
 });
 }
+
+// 🔥 ИСПРАВЛЕННЫЙ ГРАФИК: Топ-5 самых дорогих заказов (РАЗНОЦВЕТНОЙ)
 function renderTopOrdersChart() {
 const top = [...allOrders]
 .sort((a,b) => b.amount - a.amount)
 .slice(0, 5);
 const ctx = document.getElementById('topOrdersChart').getContext('2d');
 if (Chart.getChart(ctx)) Chart.getChart(ctx).destroy();
+
+// Градиентная палитра для топ заказов
+const colors = [
+'rgba(52, 211, 153, 0.9)',   // Mint
+'rgba(34, 211, 238, 0.9)',   // Cyan
+'rgba(167, 139, 250, 0.9)',  // Purple
+'rgba(251, 191, 36, 0.9)',   // Yellow
+'rgba(236, 72, 153, 0.9)'    // Pink
+];
+
 new Chart(ctx, {
 type: 'bar',
 data: {
@@ -1806,9 +1849,9 @@ labels: top.map(o => o.description.length > 25 ? o.description.slice(0,25)+'…'
 datasets: [{
 label: 'Сумма',
 data: top.map(o => o.amount),
-backgroundColor: top.map((_, i) =>
-`hsla(${150 - i*10}, 80%, 60%, 0.8)`
-),
+backgroundColor: top.map((_, i) => colors[i]),
+borderColor: top.map((_, i) => colors[i].replace('0.9', '1')),
+borderWidth: 2,
 borderRadius: 8,
 borderSkipped: false
 }]
@@ -1823,10 +1866,11 @@ tooltip: {
     backgroundColor: 'rgba(30, 41, 59, 0.95)',
     titleColor: '#f8fafc',
     bodyColor: '#f8fafc',
-callbacks: {
-title: items => top[items[0].dataIndex].description,
-label: ctx => `💰 ${formatCurrency(ctx.parsed.x)}`
-}
+    borderRadius: 8,
+    callbacks: {
+    title: items => top[items[0].dataIndex].description,
+    label: ctx => `💰 ${formatCurrency(ctx.parsed.x)}`
+    }
 }
 },
 scales: {
@@ -1845,6 +1889,7 @@ y: {
 }
 });
 }
+
 // === Progress Bars ===
 function renderProgressBars() {
 const container = document.getElementById('progressBars');
