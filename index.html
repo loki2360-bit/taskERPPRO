@@ -11,10 +11,10 @@
 --card: #3a3a3a;
 --text: #ffffff;
 --text-muted: #bbbbbb;
-/* Обновленная цветовая схема: Огненно-синий градиент в белый */
 --accent-blue: #0072ff;
+--accent-blue-dark: #0056cc;
 --accent-white: #ffffff;
---accent-gradient: linear-gradient(135deg, rgba(0, 114, 255, 0.9), rgba(255, 255, 255, 0.95));
+--accent-gradient: linear-gradient(135deg, rgba(0, 114, 255, 0.95), rgba(100, 180, 255, 0.9), rgba(255, 255, 255, 0.95));
 --accent-solid: #0072ff;
 --accent-red: #ff5252;
 --accent-green: #69f0ae;
@@ -144,7 +144,7 @@ font-size: 1.2rem;
 color: #ffffff;
 text-shadow: 0 0 10px rgba(0, 114, 255, 0.6);
 }
-/* Неоморфические кнопки — с синим градиентом */
+/* Неоморфические кнопки — синие с градиентом */
 .neu-btn {
 background: var(--card);
 border: none;
@@ -170,6 +170,9 @@ inset 2px 2px 5px rgba(0, 114, 255, 0.3),
 inset -2px -2px 5px rgba(255, 255, 255, 0.3);
 backdrop-filter: blur(5px);
 -webkit-backdrop-filter: blur(5px);
+}
+.neu-btn-accent:hover {
+background: linear-gradient(135deg, rgba(0, 114, 255, 1), rgba(100, 180, 255, 1), rgba(255, 255, 255, 1));
 }
 .neu-input,
 .neu-select {
@@ -228,7 +231,10 @@ border-radius: 50%;
 background: var(--border);
 box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
-.step.active { background: var(--accent-solid); box-shadow: 0 0 8px var(--accent-solid); }
+.step.active { 
+    background: var(--accent-solid); 
+    box-shadow: 0 0 8px var(--accent-solid);
+}
 .step.current {
 background: #1e3a8a;
 box-shadow: 0 0 0 2px rgba(30, 64, 175, 0.4);
@@ -444,7 +450,6 @@ padding: 0 8px;
 <div class="main-content" id="mainContent">
 <!-- Основное -->
 <div id="main" class="content-block active">
-<!-- ❌ УДАЛЕНА аватарка из контента -->
 <div>
 <h2>Александр<span id="opId"></span></h2>
 <p>Всего: <b><span id="totalAll">0.00</span> ₽</b></p>
@@ -546,7 +551,7 @@ padding: 0 8px;
 <!-- Предзаказы -->
 <div id="preorders" class="content-block">
 <div class="container">
-<h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-clock"></i> Предзаказы</h2>
+<h2 style="background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 16px;"><i class="fas fa-clock"></i> Предзаказы</h2>
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
 <div>
 <label style="display: block; margin-bottom: 6px;">№ заказа</label>
@@ -607,7 +612,7 @@ padding: 0 8px;
 <!-- КАЛЕНДАРЬ (Вместо Чаевых) -->
 <div id="calendar" class="content-block">
 <div class="container">
-<h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-calendar-alt"></i> Календарь</h2>
+<h2 style="background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 16px;"><i class="fas fa-calendar-alt"></i> Календарь</h2>
 <div class="calendar-header">
     <button class="calendar-nav-btn" onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
     <div style="font-size: 1.2rem; font-weight: 600;" id="calendarMonthYear"></div>
@@ -629,7 +634,7 @@ padding: 0 8px;
 <!-- Статистика -->
 <div id="stats" class="content-block">
 <div class="container">
-<h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-chart-bar"></i> Общая статистика</h2>
+<h2 style="background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 16px;"><i class="fas fa-chart-bar"></i> Общая статистика</h2>
 <div class="progress-title">
 <i class="fas fa-ruler-horizontal"></i> Погонные метры
 </div>
@@ -974,8 +979,7 @@ shift.active = false;
 shift.finishedAt = new Date().toISOString();
 shift.finalAmount = finalAmount;
 setCurrentShift(shift);
-alert(`✅ Смена завершена!
-Заработано: ${finalAmount.toFixed(2)} ₽`);
+alert(`✅ Смена завершена!\nЗаработано: ${finalAmount.toFixed(2)} ₽`);
 updateUI();
 }
 // === Удаление ===
@@ -1297,32 +1301,19 @@ const orders = loadOrders();
 const filtered = orders.filter(o => o.date === dateInput);
 if (filtered.length === 0) { alert('Нет заказов за эту дату'); return; }
 const formattedDate = formatDateYMD(dateInput);
-let content = `ЗАКАЗЫ ЗА ${formattedDate}
-========================
-`;
+let content = `ЗАКАЗЫ ЗА ${formattedDate}\n========================\n`;
 let totalSum = 0;
 filtered.forEach((o, idx) => {
 const tariffName = TARIFF_NAMES[o.tariff] || o.tariff;
 const units = calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty);
-content += `№${idx + 1}. ${o.orderNumber}
-${o.detail} (${tariffName})
-`;
-if (o.length) content += `   Длина: ${o.length} м
-`;
-if (o.width) content += `   Ширина: ${o.width} м
-`;
-if (o.hours) content += `   Часы: ${o.hours} ч
-`;
-content += `   Кол-во: ${o.qty}
-Объем: ${units.value} ${units.unit}
-Сумма: ${o.amount.toFixed(2)} ₽
----
-`;
+content += `№${idx + 1}. ${o.orderNumber}\n${o.detail} (${tariffName})\n`;
+if (o.length) content += `   Длина: ${o.length} м\n`;
+if (o.width) content += `   Ширина: ${o.width} м\n`;
+if (o.hours) content += `   Часы: ${o.hours} ч\n`;
+content += `   Кол-во: ${o.qty}\nОбъем: ${units.value} ${units.unit}\nСумма: ${o.amount.toFixed(2)} ₽\n---\n`;
 totalSum += o.amount;
 });
-content += `
-ИТОГО: ${totalSum.toFixed(2)} ₽
-Экспорт: ${new Date().toLocaleString('ru-RU')}`;
+content += `\nИТОГО: ${totalSum.toFixed(2)} ₽\nЭкспорт: ${new Date().toLocaleString('ru-RU')}`;
 const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
 const blob = new Blob([bom, content], { type: 'text/plain;charset=utf-8' });
 const a = document.createElement('a');
@@ -1392,8 +1383,7 @@ renderPreorders();
 alert(`✅ Загружено ${newPreorders.length} предзаказов!`);
 } catch (err) {
 console.error(err);
-alert('Ошибка при чтении файла:
-' + err.message);
+alert('Ошибка при чтении файла:\n' + err.message);
 }
 };
 reader.readAsText(file, 'utf-8');
@@ -1403,8 +1393,7 @@ function parseTxtOrders(txtContent) {
 const orders = [];
 const blocks = txtContent.split('---');
 for (const block of blocks) {
-const lines = block.trim().split('
-').filter(line => line.trim() !== '');
+const lines = block.trim().split('\n').filter(line => line.trim() !== '');
 if (lines.length < 3) continue;
 const order = {
 orderNumber: '',
@@ -1663,7 +1652,6 @@ if (avatarData) {
 const img = document.createElement('img');
 img.src = avatarData;
 img.onerror = () => {
-// Если изображение битое — удаляем и показываем иконку
 localStorage.removeItem('operator_avatar');
 avatarBtn.innerHTML = '<i class="fas fa-user"></i>';
 };
@@ -1703,8 +1691,8 @@ else updateEditFormFields();
 });
 updateUI();
 renderPreorders();
-loadAvatar(); // Загрузить аватар при старте
-renderCalendar(); // Инициализация календаря
+loadAvatar();
+renderCalendar();
 });
 </script>
 </body>
