@@ -136,12 +136,48 @@ cursor: pointer;
 padding: 4px 2px;
 user-select: none;
 position: relative;
+border-radius: 12px;
+transition: all 0.3s ease;
 }
 .panel-item i {
 font-size: 1.2rem;
 }
 .panel-item.active {
 color: #ffffff;
+}
+/* Glow effect at bottom - как на скриншоте */
+.panel-item::after {
+content: '';
+position: absolute;
+bottom: 2px;
+left: 50%;
+transform: translateX(-50%);
+width: 60%;
+height: 4px;
+border-radius: 2px;
+opacity: 0;
+transition: all 0.3s ease;
+filter: blur(2px);
+}
+.panel-item.active::after {
+opacity: 1;
+}
+/* Разные цвета свечения для разных кнопок */
+.panel-item[data-target="main"].active::after {
+background: #0072ff;
+box-shadow: 0 0 10px #0072ff, 0 0 20px #0072ff, 0 0 30px rgba(0, 114, 255, 0.5);
+}
+.panel-item[data-target="preorders"].active::after {
+background: #ff6b6b;
+box-shadow: 0 0 10px #ff6b6b, 0 0 20px #ff6b6b, 0 0 30px rgba(255, 107, 107, 0.5);
+}
+.panel-item[data-target="calendar"].active::after {
+background: #69f0ae;
+box-shadow: 0 0 10px #69f0ae, 0 0 20px #69f0ae, 0 0 30px rgba(105, 240, 174, 0.5);
+}
+.panel-item[data-target="stats"].active::after {
+background: #ffd93d;
+box-shadow: 0 0 10px #ffd93d, 0 0 20px #ffd93d, 0 0 30px rgba(255, 217, 61, 0.5);
 }
 /* NEW badge animation */
 .new-badge {
