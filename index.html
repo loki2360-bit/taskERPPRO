@@ -34,7 +34,6 @@ padding: 0;
 min-height: 100vh;
 line-height: 1.4;
 }
-/* Шапка с аватаркой и поиском */
 .header-bar {
 position: fixed;
 top: 0;
@@ -95,13 +94,11 @@ transform: translateY(-50%);
 color: var(--text-muted);
 pointer-events: none;
 }
-/* Основной контент */
 .main-content {
 padding: 72px 16px 70px;
 max-width: 768px;
 margin: 0 auto;
 }
-/* Стеклянная панель */
 .glass-panel {
 position: fixed;
 bottom: 20px;
@@ -142,7 +139,6 @@ font-size: 1.2rem;
 .panel-item.active {
 color: var(--accent-solid);
 }
-/* NEW badge animation */
 .new-badge {
 position: absolute;
 top: -2px;
@@ -160,7 +156,6 @@ box-shadow: 0 2px 6px rgba(220, 38, 38, 0.4);
 0%, 100% { transform: scale(1); opacity: 1; }
 50% { transform: scale(1.15); opacity: 0.85; }
 }
-/* Неоморфические кнопки */
 .neu-btn {
 background: var(--card);
 border: 1px solid var(--border);
@@ -310,7 +305,6 @@ color: #F0F1F3;
 border-color: var(--accent-solid);
 }
 .hidden { display: none !important; }
-/* Стили для Календаря */
 .calendar-header {
 display: flex;
 justify-content: space-between;
@@ -425,115 +419,6 @@ width: 18px;
 height: 18px;
 accent-color: var(--accent-solid);
 }
-/* Стили для Мастер-заказа */
-.master-order-container {
-display: flex;
-flex-direction: column;
-gap: 16px;
-}
-.camera-section {
-background: var(--card);
-border-radius: 12px;
-padding: 16px;
-box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
-border: 1px solid var(--border);
-}
-.camera-preview {
-width: 100%;
-height: 200px;
-background: #000;
-border-radius: 8px;
-overflow: hidden;
-display: flex;
-align-items: center;
-justify-content: center;
-}
-.camera-preview video,
-.camera-preview img {
-width: 100%;
-height: 100%;
-object-fit: cover;
-}
-.camera-controls {
-display: flex;
-gap: 12px;
-margin-top: 12px;
-justify-content: center;
-}
-.photo-grid {
-display: grid;
-grid-template-columns: repeat(3, 1fr);
-gap: 12px;
-margin-top: 16px;
-}
-.photo-item {
-aspect-ratio: 1;
-background: var(--card);
-border-radius: 8px;
-overflow: hidden;
-cursor: pointer;
-box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light);
-border: 1px solid var(--border);
-position: relative;
-}
-.photo-item img {
-width: 100%;
-height: 100%;
-object-fit: cover;
-}
-.photo-item .photo-overlay {
-position: absolute;
-bottom: 0;
-left: 0;
-right: 0;
-background: rgba(59, 66, 86, 0.8);
-color: #F0F1F3;
-font-size: 0.7rem;
-padding: 4px;
-text-align: center;
-}
-.photo-item .status-badge {
-position: absolute;
-top: 4px;
-right: 4px;
-background: var(--accent-green);
-color: white;
-font-size: 0.6rem;
-padding: 2px 6px;
-border-radius: 4px;
-}
-.photo-item .status-badge.pending {
-background: var(--accent-red);
-}
-/* Модальное окно мастер-заказа */
-.master-modal-content {
-max-width: 700px;
-}
-.master-split-view {
-display: grid;
-grid-template-columns: 1fr 1fr;
-gap: 20px;
-}
-.master-photo-section {
-background: #000;
-border-radius: 8px;
-overflow: hidden;
-}
-.master-photo-section img {
-width: 100%;
-height: auto;
-display: block;
-}
-.master-form-section {
-display: flex;
-flex-direction: column;
-gap: 12px;
-}
-@media (max-width: 600px) {
-.master-split-view {
-grid-template-columns: 1fr;
-}
-}
 @media (max-width: 480px) {
 .glass-panel {
 bottom: 16px;
@@ -548,21 +433,16 @@ padding: 0 8px;
 </style>
 </head>
 <body>
-<!-- ШАПКА -->
 <div class="header-bar">
-<!-- Аватарка с возможностью загрузки -->
 <div class="avatar-btn" id="avatarBtn" title="Загрузить аватар">
 <i class="fas fa-user"></i>
 </div>
-<!-- Поиск -->
 <div class="search-container">
 <i class="fas fa-search search-icon"></i>
 <input type="text" class="search-input" id="orderSearch" placeholder="Поиск по № заказа...">
 </div>
 </div>
-<!-- Основной контент -->
 <div class="main-content" id="mainContent">
-<!-- Основное -->
 <div id="main" class="content-block active">
 <div>
 <h2>Александр<span id="opId"></span></h2>
@@ -662,7 +542,6 @@ padding: 0 8px;
 </div>
 <div id="ordersListContainer" style="margin-top: 24px;"></div>
 </div>
-<!-- Предзаказы -->
 <div id="preorders" class="content-block">
 <div class="container">
 <h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-clock"></i> Предзаказы</h2>
@@ -723,35 +602,6 @@ padding: 0 8px;
 <div id="preordersListContainer" style="margin-top: 16px;"></div>
 </div>
 </div>
-<!-- МАСТЕР-ЗАКАЗ (НОВАЯ ВКЛАДКА) -->
-<div id="masterorder" class="content-block">
-<div class="master-order-container">
-<h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-camera"></i> Мастер-заказ</h2>
-<div class="camera-section">
-<div class="camera-preview" id="cameraPreview">
-<video id="cameraVideo" autoplay playsinline></video>
-</div>
-<div class="camera-controls">
-<button class="neu-btn neu-btn-accent" onclick="startCamera()">
-<i class="fas fa-camera"></i> Включить камеру
-</button>
-<button class="neu-btn neu-btn-accent" onclick="takePhoto()">
-<i class="fas fa-camera-retro"></i> Сделать фото
-</button>
-<button class="neu-btn" onclick="stopCamera()">
-<i class="fas fa-stop"></i> Стоп
-</button>
-</div>
-</div>
-<div class="progress-title">
-<i class="fas fa-images"></i> Список фото
-</div>
-<div class="photo-grid" id="photoGrid">
-<!-- Фото генерируются JS -->
-</div>
-</div>
-</div>
-<!-- КАЛЕНДАРЬ -->
 <div id="calendar" class="content-block">
 <div class="container">
 <h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-calendar-alt"></i> Календарь</h2>
@@ -760,9 +610,7 @@ padding: 0 8px;
 <div style="font-size: 1.2rem; font-weight: 600;" id="calendarMonthYear"></div>
 <button class="calendar-nav-btn" onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
 </div>
-<div class="calendar-grid" id="calendarGrid">
-<!-- Дни генерируются JS -->
-</div>
+<div class="calendar-grid" id="calendarGrid"></div>
 <div class="progress-title" style="margin-top: 24px;">
 <i class="fas fa-info-circle"></i> Легенда
 </div>
@@ -773,7 +621,6 @@ padding: 0 8px;
 </div>
 </div>
 </div>
-<!-- Статистика -->
 <div id="stats" class="content-block">
 <div class="container">
 <h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-chart-bar"></i> Общая статистика</h2>
@@ -818,7 +665,6 @@ padding: 0 8px;
 </div>
 </div>
 </div>
-<!-- Стеклянная панель -->
 <div class="glass-panel">
 <div class="panel-item active" data-target="main">
 <i class="fas fa-home"></i>
@@ -828,23 +674,17 @@ padding: 0 8px;
 <i class="fas fa-clock"></i>
 <span>Предзаказы</span>
 </div>
-<div class="panel-item" data-target="masterorder">
-<i class="fas fa-camera"></i>
-<span>Мастер</span>
-<div class="new-badge">NEW</div>
-</div>
 <div class="panel-item" data-target="calendar">
 <i class="fas fa-calendar-alt"></i>
 <span>Календарь</span>
+<div class="new-badge">NEW</div>
 </div>
 <div class="panel-item" data-target="stats">
 <i class="fas fa-chart-bar"></i>
 <span>Статистика</span>
 </div>
 </div>
-<!-- Скрытый input для загрузки аватара -->
 <input type="file" id="avatarUpload" accept="image/jpeg,image/png,image/webp" style="display: none;" />
-<!-- Модальные окна -->
 <div id="editModal" class="modal">
 <div class="modal-content">
 <div class="modal-title">Редактировать заказ</div>
@@ -913,7 +753,6 @@ padding: 0 8px;
 </div>
 </div>
 </div>
-<!-- Модальное окно Календаря -->
 <div id="dayModal" class="modal">
 <div class="modal-content">
 <div class="modal-title">Редактирование дня</div>
@@ -936,69 +775,8 @@ padding: 0 8px;
 </div>
 </div>
 </div>
-<!-- Модальное окно Мастер-заказа -->
-<div id="masterModal" class="modal">
-<div class="modal-content master-modal-content">
-<div class="modal-title"><i class="fas fa-camera"></i> Создание заказа по фото</div>
-<div class="master-split-view">
-<div class="master-photo-section">
-<img id="masterPhotoDisplay" src="" alt="Фото детали">
-</div>
-<div class="master-form-section">
-<div class="modal-row">
-<label>№ заказа</label>
-<input type="text" id="masterOrderNum" class="neu-input" placeholder="ORD-001">
-</div>
-<div class="modal-row">
-<label>Тариф</label>
-<select id="masterTariff" class="neu-select">
-<option value="RASPIL_M2">Распил — 65 ₽/м²</option>
-<option value="LINEAR_RASPIL">Лин. распил — 26 ₽/м</option>
-<option value="SKLEIKA_OB">Склейка + — 210 ₽/м²</option>
-<option value="SKLEIKA_NO_OB">Склейка – — 165 ₽/м²</option>
-<option value="PAZY">Пазы — 30 ₽/м</option>
-<option value="FREZER_FASKA">Фаска — 16 ₽/м</option>
-<option value="TIME">Время — 330 ₽/ч</option>
-</select>
-</div>
-<div class="modal-row">
-<label>Деталь</label>
-<input type="text" id="masterDetail" class="neu-input" placeholder="Название">
-</div>
-<div class="modal-row">
-<label>Кол-во</label>
-<input type="number" id="masterQty" value="1" min="1" class="neu-input">
-</div>
-<div class="modal-row" id="masterLengthGroup">
-<label>Длина (м)</label>
-<input type="number" step="0.01" id="masterLength" class="neu-input" placeholder="0.00">
-</div>
-<div class="modal-row hidden" id="masterWidthGroup">
-<label>Ширина (м)</label>
-<input type="number" step="0.01" id="masterWidth" class="neu-input" placeholder="0.00">
-</div>
-<div class="modal-row hidden" id="masterHoursGroup">
-<label>Часы</label>
-<input type="number" step="0.1" id="masterHours" class="neu-input" placeholder="0.0">
-</div>
-<div class="modal-row">
-<label>Дата заказа</label>
-<input type="date" id="masterDate" class="neu-input">
-</div>
-</div>
-</div>
-<div class="modal-buttons">
-<button class="neu-btn" onclick="closeMasterModal()">Отмена</button>
-<button class="neu-btn neu-btn-accent" onclick="createMasterOrder()">
-<i class="fas fa-check"></i> Создать заказ
-</button>
-</div>
-</div>
-</div>
 <script>
-// === ФЛАГ ЗВУКА ===
 let soundEnabled = true;
-// === Константы ===
 const TARIFFS = {
 RASPIL_M2: { price: 65, unit: 'm2' },
 LINEAR_RASPIL: { price: 26, unit: 'linear' },
@@ -1022,7 +800,6 @@ m2: 'м²',
 linear: 'пог. м',
 time: 'часы'
 };
-// === Утилиты ===
 function formatDateYMD(dateStr) {
 const [y, m, d] = dateStr.split('-');
 return `${d}.${m}.${y}`;
@@ -1046,14 +823,6 @@ return JSON.parse(localStorage.getItem('operator_preorders') || '[]');
 function savePreorders(preorders) {
 localStorage.setItem('operator_preorders', JSON.stringify(preorders));
 }
-function loadMasterPhotos() {
-try {
-return JSON.parse(localStorage.getItem('operator_master_photos') || '[]');
-} catch (e) { return []; }
-}
-function saveMasterPhotos(photos) {
-localStorage.setItem('operator_master_photos', JSON.stringify(photos));
-}
 function getCurrentShift() {
 try {
 return JSON.parse(localStorage.getItem('current_shift') || 'null');
@@ -1066,7 +835,6 @@ localStorage.removeItem('current_shift');
 localStorage.setItem('current_shift', JSON.stringify(shift));
 }
 }
-// === Звуковой сигнал ===
 function playSuccessSound() {
 if (!soundEnabled) return;
 try {
@@ -1085,7 +853,6 @@ oscillator.stop(ctx.currentTime + 0.3);
 console.warn("Audio feedback not supported", e);
 }
 }
-// === Расчёт суммы ===
 function calculateAmount(tariffKey, length, width, hours, qty) {
 const tariff = TARIFFS[tariffKey];
 if (!tariff) return 0;
@@ -1099,7 +866,6 @@ amount = tariff.price * length * qty;
 }
 return Math.round(amount * 100) / 100;
 }
-// === Обновление UI плана ===
 function updateUI() {
 const orders = loadOrders();
 const totalAll = orders.reduce((sum, o) => sum + (parseFloat(o.amount) || 0), 0);
@@ -1133,7 +899,6 @@ step.classList.add('completed');
 }
 });
 }
-// === Переключение полей ===
 function updateMainFormFields() {
 const tariff = document.getElementById('tariff').value;
 ['widthGroup', 'hoursGroup'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
@@ -1167,18 +932,6 @@ document.getElementById('editLengthGroup')?.classList.add('hidden');
 document.getElementById('editHoursGroup')?.classList.remove('hidden');
 }
 }
-function updateMasterFormFields() {
-const tariff = document.getElementById('masterTariff').value;
-['masterWidthGroup', 'masterHoursGroup'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
-document.getElementById('masterLengthGroup')?.classList.remove('hidden');
-if (['RASPIL_M2', 'SKLEIKA_OB', 'SKLEIKA_NO_OB'].includes(tariff)) {
-document.getElementById('masterWidthGroup')?.classList.remove('hidden');
-} else if (tariff === 'TIME') {
-document.getElementById('masterLengthGroup')?.classList.add('hidden');
-document.getElementById('masterHoursGroup')?.classList.remove('hidden');
-}
-}
-// === Смена ===
 function startShift() {
 const shift = getCurrentShift();
 if (shift && shift.active) {
@@ -1204,11 +957,9 @@ shift.active = false;
 shift.finishedAt = new Date().toISOString();
 shift.finalAmount = finalAmount;
 setCurrentShift(shift);
-alert(`✅ Смена завершена!
-Заработано: ${finalAmount.toFixed(2)} ₽`);
+alert('✅ Смена завершена!\nЗаработано: ' + finalAmount.toFixed(2) + ' ₽');
 updateUI();
 }
-// === Удаление ===
 function deleteOrder(orderId) {
 if (!confirm('Вы уверены, что хотите удалить этот заказ?')) return;
 const orders = loadOrders();
@@ -1231,7 +982,6 @@ savePreorders(preorders);
 renderPreorders();
 alert('✅ Предзаказ удален!');
 }
-// === Модальные окна ===
 let pendingPreorderId = null;
 function openDateModal(preorderId) {
 pendingPreorderId = preorderId;
@@ -1255,15 +1005,15 @@ if (!order) return;
 const units = calculateUnits(order.tariff, order.length, order.width, order.hours, order.qty);
 const tariffName = TARIFF_NAMES[order.tariff] || order.tariff;
 let html = '';
-html += `<div class="details-item"><span class="details-label">№ заказа:</span><span class="details-value">${order.orderNumber}</span></div>`;
-html += `<div class="details-item"><span class="details-label">Деталь:</span><span class="details-value">${order.detail}</span></div>`;
-html += `<div class="details-item"><span class="details-label">Тариф:</span><span class="details-value">${tariffName}</span></div>`;
-html += `<div class="details-item"><span class="details-label">Количество:</span><span class="details-value">${order.qty}</span></div>`;
-if (order.length !== null) html += `<div class="details-item"><span class="details-label">Длина:</span><span class="details-value">${order.length} м</span></div>`;
-if (order.width !== null) html += `<div class="details-item"><span class="details-label">Ширина:</span><span class="details-value">${order.width} м</span></div>`;
-if (order.hours !== null) html += `<div class="details-item"><span class="details-label">Часы:</span><span class="details-value">${order.hours} ч</span></div>`;
-html += `<div class="details-item"><span class="details-label">Объем работ:</span><span class="details-value">${units.value} ${units.unit}</span></div>`;
-html += `<div class="details-item"><span class="details-label">Сумма:</span><span class="details-value">${order.amount.toFixed(2)} ₽</span></div>`;
+html += '<div class="details-item"><span class="details-label">№ заказа:</span><span class="details-value">' + order.orderNumber + '</span></div>';
+html += '<div class="details-item"><span class="details-label">Деталь:</span><span class="details-value">' + order.detail + '</span></div>';
+html += '<div class="details-item"><span class="details-label">Тариф:</span><span class="details-value">' + tariffName + '</span></div>';
+html += '<div class="details-item"><span class="details-label">Количество:</span><span class="details-value">' + order.qty + '</span></div>';
+if (order.length !== null) html += '<div class="details-item"><span class="details-label">Длина:</span><span class="details-value">' + order.length + ' м</span></div>';
+if (order.width !== null) html += '<div class="details-item"><span class="details-label">Ширина:</span><span class="details-value">' + order.width + ' м</span></div>';
+if (order.hours !== null) html += '<div class="details-item"><span class="details-label">Часы:</span><span class="details-value">' + order.hours + ' ч</span></div>';
+html += '<div class="details-item"><span class="details-label">Объем работ:</span><span class="details-value">' + units.value + ' ' + units.unit + '</span></div>';
+html += '<div class="details-item"><span class="details-label">Сумма:</span><span class="details-value">' + order.amount.toFixed(2) + ' ₽</span></div>';
 document.getElementById('detailsContent').innerHTML = html;
 document.getElementById('detailsModal').classList.add('active');
 }
@@ -1324,7 +1074,6 @@ closeEditModal();
 alert('✅ Заказ обновлён!');
 }
 }
-// === Основные функции ===
 function createMainOrder() {
 const num = document.getElementById('orderNum').value.trim();
 if (!num) { alert('Укажите № заказа'); return; }
@@ -1402,7 +1151,6 @@ if (el) el.value = (id === 'preQty') ? '1' : '';
 });
 updatePreorderFormFields();
 }
-// === Принять предзаказ ===
 function acceptPreorder(preorderId, selectedDate = null) {
 const preorders = loadPreorders();
 const idx = preorders.findIndex(p => p.id === preorderId);
@@ -1423,11 +1171,10 @@ orders.push(order);
 saveOrders(orders);
 preorders.splice(idx, 1);
 savePreorders(preorders);
-alert(`✅ Предзаказ "${preorder.orderNumber}" принят на дату ${formatDateYMD(selectedDate)}!`);
+alert('✅ Предзаказ "' + preorder.orderNumber + '" принят на дату ' + formatDateYMD(selectedDate) + '!');
 updateUI();
 renderPreorders();
 }
-// === Рендер предзаказов ===
 function renderPreorders() {
 const preorders = loadPreorders();
 const container = document.getElementById('preordersListContainer');
@@ -1435,52 +1182,31 @@ if (preorders.length === 0) {
 container.innerHTML = '<div class="empty-msg">Нет предзаказов</div>';
 return;
 }
-let html = `<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>`;
+let html = '<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>';
 preorders.forEach(p => {
-html += `
-<tr>
-<td>${p.orderNumber}</td>
-<td>${p.detail}</td>
-<td class="amount">${p.amount.toFixed(2)} ₽</td>
-<td>
-<button class="action-btn" onclick="acceptPreorder(${p.id})"><i class="fas fa-check"></i></button>
-<button class="action-btn" onclick="deletePreorder(${p.id})"><i class="fas fa-trash"></i></button>
-</td>
-</tr>`;
+html += '<tr><td>' + p.orderNumber + '</td><td>' + p.detail + '</td><td class="amount">' + p.amount.toFixed(2) + ' ₽</td><td><button class="action-btn" onclick="acceptPreorder(' + p.id + ')"><i class="fas fa-check"></i></button><button class="action-btn" onclick="deletePreorder(' + p.id + ')"><i class="fas fa-trash"></i></button></td></tr>';
 });
 html += '</tbody></table>';
 container.innerHTML = html;
 }
-// === Показать заказы по дате ===
 function showOrdersByDate() {
 const dateInput = document.getElementById('viewDate').value;
 if (!dateInput) { alert('Выберите дату'); return; }
 const orders = loadOrders();
 const filtered = orders.filter(o => o.date === dateInput);
 const formattedDate = formatDateYMD(dateInput);
-let html = `<div class="progress-title">Заказы за ${formattedDate}</div>`;
+let html = '<div class="progress-title">Заказы за ' + formattedDate + '</div>';
 if (filtered.length === 0) {
 html += '<div class="empty-msg">Нет заказов за эту дату</div>';
 } else {
-html += `<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>`;
+html += '<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>';
 filtered.forEach(o => {
-html += `
-<tr>
-<td>${o.orderNumber}</td>
-<td>${o.detail}</td>
-<td class="amount">${o.amount.toFixed(2)} ₽</td>
-<td>
-<button class="action-btn" onclick="viewOrderDetails(${o.id})"><i class="fas fa-eye"></i></button>
-<button class="action-btn" onclick="openEditModal(${o.id})"><i class="fas fa-edit"></i></button>
-<button class="action-btn" onclick="deleteOrder(${o.id})"><i class="fas fa-trash"></i></button>
-</td>
-</tr>`;
+html += '<tr><td>' + o.orderNumber + '</td><td>' + o.detail + '</td><td class="amount">' + o.amount.toFixed(2) + ' ₽</td><td><button class="action-btn" onclick="viewOrderDetails(' + o.id + ')"><i class="fas fa-eye"></i></button><button class="action-btn" onclick="openEditModal(' + o.id + ')"><i class="fas fa-edit"></i></button><button class="action-btn" onclick="deleteOrder(' + o.id + ')"><i class="fas fa-trash"></i></button></td></tr>';
 });
 html += '</tbody></table>';
 }
 document.getElementById('ordersListContainer').innerHTML = html;
 }
-// === Поиск по номеру заказа ===
 document.getElementById('orderSearch').addEventListener('keypress', function(e) {
 if (e.key === 'Enter') {
 const query = this.value.trim().toLowerCase();
@@ -1490,23 +1216,13 @@ return;
 }
 const orders = loadOrders();
 const matched = orders.filter(o => o.orderNumber.toLowerCase().includes(query));
-let html = `<div class="progress-title">Результаты поиска: "${query}"</div>`;
+let html = '<div class="progress-title">Результаты поиска: "' + query + '"</div>';
 if (matched.length === 0) {
 html += '<div class="empty-msg">Заказы не найдены</div>';
 } else {
-html += `<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>`;
+html += '<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>';
 matched.forEach(o => {
-html += `
-<tr>
-<td>${o.orderNumber}</td>
-<td>${o.detail}</td>
-<td class="amount">${o.amount.toFixed(2)} ₽</td>
-<td>
-<button class="action-btn" onclick="viewOrderDetails(${o.id})"><i class="fas fa-eye"></i></button>
-<button class="action-btn" onclick="openEditModal(${o.id})"><i class="fas fa-edit"></i></button>
-<button class="action-btn" onclick="deleteOrder(${o.id})"><i class="fas fa-trash"></i></button>
-</td>
-</tr>`;
+html += '<tr><td>' + o.orderNumber + '</td><td>' + o.detail + '</td><td class="amount">' + o.amount.toFixed(2) + ' ₽</td><td><button class="action-btn" onclick="viewOrderDetails(' + o.id + ')"><i class="fas fa-eye"></i></button><button class="action-btn" onclick="openEditModal(' + o.id + ')"><i class="fas fa-edit"></i></button><button class="action-btn" onclick="deleteOrder(' + o.id + ')"><i class="fas fa-trash"></i></button></td></tr>';
 });
 html += '</tbody></table>';
 }
@@ -1519,7 +1235,6 @@ document.getElementById('main').classList.add('active');
 }
 }
 });
-// === Экспорт ===
 function saveOrdersToFile() {
 const dateInput = document.getElementById('viewDate').value;
 if (!dateInput) { alert('Сначала выберите дату'); return; }
@@ -1527,37 +1242,24 @@ const orders = loadOrders();
 const filtered = orders.filter(o => o.date === dateInput);
 if (filtered.length === 0) { alert('Нет заказов за эту дату'); return; }
 const formattedDate = formatDateYMD(dateInput);
-let content = `ЗАКАЗЫ ЗА ${formattedDate}
-========================
-`;
+let content = 'ЗАКАЗЫ ЗА ' + formattedDate + '\n========================\n';
 let totalSum = 0;
 filtered.forEach((o, idx) => {
 const tariffName = TARIFF_NAMES[o.tariff] || o.tariff;
 const units = calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty);
-content += `№${idx + 1}. ${o.orderNumber}
-${o.detail} (${tariffName})
-`;
-if (o.length) content += `   Длина: ${o.length} м
-`;
-if (o.width) content += `   Ширина: ${o.width} м
-`;
-if (o.hours) content += `   Часы: ${o.hours} ч
-`;
-content += `   Кол-во: ${o.qty}
-Объем: ${units.value} ${units.unit}
-Сумма: ${o.amount.toFixed(2)} ₽
----
-`;
+content += '№' + (idx + 1) + '. ' + o.orderNumber + '\n' + o.detail + ' (' + tariffName + ')\n';
+if (o.length) content += '   Длина: ' + o.length + ' м\n';
+if (o.width) content += '   Ширина: ' + o.width + ' м\n';
+if (o.hours) content += '   Часы: ' + o.hours + ' ч\n';
+content += '   Кол-во: ' + o.qty + '\nОбъем: ' + units.value + ' ' + units.unit + '\nСумма: ' + o.amount.toFixed(2) + ' ₽\n---\n';
 totalSum += o.amount;
 });
-content += `
-ИТОГО: ${totalSum.toFixed(2)} ₽
-Экспорт: ${new Date().toLocaleString('ru-RU')}`;
+content += '\nИТОГО: ' + totalSum.toFixed(2) + ' ₽\nЭкспорт: ' + new Date().toLocaleString('ru-RU');
 const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
 const blob = new Blob([bom, content], { type: 'text/plain;charset=utf-8' });
 const a = document.createElement('a');
 a.href = URL.createObjectURL(blob);
-a.download = `заказы_${formattedDate}.txt`;
+a.download = 'заказы_' + formattedDate + '.txt';
 a.click();
 URL.revokeObjectURL(a.href);
 }
@@ -1571,11 +1273,10 @@ const jsonContent = JSON.stringify(filtered, null, 2);
 const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8' });
 const a = document.createElement('a');
 a.href = URL.createObjectURL(blob);
-a.download = `заказы_${formatDateYMD(dateInput)}.json`;
+a.download = 'заказы_' + formatDateYMD(dateInput) + '.json';
 a.click();
 URL.revokeObjectURL(a.href);
 }
-// === Импорт файлов ===
 document.getElementById('jsonImportInput').addEventListener('change', function(e) {
 const file = e.target.files[0];
 if (!file) return;
@@ -1604,37 +1305,26 @@ qty: item.qty || 1,
 length: item.length || null,
 width: item.width || null,
 hours: item.hours || null,
-amount: typeof item.amount === 'number'
-? item.amount
-: calculateAmount(
-item.tariff || 'RASPIL_M2',
-item.length || 0,
-item.width || 0,
-item.hours || 0,
-item.qty || 1
-),
+amount: typeof item.amount === 'number' ? item.amount : calculateAmount(item.tariff || 'RASPIL_M2', item.length || 0, item.width || 0, item.hours || 0, item.qty || 1),
 date: todayYMD(),
 timestamp: new Date().toISOString()
 }));
 const updated = [...preorders, ...newPreorders];
 savePreorders(updated);
 renderPreorders();
-alert(`✅ Загружено ${newPreorders.length} предзаказов!`);
+alert('✅ Загружено ' + newPreorders.length + ' предзаказов!');
 } catch (err) {
 console.error(err);
-alert('Ошибка при чтении файла:
-' + err.message);
+alert('Ошибка при чтении файла: ' + err.message);
 }
 };
 reader.readAsText(file, 'utf-8');
 });
-// === Парсинг TXT ===
 function parseTxtOrders(txtContent) {
 const orders = [];
 const blocks = txtContent.split('---');
 for (const block of blocks) {
-const lines = block.trim().split('
-').filter(line => line.trim() !== '');
+const lines = block.trim().split('\n').filter(line => line.trim() !== '');
 if (lines.length < 3) continue;
 const order = {
 orderNumber: '',
@@ -1701,7 +1391,6 @@ orders.push(order);
 }
 return orders;
 }
-// === Расчёт единиц ===
 function calculateUnits(tariffKey, length, width, hours, qty) {
 const tariff = TARIFFS[tariffKey];
 if (!tariff) return { value: 0, unit: '' };
@@ -1712,7 +1401,6 @@ else if (tariff.unit === 'm2') value = length * width * qty;
 else value = length * qty;
 return { value: Math.round(value * 100) / 100, unit: UNIT_LABELS[unit] || unit };
 }
-// === Статистика ===
 function calculateStats() {
 const orders = loadOrders();
 let totalLinear = 0;
@@ -1753,9 +1441,9 @@ document.getElementById('linearTotal').textContent = stats.linear.value.toFixed(
 document.getElementById('areaTotal').textContent = stats.area.value.toFixed(1);
 document.getElementById('timeTotal').textContent = stats.time.value.toFixed(1);
 setTimeout(() => {
-document.getElementById('linearProgress').style.width = `${stats.linear.percent}%`;
-document.getElementById('areaProgress').style.width = `${stats.area.percent}%`;
-document.getElementById('timeProgress').style.width = `${stats.time.percent}%`;
+document.getElementById('linearProgress').style.width = stats.linear.percent + '%';
+document.getElementById('areaProgress').style.width = stats.area.percent + '%';
+document.getElementById('timeProgress').style.width = stats.time.percent + '%';
 }, 300);
 const opNames = {
 RASPIL_M2: 'Распил',
@@ -1772,21 +1460,10 @@ let chartHtml = '';
 for (const [key, count] of Object.entries(stats.operations)) {
 if (count === 0) continue;
 const percent = (count / maxCount) * 100;
-chartHtml += `
-<div class="bar-item">
-<div class="bar-label">
-<span>${opNames[key]}</span>
-<span>${count}</span>
-</div>
-<div class="bar-container">
-<div class="bar-fill" style="width: ${percent}%;"></div>
-</div>
-</div>
-`;
+chartHtml += '<div class="bar-item"><div class="bar-label"><span>' + opNames[key] + '</span><span>' + count + '</span></div><div class="bar-container"><div class="bar-fill" style="width: ' + percent + '%;"></div></div></div>';
 }
 document.getElementById('operationsChart').innerHTML = chartHtml || '<p style="color:var(--text-muted); text-align:center;">Нет данных</p>';
 }
-// === КАЛЕНДАРЬ ===
 let currentCalendarDate = new Date();
 function loadCalendarData() {
 try {
@@ -1802,19 +1479,17 @@ const month = currentCalendarDate.getMonth();
 const data = loadCalendarData();
 const today = todayYMD();
 const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
-document.getElementById('calendarMonthYear').textContent = `${monthNames[month]} ${year}`;
+document.getElementById('calendarMonthYear').textContent = monthNames[month] + ' ' + year;
 const firstDay = new Date(year, month, 1).getDay();
 const daysInMonth = new Date(year, month + 1, 0).getDate();
 const grid = document.getElementById('calendarGrid');
 grid.innerHTML = '';
-// Пустые ячейки до первого дня
 for (let i = 0; i < firstDay; i++) {
 const empty = document.createElement('div');
 grid.appendChild(empty);
 }
-// Дни
 for (let d = 1; d <= daysInMonth; d++) {
-const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+const dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
 const dayData = data[dateStr] || { hours: 0, isHoliday: false };
 const dayOfWeek = new Date(year, month, d).getDay();
 const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
@@ -1825,15 +1500,15 @@ if (isToday) cell.classList.add('today');
 if (dayData.hours > 0) cell.classList.add('worked');
 if (isWeekend) cell.classList.add('weekend');
 if (dayData.isHoliday) cell.classList.add('holiday');
-let html = `<div class="day-num">${d}</div>`;
+let html = '<div class="day-num">' + d + '</div>';
 if (dayData.hours > 0) {
-html += `<div class="day-hours">${dayData.hours} ч</div>`;
+html += '<div class="day-hours">' + dayData.hours + ' ч</div>';
 }
 if (dayData.isHoliday) {
-html += `<i class="fas fa-star holiday-icon"></i>`;
+html += '<i class="fas fa-star holiday-icon"></i>';
 }
 cell.innerHTML = html;
-cell.onclick = () => openDayModal(dateStr, dayData);
+cell.onclick = function() { openDayModal(dateStr, dayData); };
 grid.appendChild(cell);
 }
 }
@@ -1862,172 +1537,6 @@ closeDayModal();
 renderCalendar();
 alert('✅ Данные дня сохранены!');
 }
-// === МАСТЕР-ЗАКАЗ: КАМЕРА И ФОТО ===
-let cameraStream = null;
-let currentPhotoId = null;
-
-async function startCamera() {
-try {
-const video = document.getElementById('cameraVideo');
-cameraStream = await navigator.mediaDevices.getUserMedia({ 
-video: { facingMode: 'environment' },
-audio: false 
-});
-video.srcObject = cameraStream;
-video.play();
-} catch (err) {
-alert('❌ Не удалось получить доступ к камере: ' + err.message);
-console.error(err);
-}
-}
-
-function stopCamera() {
-if (cameraStream) {
-cameraStream.getTracks().forEach(track => track.stop());
-cameraStream = null;
-}
-const video = document.getElementById('cameraVideo');
-video.srcObject = null;
-}
-
-function takePhoto() {
-const video = document.getElementById('cameraVideo');
-if (!cameraStream || !video.srcObject) {
-alert('Сначала включите камеру!');
-return;
-}
-const canvas = document.createElement('canvas');
-canvas.width = video.videoWidth;
-canvas.height = video.videoHeight;
-const ctx = canvas.getContext('2d');
-ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-const photoData = canvas.toDataURL('image/jpeg', 0.8);
-const photos = loadMasterPhotos();
-const newPhoto = {
-id: Date.now(),
-data: photoData,
-timestamp: new Date().toISOString(),
-orderId: null,
-status: 'pending'
-};
-photos.push(newPhoto);
-saveMasterPhotos(photos);
-renderPhotoGrid();
-playSuccessSound();
-}
-
-function renderPhotoGrid() {
-const photos = loadMasterPhotos();
-const grid = document.getElementById('photoGrid');
-if (photos.length === 0) {
-grid.innerHTML = '<div class="empty-msg" style="grid-column: 1/-1;">Нет фото</div>';
-return;
-}
-let html = '';
-photos.forEach(p => {
-const statusClass = p.orderId ? '' : 'pending';
-const statusText = p.orderId ? '✓' : '📷';
-html += `
-<div class="photo-item" onclick="openMasterModal(${p.id})">
-<img src="${p.data}" alt="Фото">
-<div class="status-badge ${statusClass}">${statusText}</div>
-<div class="photo-overlay">${formatDateYMD(p.timestamp.split('T')[0])}</div>
-</div>
-`;
-});
-grid.innerHTML = html;
-}
-
-function openMasterModal(photoId) {
-const photos = loadMasterPhotos();
-const photo = photos.find(p => p.id === photoId);
-if (!photo) return;
-if (photo.orderId) {
-alert('Это фото уже привязано к заказу!');
-return;
-}
-currentPhotoId = photoId;
-document.getElementById('masterPhotoDisplay').src = photo.data;
-document.getElementById('masterOrderNum').value = 'MST-' + photoId.toString().slice(-4);
-document.getElementById('masterDetail').value = '';
-document.getElementById('masterQty').value = '1';
-document.getElementById('masterLength').value = '';
-document.getElementById('masterWidth').value = '';
-document.getElementById('masterHours').value = '';
-document.getElementById('masterDate').value = todayYMD();
-document.getElementById('masterTariff').value = 'RASPIL_M2';
-updateMasterFormFields();
-document.getElementById('masterModal').classList.add('active');
-}
-
-function closeMasterModal() {
-document.getElementById('masterModal').classList.remove('active');
-currentPhotoId = null;
-}
-
-function createMasterOrder() {
-const photoId = currentPhotoId;
-if (!photoId) return;
-const num = document.getElementById('masterOrderNum').value.trim();
-if (!num) { alert('Укажите № заказа'); return; }
-const tariffKey = document.getElementById('masterTariff').value;
-const detail = document.getElementById('masterDetail').value.trim() || '—';
-const qty = parseInt(document.getElementById('masterQty').value) || 1;
-const length = parseFloat(document.getElementById('masterLength').value) || 0;
-const width = parseFloat(document.getElementById('masterWidth').value) || 0;
-const hours = parseFloat(document.getElementById('masterHours').value) || 0;
-const amount = calculateAmount(tariffKey, length, width, hours, qty);
-const selectedDate = document.getElementById('masterDate').value;
-if (!selectedDate) { alert('Выберите дату'); return; }
-const shift = getCurrentShift();
-if (!shift || !shift.active) {
-alert('⚠️ Начните смену, чтобы создавать заказы!');
-return;
-}
-const order = {
-id: Date.now(),
-orderNumber: num,
-tariff: tariffKey,
-detail: detail,
-qty: qty,
-length: length || null,
-width: width || null,
-hours: hours || null,
-amount: amount,
-date: selectedDate,
-shiftId: shift.id,
-timestamp: new Date().toISOString(),
-photoId: photoId
-};
-const orders = loadOrders();
-orders.push(order);
-saveOrders(orders);
-// Обновляем фото статус
-const photos = loadMasterPhotos();
-const photoIdx = photos.findIndex(p => p.id === photoId);
-if (photoIdx !== -1) {
-photos[photoIdx].orderId = order.id;
-photos[photoIdx].status = 'completed';
-saveMasterPhotos(photos);
-}
-updateUI();
-closeMasterModal();
-renderPhotoGrid();
-playSuccessSound();
-alert('✅ Заказ создан из фото!');
-}
-
-function deleteMasterPhoto(photoId) {
-if (!confirm('Удалить это фото?')) return;
-const photos = loadMasterPhotos();
-const idx = photos.findIndex(p => p.id === photoId);
-if (idx === -1) return;
-photos.splice(idx, 1);
-saveMasterPhotos(photos);
-renderPhotoGrid();
-}
-
-// === Переключение через панель ===
 document.querySelectorAll('.panel-item').forEach(item => {
 item.addEventListener('click', () => {
 document.querySelectorAll('.panel-item').forEach(i => i.classList.remove('active'));
@@ -2039,17 +1548,15 @@ if (target === 'stats') renderStats();
 else if (target === 'main') updateUI();
 else if (target === 'calendar') renderCalendar();
 else if (target === 'preorders') renderPreorders();
-else if (target === 'masterorder') renderPhotoGrid();
 });
 });
-// === ЗАГРУЗКА АВАТАРКИ ===
 function loadAvatar() {
 const avatarData = localStorage.getItem('operator_avatar');
 const avatarBtn = document.getElementById('avatarBtn');
 if (avatarData) {
 const img = document.createElement('img');
 img.src = avatarData;
-img.onerror = () => {
+img.onerror = function() {
 localStorage.removeItem('operator_avatar');
 avatarBtn.innerHTML = '<i class="fas fa-user"></i>';
 };
@@ -2059,7 +1566,7 @@ avatarBtn.appendChild(img);
 avatarBtn.innerHTML = '<i class="fas fa-user"></i>';
 }
 }
-document.getElementById('avatarBtn').addEventListener('click', () => {
+document.getElementById('avatarBtn').addEventListener('click', function() {
 document.getElementById('avatarUpload').click();
 });
 document.getElementById('avatarUpload').addEventListener('change', function(e) {
@@ -2076,23 +1583,20 @@ loadAvatar();
 };
 reader.readAsDataURL(file);
 });
-// === Инициализация ===
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function() {
 document.getElementById('viewDate').value = todayYMD();
-['tariff','preTariff','editTariff','masterTariff'].forEach(id => {
+['tariff','preTariff','editTariff'].forEach(function(id) {
 const el = document.getElementById(id);
-if (el) el.addEventListener('change', () => {
+if (el) el.addEventListener('change', function() {
 if (id === 'tariff') updateMainFormFields();
 else if (id === 'preTariff') updatePreorderFormFields();
-else if (id === 'editTariff') updateEditFormFields();
-else if (id === 'masterTariff') updateMasterFormFields();
+else updateEditFormFields();
 });
 });
 updateUI();
 renderPreorders();
 loadAvatar();
 renderCalendar();
-renderPhotoGrid();
 });
 </script>
 </body>
