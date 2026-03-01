@@ -34,7 +34,6 @@ padding: 0;
 min-height: 100vh;
 line-height: 1.4;
 }
-/* Шапка с аватаркой и поиском */
 .header-bar {
 position: fixed;
 top: 0;
@@ -95,13 +94,11 @@ transform: translateY(-50%);
 color: var(--text-muted);
 pointer-events: none;
 }
-/* Основной контент */
 .main-content {
 padding: 72px 16px 70px;
 max-width: 768px;
 margin: 0 auto;
 }
-/* Стеклянная панель */
 .glass-panel {
 position: fixed;
 bottom: 20px;
@@ -142,7 +139,6 @@ font-size: 1.2rem;
 .panel-item.active {
 color: var(--accent-solid);
 }
-/* NEW badge animation */
 .new-badge {
 position: absolute;
 top: -2px;
@@ -160,7 +156,6 @@ box-shadow: 0 2px 6px rgba(220, 38, 38, 0.4);
 0%, 100% { transform: scale(1); opacity: 1; }
 50% { transform: scale(1.15); opacity: 0.85; }
 }
-/* Неоморфические кнопки */
 .neu-btn {
 background: var(--card);
 border: 1px solid var(--border);
@@ -310,7 +305,6 @@ color: #F0F1F3;
 border-color: var(--accent-solid);
 }
 .hidden { display: none !important; }
-/* Стили для Календаря */
 .calendar-header {
 display: flex;
 justify-content: space-between;
@@ -476,21 +470,16 @@ padding: 0 8px;
 </style>
 </head>
 <body>
-<!-- ШАПКА -->
 <div class="header-bar">
-<!-- Аватарка с возможностью загрузки -->
 <div class="avatar-btn" id="avatarBtn" title="Загрузить аватар">
 <i class="fas fa-user"></i>
 </div>
-<!-- Поиск -->
 <div class="search-container">
 <i class="fas fa-search search-icon"></i>
 <input type="text" class="search-input" id="orderSearch" placeholder="Поиск по № заказа...">
 </div>
 </div>
-<!-- Основной контент -->
 <div class="main-content" id="mainContent">
-<!-- Основное -->
 <div id="main" class="content-block active">
 <div>
 <h2>Александр<span id="opId"></span></h2>
@@ -590,7 +579,6 @@ padding: 0 8px;
 </div>
 <div id="ordersListContainer" style="margin-top: 24px;"></div>
 </div>
-<!-- Предзаказы -->
 <div id="preorders" class="content-block">
 <div class="container">
 <h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-clock"></i> Предзаказы</h2>
@@ -651,7 +639,6 @@ padding: 0 8px;
 <div id="preordersListContainer" style="margin-top: 16px;"></div>
 </div>
 </div>
-<!-- КАЛЕНДАРЬ (Вместо Чаевых) -->
 <div id="calendar" class="content-block">
 <div class="container">
 <h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-calendar-alt"></i> Календарь</h2>
@@ -660,9 +647,7 @@ padding: 0 8px;
 <div style="font-size: 1.2rem; font-weight: 600;" id="calendarMonthYear"></div>
 <button class="calendar-nav-btn" onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
 </div>
-<div class="calendar-grid" id="calendarGrid">
-<!-- Дни генерируются JS -->
-</div>
+<div class="calendar-grid" id="calendarGrid"></div>
 <div class="progress-title" style="margin-top: 24px;">
 <i class="fas fa-info-circle"></i> Легенда
 </div>
@@ -673,7 +658,6 @@ padding: 0 8px;
 </div>
 </div>
 </div>
-<!-- Статистика -->
 <div id="stats" class="content-block">
 <div class="container">
 <h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-chart-bar"></i> Общая статистика</h2>
@@ -718,7 +702,6 @@ padding: 0 8px;
 </div>
 </div>
 </div>
-<!-- Стеклянная панель -->
 <div class="glass-panel">
 <div class="panel-item active" data-target="main">
 <i class="fas fa-home"></i>
@@ -738,11 +721,8 @@ padding: 0 8px;
 <span>Статистика</span>
 </div>
 </div>
-<!-- Скрытый input для загрузки аватара -->
 <input type="file" id="avatarUpload" accept="image/jpeg,image/png,image/webp" style="display: none;" />
-<!-- Контейнер уведомлений -->
 <div id="toastContainer" class="toast-container"></div>
-<!-- Модальные окна -->
 <div id="editModal" class="modal">
 <div class="modal-content">
 <div class="modal-title">Редактировать заказ</div>
@@ -811,7 +791,6 @@ padding: 0 8px;
 </div>
 </div>
 </div>
-<!-- Модальное окно Календаря -->
 <div id="dayModal" class="modal">
 <div class="modal-content">
 <div class="modal-title">Редактирование дня</div>
@@ -835,9 +814,7 @@ padding: 0 8px;
 </div>
 </div>
 <script>
-// === ФЛАГ ЗВУКА ===
 let soundEnabled = true;
-// === Константы ===
 const TARIFFS = {
 RASPIL_M2: { price: 65, unit: 'm2' },
 LINEAR_RASPIL: { price: 26, unit: 'linear' },
@@ -861,8 +838,6 @@ m2: 'м²',
 linear: 'пог. м',
 time: 'часы'
 };
-
-// === НАСТРОЙКИ УВЕДОМЛЕНИЙ ===
 const EARNINGS_MILESTONES = [
     { amount: 500, emoji: '😡', color: '#DC2626', text: 'Разгон...' },
     { amount: 1000, emoji: '😢', color: '#3B82F6', text: 'Первая тысяча' },
@@ -871,7 +846,6 @@ const EARNINGS_MILESTONES = [
     { amount: 2500, emoji: '😄', color: '#F59E0B', text: 'Почти план!' }
 ];
 
-// === Утилиты ===
 function formatDateYMD(dateStr) {
 const [y, m, d] = dateStr.split('-');
 return `${d}.${m}.${y}`;
@@ -907,7 +881,6 @@ localStorage.removeItem('current_shift');
 localStorage.setItem('current_shift', JSON.stringify(shift));
 }
 }
-// === Звуковой сигнал ===
 function playSuccessSound() {
 if (!soundEnabled) return;
 try {
@@ -926,7 +899,6 @@ oscillator.stop(ctx.currentTime + 0.3);
 console.warn("Audio feedback not supported", e);
 }
 }
-// === Расчёт суммы ===
 function calculateAmount(tariffKey, length, width, hours, qty) {
 const tariff = TARIFFS[tariffKey];
 if (!tariff) return 0;
@@ -940,7 +912,7 @@ amount = tariff.price * length * qty;
 }
 return Math.round(amount * 100) / 100;
 }
-// === Уведомления (Toasts) ===
+
 function showToast(emoji, color, title, message) {
     const container = document.getElementById('toastContainer');
     const toast = document.createElement('div');
@@ -976,7 +948,6 @@ function checkMilestones(amount) {
     });
 }
 
-// === Обновление UI плана ===
 function updateUI() {
 const orders = loadOrders();
 const totalAll = orders.reduce((sum, o) => sum + (parseFloat(o.amount) || 0), 0);
@@ -1009,11 +980,9 @@ step.classList.remove('current');
 step.classList.add('completed');
 }
 });
-
-// Проверка достижений
 checkMilestones(currentShiftAmount);
 }
-// === Переключение полей ===
+
 function updateMainFormFields() {
 const tariff = document.getElementById('tariff').value;
 ['widthGroup', 'hoursGroup'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
@@ -1047,7 +1016,7 @@ document.getElementById('editLengthGroup')?.classList.add('hidden');
 document.getElementById('editHoursGroup')?.classList.remove('hidden');
 }
 }
-// === Смена ===
+
 function startShift() {
 const shift = getCurrentShift();
 if (shift && shift.active) {
@@ -1056,7 +1025,6 @@ return;
 }
 const newShift = { id: Date.now(), startedAt: new Date().toISOString(), active: true };
 setCurrentShift(newShift);
-// Очистка уведомлений для новой смены (старые ключи останутся, но не будут использоваться из-за нового ID)
 alert('✅ Смена начата!');
 updateUI();
 }
@@ -1074,11 +1042,10 @@ shift.active = false;
 shift.finishedAt = new Date().toISOString();
 shift.finalAmount = finalAmount;
 setCurrentShift(shift);
-alert(`✅ Смена завершена!
-Заработано: ${finalAmount.toFixed(2)} ₽`);
+alert(`✅ Смена завершена!\nЗаработано: ${finalAmount.toFixed(2)} ₽`);
 updateUI();
 }
-// === Удаление ===
+
 function deleteOrder(orderId) {
 if (!confirm('Вы уверены, что хотите удалить этот заказ?')) return;
 const orders = loadOrders();
@@ -1101,7 +1068,7 @@ savePreorders(preorders);
 renderPreorders();
 alert('✅ Предзаказ удален!');
 }
-// === Модальные окна ===
+
 let pendingPreorderId = null;
 function openDateModal(preorderId) {
 pendingPreorderId = preorderId;
@@ -1194,7 +1161,7 @@ closeEditModal();
 alert('✅ Заказ обновлён!');
 }
 }
-// === Основные функции ===
+
 function createMainOrder() {
 const num = document.getElementById('orderNum').value.trim();
 if (!num) { alert('Укажите № заказа'); return; }
@@ -1272,7 +1239,7 @@ if (el) el.value = (id === 'preQty') ? '1' : '';
 });
 updatePreorderFormFields();
 }
-// === Принять предзаказ ===
+
 function acceptPreorder(preorderId, selectedDate = null) {
 const preorders = loadPreorders();
 const idx = preorders.findIndex(p => p.id === preorderId);
@@ -1297,7 +1264,7 @@ alert(`✅ Предзаказ "${preorder.orderNumber}" принят на дат
 updateUI();
 renderPreorders();
 }
-// === Рендер предзаказов ===
+
 function renderPreorders() {
 const preorders = loadPreorders();
 const container = document.getElementById('preordersListContainer');
@@ -1321,7 +1288,7 @@ html += `
 html += '</tbody></table>';
 container.innerHTML = html;
 }
-// === Показать заказы по дате ===
+
 function showOrdersByDate() {
 const dateInput = document.getElementById('viewDate').value;
 if (!dateInput) { alert('Выберите дату'); return; }
@@ -1350,7 +1317,7 @@ html += '</tbody></table>';
 }
 document.getElementById('ordersListContainer').innerHTML = html;
 }
-// === Поиск по номеру заказа ===
+
 document.getElementById('orderSearch').addEventListener('keypress', function(e) {
 if (e.key === 'Enter') {
 const query = this.value.trim().toLowerCase();
@@ -1389,7 +1356,7 @@ document.getElementById('main').classList.add('active');
 }
 }
 });
-// === Экспорт ===
+
 function saveOrdersToFile() {
 const dateInput = document.getElementById('viewDate').value;
 if (!dateInput) { alert('Сначала выберите дату'); return; }
@@ -1397,32 +1364,19 @@ const orders = loadOrders();
 const filtered = orders.filter(o => o.date === dateInput);
 if (filtered.length === 0) { alert('Нет заказов за эту дату'); return; }
 const formattedDate = formatDateYMD(dateInput);
-let content = `ЗАКАЗЫ ЗА ${formattedDate}
-========================
-`;
+let content = `ЗАКАЗЫ ЗА ${formattedDate}\n========================\n`;
 let totalSum = 0;
 filtered.forEach((o, idx) => {
 const tariffName = TARIFF_NAMES[o.tariff] || o.tariff;
 const units = calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty);
-content += `№${idx + 1}. ${o.orderNumber}
-${o.detail} (${tariffName})
-`;
-if (o.length) content += `   Длина: ${o.length} м
-`;
-if (o.width) content += `   Ширина: ${o.width} м
-`;
-if (o.hours) content += `   Часы: ${o.hours} ч
-`;
-content += `   Кол-во: ${o.qty}
-Объем: ${units.value} ${units.unit}
-Сумма: ${o.amount.toFixed(2)} ₽
----
-`;
+content += `№${idx + 1}. ${o.orderNumber}\n${o.detail} (${tariffName})\n`;
+if (o.length) content += `   Длина: ${o.length} м\n`;
+if (o.width) content += `   Ширина: ${o.width} м\n`;
+if (o.hours) content += `   Часы: ${o.hours} ч\n`;
+content += `   Кол-во: ${o.qty}\nОбъем: ${units.value} ${units.unit}\nСумма: ${o.amount.toFixed(2)} ₽\n---\n`;
 totalSum += o.amount;
 });
-content += `
-ИТОГО: ${totalSum.toFixed(2)} ₽
-Экспорт: ${new Date().toLocaleString('ru-RU')}`;
+content += `\nИТОГО: ${totalSum.toFixed(2)} ₽\nЭкспорт: ${new Date().toLocaleString('ru-RU')}`;
 const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
 const blob = new Blob([bom, content], { type: 'text/plain;charset=utf-8' });
 const a = document.createElement('a');
@@ -1431,6 +1385,7 @@ a.download = `заказы_${formattedDate}.txt`;
 a.click();
 URL.revokeObjectURL(a.href);
 }
+
 function saveOrdersToJSON() {
 const dateInput = document.getElementById('viewDate').value;
 if (!dateInput) { alert('Сначала выберите дату'); return; }
@@ -1445,7 +1400,7 @@ a.download = `заказы_${formatDateYMD(dateInput)}.json`;
 a.click();
 URL.revokeObjectURL(a.href);
 }
-// === Импорт файлов ===
+
 document.getElementById('jsonImportInput').addEventListener('change', function(e) {
 const file = e.target.files[0];
 if (!file) return;
@@ -1492,19 +1447,17 @@ renderPreorders();
 alert(`✅ Загружено ${newPreorders.length} предзаказов!`);
 } catch (err) {
 console.error(err);
-alert('Ошибка при чтении файла:
-' + err.message);
+alert('Ошибка при чтении файла:\n' + err.message);
 }
 };
 reader.readAsText(file, 'utf-8');
 });
-// === Парсинг TXT ===
+
 function parseTxtOrders(txtContent) {
 const orders = [];
 const blocks = txtContent.split('---');
 for (const block of blocks) {
-const lines = block.trim().split('
-').filter(line => line.trim() !== '');
+const lines = block.trim().split('\n').filter(line => line.trim() !== '');
 if (lines.length < 3) continue;
 const order = {
 orderNumber: '',
@@ -1571,7 +1524,7 @@ orders.push(order);
 }
 return orders;
 }
-// === Расчёт единиц ===
+
 function calculateUnits(tariffKey, length, width, hours, qty) {
 const tariff = TARIFFS[tariffKey];
 if (!tariff) return { value: 0, unit: '' };
@@ -1582,7 +1535,7 @@ else if (tariff.unit === 'm2') value = length * width * qty;
 else value = length * qty;
 return { value: Math.round(value * 100) / 100, unit: UNIT_LABELS[unit] || unit };
 }
-// === Статистика ===
+
 function calculateStats() {
 const orders = loadOrders();
 let totalLinear = 0;
@@ -1617,6 +1570,7 @@ time: { value: totalTime, percent: Math.min(100, totalTime / MAX_TIME * 100) },
 operations: operationCount
 };
 }
+
 function renderStats() {
 const stats = calculateStats();
 document.getElementById('linearTotal').textContent = stats.linear.value.toFixed(1);
@@ -1656,7 +1610,7 @@ chartHtml += `
 }
 document.getElementById('operationsChart').innerHTML = chartHtml || '<p style="color:var(--text-muted); text-align:center;">Нет данных</p>';
 }
-// === КАЛЕНДАРЬ ===
+
 let currentCalendarDate = new Date();
 function loadCalendarData() {
 try {
@@ -1677,12 +1631,10 @@ const firstDay = new Date(year, month, 1).getDay();
 const daysInMonth = new Date(year, month + 1, 0).getDate();
 const grid = document.getElementById('calendarGrid');
 grid.innerHTML = '';
-// Пустые ячейки до первого дня
 for (let i = 0; i < firstDay; i++) {
 const empty = document.createElement('div');
 grid.appendChild(empty);
 }
-// Дни
 for (let d = 1; d <= daysInMonth; d++) {
 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
 const dayData = data[dateStr] || { hours: 0, isHoliday: false };
@@ -1732,7 +1684,7 @@ closeDayModal();
 renderCalendar();
 alert('✅ Данные дня сохранены!');
 }
-// === Переключение через панель ===
+
 document.querySelectorAll('.panel-item').forEach(item => {
 item.addEventListener('click', () => {
 document.querySelectorAll('.panel-item').forEach(i => i.classList.remove('active'));
@@ -1746,7 +1698,7 @@ else if (target === 'calendar') renderCalendar();
 else if (target === 'preorders') renderPreorders();
 });
 });
-// === ЗАГРУЗКА АВАТАРКИ ===
+
 function loadAvatar() {
 const avatarData = localStorage.getItem('operator_avatar');
 const avatarBtn = document.getElementById('avatarBtn');
@@ -1780,7 +1732,7 @@ loadAvatar();
 };
 reader.readAsDataURL(file);
 });
-// === Инициализация ===
+
 document.addEventListener('DOMContentLoaded', () => {
 document.getElementById('viewDate').value = todayYMD();
 ['tariff','preTariff','editTariff'].forEach(id => {
