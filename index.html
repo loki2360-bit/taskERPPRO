@@ -4,6 +4,16 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Кабинет оператора</title>
+
+<!-- PWA Meta Tags -->
+<meta name="theme-color" content="#3B4256">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Кабинет оператора">
+<meta name="description" content="Система учёта заказов для оператора">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
 :root {
@@ -20,24 +30,6 @@
 --border: #9CA1B4;
 --shadow-light: #FFFFFF;
 --shadow-dark: #9CA1B4;
-    <!-- PWA Meta Tags -->
-<meta name="theme-color" content="#3B4256">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Кабинет оператора">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-192.png">
-
-<!-- Service Worker Registration -->
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js')
-      .then(reg => console.log('Service Worker registered'))
-      .catch(err => console.log('Service Worker registration failed'));
-  });
-}
-</script>
 }
 * {
 margin: 0;
@@ -437,7 +429,6 @@ width: 18px;
 height: 18px;
 accent-color: var(--accent-solid);
 }
-/* Toast Notifications */
 .toast-container {
     position: fixed;
     top: 80px;
@@ -472,6 +463,53 @@ accent-color: var(--accent-solid);
 }
 @keyframes fadeOut {
     to { opacity: 0; transform: translateX(100%); }
+}
+.install-prompt {
+    display: none;
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent-solid);
+    color: #F0F1F3;
+    padding: 16px 24px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(59, 66, 86, 0.4);
+    z-index: 1000;
+    text-align: center;
+    max-width: 90%;
+    width: 400px;
+}
+.install-prompt.show {
+    display: block;
+    animation: slideUp 0.3s ease-out;
+}
+@keyframes slideUp {
+    from { transform: translate(-50%, 100px); opacity: 0; }
+    to { transform: translate(-50%, 0); opacity: 1; }
+}
+.install-prompt-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 12px;
+}
+.install-prompt button {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+.install-prompt .install-btn {
+    background: #F0F1F3;
+    color: var(--accent-solid);
+}
+.install-prompt .later-btn {
+    background: transparent;
+    color: #F0F1F3;
+    border: 1px solid #F0F1F3;
 }
 
 @media (max-width: 480px) {
@@ -741,6 +779,14 @@ padding: 0 8px;
 </div>
 <input type="file" id="avatarUpload" accept="image/jpeg,image/png,image/webp" style="display: none;" />
 <div id="toastContainer" class="toast-container"></div>
+<div id="installPrompt" class="install-prompt">
+<div style="font-size: 1.1rem; margin-bottom: 8px;">📱 Установить приложение</div>
+<div style="font-size: 0.9rem; opacity: 0.9;">Установите приложение для быстрого доступа</div>
+<div class="install-prompt-buttons">
+<button class="install-btn" onclick="installApp()">Установить</button>
+<button class="later-btn" onclick="closeInstallPrompt()">Позже</button>
+</div>
+</div>
 <div id="editModal" class="modal">
 <div class="modal-content">
 <div class="modal-title">Редактировать заказ</div>
@@ -832,7 +878,45 @@ padding: 0 8px;
 </div>
 </div>
 <script>
+// === PWA Service Worker ===
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => console.log('Service Worker registered'))
+      .catch(err => console.log('Service Worker registration failed'));
+  });
+}
+
+// === PWA Install Prompt ===
+let deferredPrompt;
+const installPrompt = document.getElementById('installPrompt');
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  installPrompt.classList.add('show');
+});
+
+function installApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(choiceResult => {
+      if (choiceResult.outcome === 'accepted') {
+        console.log('User accepted the install prompt');
+      }
+      deferredPrompt = null;
+      installPrompt.classList.remove('show');
+    });
+  }
+}
+
+function closeInstallPrompt() {
+  installPrompt.classList.remove('show');
+}
+
+// === ФЛАГ ЗВУКА ===
 let soundEnabled = true;
+// === Константы ===
 const TARIFFS = {
 RASPIL_M2: { price: 65, unit: 'm2' },
 LINEAR_RASPIL: { price: 26, unit: 'linear' },
