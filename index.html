@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Кабинет оператора</title>
+<!-- PWA Meta Tags -->
 <meta name="theme-color" content="#3B4256">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -67,6 +68,7 @@ font-weight: bold;
 font-size: 18px;
 cursor: pointer;
 overflow: hidden;
+position: relative;
 }
 .avatar-btn img {
 width: 100%;
@@ -189,10 +191,6 @@ box-shadow: 4px 4px 8px rgba(59, 66, 86, 0.3), -2px -2px 6px rgba(255, 255, 255,
 background: var(--accent-blue-dark);
 border-color: var(--accent-blue-dark);
 }
-.neu-btn:disabled {
-opacity: 0.5;
-cursor: not-allowed;
-}
 .neu-input,
 .neu-select {
 background: var(--card);
@@ -211,6 +209,7 @@ overflow: hidden;
 margin: 12px 0;
 box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
 border: 1px solid var(--border);
+position: relative;
 }
 .progress-fill {
 height: 100%;
@@ -218,6 +217,7 @@ border-radius: 12px;
 background: var(--accent-solid);
 width: 0;
 transition: width 1.2s cubic-bezier(0.22, 0.61, 0.36, 1);
+position: relative;
 }
 .bar-container {
 height: 28px;
@@ -285,8 +285,14 @@ color: var(--accent-solid);
 }
 .orders-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
 .orders-table th, .orders-table td { padding: 12px 8px; text-align: left; border-bottom: 1px solid var(--border); }
-.orders-table th { color: var(--accent-solid); font-weight: 600; }
-.orders-table .amount { color: var(--accent-solid); font-weight: 600; }
+.orders-table th {
+color: var(--accent-solid);
+font-weight: 600;
+}
+.orders-table .amount {
+color: var(--accent-solid);
+font-weight: 600;
+}
 .empty-msg { text-align: center; color: var(--text-muted); padding: 20px; font-style: italic; }
 .action-btn {
 width: 32px;
@@ -342,7 +348,9 @@ box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light);
 transition: all 0.2s;
 border: 1px solid var(--border);
 }
-.calendar-day:hover { transform: translateY(-2px); }
+.calendar-day:hover {
+transform: translateY(-2px);
+}
 .calendar-day.today {
 border-color: var(--accent-solid);
 border-width: 2px;
@@ -361,8 +369,14 @@ border-color: var(--accent-red);
 border-width: 2px;
 box-shadow: 0 0 8px rgba(220, 38, 38, 0.4);
 }
-.calendar-day .day-num { font-size: 0.9rem; font-weight: 600; }
-.calendar-day .day-hours { font-size: 0.7rem; opacity: 0.9; }
+.calendar-day .day-num {
+font-size: 0.9rem;
+font-weight: 600;
+}
+.calendar-day .day-hours {
+font-size: 0.7rem;
+opacity: 0.9;
+}
 .calendar-day .holiday-icon {
 position: absolute;
 top: 4px;
@@ -378,14 +392,18 @@ display: flex;
 align-items: center;
 gap: 8px;
 }
-.progress-title i { color: var(--accent-solid); }
+.progress-title i {
+color: var(--accent-solid);
+}
 .progress-label {
 display: flex;
 justify-content: space-between;
 font-size: 0.9rem;
 color: var(--text-muted);
 }
-.modal-row { margin-bottom: 12px; }
+.modal-row {
+margin-bottom: 12px;
+}
 .modal-row label {
 display: block;
 margin-bottom: 6px;
@@ -491,58 +509,6 @@ background: transparent;
 color: #F0F1F3;
 border: 1px solid #F0F1F3;
 }
-/* Timer Styles */
-.timer-container {
-text-align: center;
-padding: 24px;
-}
-.timer-display {
-font-size: 3.5rem;
-font-weight: 700;
-color: var(--accent-solid);
-margin: 24px 0;
-font-family: 'Courier New', monospace;
-letter-spacing: 2px;
-}
-.timer-display.running {
-color: var(--accent-green);
-animation: pulse 1s ease-in-out infinite;
-}
-.timer-display.paused { color: var(--accent-red); }
-.timer-controls {
-display: flex;
-gap: 12px;
-justify-content: center;
-flex-wrap: wrap;
-}
-.timer-info {
-margin-top: 24px;
-padding: 16px;
-background: var(--card);
-border-radius: 12px;
-box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
-}
-.timer-info-row {
-display: flex;
-justify-content: space-between;
-margin: 8px 0;
-font-size: 0.95rem;
-}
-.timer-info-label { color: var(--text-muted); }
-.timer-info-value {
-font-weight: 600;
-color: var(--accent-solid);
-}
-.wake-lock-status {
-display: flex;
-align-items: center;
-gap: 8px;
-margin-top: 16px;
-font-size: 0.85rem;
-color: var(--text-muted);
-}
-.wake-lock-status i { font-size: 0.9rem; }
-.wake-lock-status.active { color: var(--accent-green); }
 @media (max-width: 480px) {
 .glass-panel {
 bottom: 16px;
@@ -553,7 +519,6 @@ padding: 0 8px;
 .panel-item { font-size: 0.68rem; gap: 1px; }
 .panel-item i { font-size: 1.15rem; }
 .search-input { font-size: 0.9rem; padding: 7px 10px 7px 32px; }
-.timer-display { font-size: 2.5rem; }
 }
 </style>
 </head>
@@ -727,45 +692,6 @@ padding: 0 8px;
 <div id="preordersListContainer" style="margin-top: 16px;"></div>
 </div>
 </div>
-<!-- TIMER SECTION -->
-<div id="timer" class="content-block">
-<div class="container">
-<h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-stopwatch"></i> Таймер работы</h2>
-<div class="timer-container">
-<div class="timer-display" id="timerDisplay">00:00:00</div>
-<div class="timer-controls">
-<button class="neu-btn neu-btn-accent" id="timerStartBtn" onclick="startTimer()">
-<i class="fas fa-play"></i> Старт
-</button>
-<button class="neu-btn" id="timerPauseBtn" onclick="togglePause()" disabled>
-<i class="fas fa-pause"></i> Пауза
-</button>
-<button class="neu-btn" id="timerStopBtn" onclick="stopTimer()" disabled>
-<i class="fas fa-stop"></i> Стоп
-</button>
-</div>
-<div class="wake-lock-status" id="wakeLockStatus">
-<i class="fas fa-info-circle"></i>
-<span>Wake Lock не активен</span>
-</div>
-<div class="timer-info">
-<div class="timer-info-row">
-<span class="timer-info-label">Тариф:</span>
-<span class="timer-info-value">Время — 330 ₽/ч</span>
-</div>
-<div class="timer-info-row">
-<span class="timer-info-label">Прошло часов:</span>
-<span class="timer-info-value" id="timerHours">0.0</span>
-</div>
-<div class="timer-info-row">
-<span class="timer-info-label">Заработано:</span>
-<span class="timer-info-value" id="timerEarned">0.00 ₽</span>
-</div>
-</div>
-</div>
-</div>
-</div>
-<!-- END TIMER SECTION -->
 <div id="calendar" class="content-block">
 <div class="container">
 <h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-calendar-alt"></i> Календарь</h2>
@@ -782,7 +708,6 @@ padding: 0 8px;
 <div style="display:flex; align-items:center; gap:6px;"><div style="width:12px; height:12px; border-radius:50%; background:var(--accent-solid);"></div> Отработано</div>
 <div style="display:flex; align-items:center; gap:6px;"><div style="width:12px; height:12px; border-radius:50%; border:2px solid var(--accent-red);"></div> Выходной/Праздник</div>
 <div style="display:flex; align-items:center; gap:6px;"><div style="width:12px; height:12px; border-radius:50%; border:2px solid var(--accent-solid);"></div> Сегодня</div>
-</div>
 </div>
 </div>
 </div>
@@ -839,13 +764,10 @@ padding: 0 8px;
 <i class="fas fa-clock"></i>
 <span>Предзаказы</span>
 </div>
-<div class="panel-item" data-target="timer">
-<i class="fas fa-stopwatch"></i>
-<span>Таймер</span>
-</div>
 <div class="panel-item" data-target="calendar">
 <i class="fas fa-calendar-alt"></i>
 <span>Календарь</span>
+<div class="new-badge">NEW</div>
 </div>
 <div class="panel-item" data-target="stats">
 <i class="fas fa-chart-bar"></i>
@@ -952,52 +874,19 @@ padding: 0 8px;
 </div>
 </div>
 </div>
-<!-- TIMER ORDER MODAL -->
-<div id="timerOrderModal" class="modal">
-<div class="modal-content">
-<div class="modal-title">Создать заказ из таймера</div>
-<div class="modal-row">
-<label>№ заказа *</label>
-<input type="text" id="timerOrderNum" class="neu-input" placeholder="ORD-001">
-</div>
-<div class="modal-row">
-<label>Деталь</label>
-<input type="text" id="timerDetail" class="neu-input" placeholder="Работа по времени">
-</div>
-<div class="modal-row">
-<label>Кол-во</label>
-<input type="number" id="timerQty" value="1" min="1" class="neu-input">
-</div>
-<div class="modal-row">
-<label>Часы (из таймера)</label>
-<input type="number" step="0.1" id="timerHoursInput" class="neu-input" readonly>
-</div>
-<div class="modal-row">
-<label>Сумма</label>
-<div id="timerOrderAmount" style="font-weight:600; color:var(--accent-solid); font-size:1.1rem;">0.00 ₽</div>
-</div>
-<div class="modal-buttons">
-<button class="neu-btn" onclick="closeTimerOrderModal()">Отмена</button>
-<button class="neu-btn neu-btn-accent" onclick="createTimerOrder()">
-<i class="fas fa-check"></i> Создать заказ
-</button>
-</div>
-</div>
-</div>
-<!-- END TIMER ORDER MODAL -->
 <script>
 // === PWA Service Worker ===
 if ('serviceWorker' in navigator) {
-window.addEventListener('load', function() {
+window.addEventListener('load', () => {
 navigator.serviceWorker.register('sw.js')
-.then(function(reg) { console.log('Service Worker registered'); })
-.catch(function(err) { console.log('Service Worker registration failed'); });
+.then(reg => console.log('Service Worker registered'))
+.catch(err => console.log('Service Worker registration failed'));
 });
 }
 // === PWA Install Prompt ===
-var deferredPrompt;
-var installPrompt = document.getElementById('installPrompt');
-window.addEventListener('beforeinstallprompt', function(e) {
+let deferredPrompt;
+const installPrompt = document.getElementById('installPrompt');
+window.addEventListener('beforeinstallprompt', e => {
 e.preventDefault();
 deferredPrompt = e;
 installPrompt.classList.add('show');
@@ -1005,7 +894,7 @@ installPrompt.classList.add('show');
 function installApp() {
 if (deferredPrompt) {
 deferredPrompt.prompt();
-deferredPrompt.userChoice.then(function(choiceResult) {
+deferredPrompt.userChoice.then(choiceResult => {
 if (choiceResult.outcome === 'accepted') {
 console.log('User accepted the install prompt');
 }
@@ -1018,15 +907,9 @@ function closeInstallPrompt() {
 installPrompt.classList.remove('show');
 }
 // === ФЛАГ ЗВУКА ===
-var soundEnabled = true;
-// === TIMER VARIABLES ===
-var timerInterval = null;
-var timerSeconds = 0;
-var timerRunning = false;
-var timerPaused = false;
-var wakeLock = null;
+let soundEnabled = true;
 // === Константы ===
-var TARIFFS = {
+const TARIFFS = {
 RASPIL_M2: { price: 65, unit: 'm2' },
 LINEAR_RASPIL: { price: 26, unit: 'linear' },
 SKLEIKA_OB: { price: 210, unit: 'm2' },
@@ -1035,7 +918,7 @@ PAZY: { price: 30, unit: 'linear' },
 FREZER_FASKA: { price: 16, unit: 'linear' },
 TIME: { price: 330, unit: 'time' }
 };
-var TARIFF_NAMES = {
+const TARIFF_NAMES = {
 RASPIL_M2: 'Распил',
 LINEAR_RASPIL: 'Лин. распил',
 SKLEIKA_OB: 'Склейка +',
@@ -1044,12 +927,12 @@ PAZY: 'Пазы',
 FREZER_FASKA: 'Фаска',
 TIME: 'Время'
 };
-var UNIT_LABELS = {
+const UNIT_LABELS = {
 m2: 'м²',
 linear: 'пог. м',
 time: 'часы'
 };
-var EARNINGS_MILESTONES = [
+const EARNINGS_MILESTONES = [
 { amount: 500, emoji: '😡', color: '#DC2626', text: 'Разгон...' },
 { amount: 1000, emoji: '😢', color: '#3B82F6', text: 'Первая тысяча' },
 { amount: 1500, emoji: '😐', color: '#6B7285', text: 'Половина пути' },
@@ -1057,8 +940,8 @@ var EARNINGS_MILESTONES = [
 { amount: 2500, emoji: '😄', color: '#F59E0B', text: 'Почти план!' }
 ];
 function formatDateYMD(dateStr) {
-var parts = dateStr.split('-');
-return parts[2] + '.' + parts[1] + '.' + parts[0];
+const [y, m, d] = dateStr.split('-');
+return `${d}.${m}.${y}`;
 }
 function todayYMD() {
 return new Date().toISOString().split('T')[0];
@@ -1094,9 +977,9 @@ localStorage.setItem('current_shift', JSON.stringify(shift));
 function playSuccessSound() {
 if (!soundEnabled) return;
 try {
-var ctx = new (window.AudioContext || window.webkitAudioContext)();
-var oscillator = ctx.createOscillator();
-var gainNode = ctx.createGain();
+const ctx = new (window.AudioContext || window.webkitAudioContext)();
+const oscillator = ctx.createOscillator();
+const gainNode = ctx.createGain();
 oscillator.connect(gainNode);
 gainNode.connect(ctx.destination);
 oscillator.type = 'sine';
@@ -1110,9 +993,9 @@ console.warn("Audio feedback not supported", e);
 }
 }
 function calculateAmount(tariffKey, length, width, hours, qty) {
-var tariff = TARIFFS[tariffKey];
+const tariff = TARIFFS[tariffKey];
 if (!tariff) return 0;
-var amount = 0;
+let amount = 0;
 if (tariff.unit === 'time') {
 amount = tariff.price * hours * qty;
 } else if (tariff.unit === 'm2') {
@@ -1123,40 +1006,46 @@ amount = tariff.price * length * qty;
 return Math.round(amount * 100) / 100;
 }
 function showToast(emoji, color, title, message) {
-var container = document.getElementById('toastContainer');
-var toast = document.createElement('div');
+const container = document.getElementById('toastContainer');
+const toast = document.createElement('div');
 toast.className = 'toast';
 toast.style.borderLeftColor = color;
-toast.innerHTML = '<div class="toast-icon">' + emoji + '</div><div class="toast-content"><div class="toast-title" style="color:' + color + '">' + title + '</div><div class="toast-msg">' + message + '</div></div>';
+toast.innerHTML = `
+<div class="toast-icon">${emoji}</div>
+<div class="toast-content">
+<div class="toast-title" style="color:${color}">${title}</div>
+<div class="toast-msg">${message}</div>
+</div>
+`;
 container.appendChild(toast);
-setTimeout(function() {
+setTimeout(() => {
 toast.style.animation = 'fadeOut 0.3s ease-in forwards';
-setTimeout(function() { toast.remove(); }, 300);
+setTimeout(() => toast.remove(), 300);
 }, 4000);
 }
 function checkMilestones(amount) {
-var shift = getCurrentShift();
+const shift = getCurrentShift();
 if (!shift || !shift.active) return;
-var storageKey = 'notified_milestones_' + shift.id;
-var notified = JSON.parse(localStorage.getItem(storageKey) || '[]');
-EARNINGS_MILESTONES.forEach(function(m) {
-if (amount >= m.amount && notified.indexOf(m.amount) === -1) {
-showToast(m.emoji, m.color, 'Заработано ' + m.amount + ' ₽', m.text);
+const storageKey = `notified_milestones_${shift.id}`;
+let notified = JSON.parse(localStorage.getItem(storageKey) || '[]');
+EARNINGS_MILESTONES.forEach(m => {
+if (amount >= m.amount && !notified.includes(m.amount)) {
+showToast(m.emoji, m.color, `Заработано ${m.amount} ₽`, m.text);
 notified.push(m.amount);
 localStorage.setItem(storageKey, JSON.stringify(notified));
 }
 });
 }
 function updateUI() {
-var orders = loadOrders();
-var totalAll = orders.reduce(function(sum, o) { return sum + (parseFloat(o.amount) || 0); }, 0);
-var shift = getCurrentShift();
-var currentShiftAmount = 0;
-var statusText = 'Смена не начата';
+const orders = loadOrders();
+const totalAll = orders.reduce((sum, o) => sum + (parseFloat(o.amount) || 0), 0);
+const shift = getCurrentShift();
+let currentShiftAmount = 0;
+let statusText = 'Смена не начата';
 if (shift && shift.active) {
 currentShiftAmount = orders
-.filter(function(o) { return o.shiftId === shift.id; })
-.reduce(function(sum, o) { return sum + (parseFloat(o.amount) || 0); }, 0);
+.filter(o => o.shiftId === shift.id)
+.reduce((sum, o) => sum + (parseFloat(o.amount) || 0), 0);
 statusText = 'Смена активна';
 } else if (shift && !shift.active) {
 currentShiftAmount = shift.finalAmount || 0;
@@ -1165,9 +1054,9 @@ statusText = 'Смена завершена';
 document.getElementById('totalAll').textContent = totalAll.toFixed(2);
 document.getElementById('todayEarned').textContent = currentShiftAmount.toFixed(2);
 document.getElementById('shiftStatus').textContent = statusText;
-var steps = document.querySelectorAll('#planStatusBar .step');
-var targetStep = Math.min(19, Math.floor((currentShiftAmount / 3000) * 20));
-steps.forEach(function(step, i) {
+const steps = document.querySelectorAll('#planStatusBar .step');
+const targetStep = Math.min(19, Math.floor((currentShiftAmount / 3000) * 20));
+steps.forEach((step, i) => {
 step.classList.remove('active', 'current', 'completed');
 if (i < targetStep) {
 step.classList.add('active');
@@ -1182,107 +1071,90 @@ step.classList.add('completed');
 checkMilestones(currentShiftAmount);
 }
 function updateMainFormFields() {
-var tariff = document.getElementById('tariff').value;
-['widthGroup', 'hoursGroup'].forEach(function(id) {
-var el = document.getElementById(id);
-if (el) el.classList.add('hidden');
-});
-var lengthGroup = document.getElementById('lengthGroup');
-if (lengthGroup) lengthGroup.classList.remove('hidden');
-if (['RASPIL_M2', 'SKLEIKA_OB', 'SKLEIKA_NO_OB'].indexOf(tariff) !== -1) {
-var widthGroup = document.getElementById('widthGroup');
-if (widthGroup) widthGroup.classList.remove('hidden');
+const tariff = document.getElementById('tariff').value;
+['widthGroup', 'hoursGroup'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
+document.getElementById('lengthGroup')?.classList.remove('hidden');
+if (['RASPIL_M2', 'SKLEIKA_OB', 'SKLEIKA_NO_OB'].includes(tariff)) {
+document.getElementById('widthGroup')?.classList.remove('hidden');
 } else if (tariff === 'TIME') {
-if (lengthGroup) lengthGroup.classList.add('hidden');
-var hoursGroup = document.getElementById('hoursGroup');
-if (hoursGroup) hoursGroup.classList.remove('hidden');
+document.getElementById('lengthGroup')?.classList.add('hidden');
+document.getElementById('hoursGroup')?.classList.remove('hidden');
 }
 }
 function updatePreorderFormFields() {
-var tariff = document.getElementById('preTariff').value;
-['preWidthGroup', 'preHoursGroup'].forEach(function(id) {
-var el = document.getElementById(id);
-if (el) el.classList.add('hidden');
-});
-var preLengthGroup = document.getElementById('preLengthGroup');
-if (preLengthGroup) preLengthGroup.classList.remove('hidden');
-if (['RASPIL_M2', 'SKLEIKA_OB', 'SKLEIKA_NO_OB'].indexOf(tariff) !== -1) {
-var preWidthGroup = document.getElementById('preWidthGroup');
-if (preWidthGroup) preWidthGroup.classList.remove('hidden');
+const tariff = document.getElementById('preTariff').value;
+['preWidthGroup', 'preHoursGroup'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
+document.getElementById('preLengthGroup')?.classList.remove('hidden');
+if (['RASPIL_M2', 'SKLEIKA_OB', 'SKLEIKA_NO_OB'].includes(tariff)) {
+document.getElementById('preWidthGroup')?.classList.remove('hidden');
 } else if (tariff === 'TIME') {
-if (preLengthGroup) preLengthGroup.classList.add('hidden');
-var preHoursGroup = document.getElementById('preHoursGroup');
-if (preHoursGroup) preHoursGroup.classList.remove('hidden');
+document.getElementById('preLengthGroup')?.classList.add('hidden');
+document.getElementById('preHoursGroup')?.classList.remove('hidden');
 }
 }
 function updateEditFormFields() {
-var tariff = document.getElementById('editTariff').value;
-['editWidthGroup', 'editHoursGroup'].forEach(function(id) {
-var el = document.getElementById(id);
-if (el) el.classList.add('hidden');
-});
-var editLengthGroup = document.getElementById('editLengthGroup');
-if (editLengthGroup) editLengthGroup.classList.remove('hidden');
-if (['RASPIL_M2', 'SKLEIKA_OB', 'SKLEIKA_NO_OB'].indexOf(tariff) !== -1) {
-var editWidthGroup = document.getElementById('editWidthGroup');
-if (editWidthGroup) editWidthGroup.classList.remove('hidden');
+const tariff = document.getElementById('editTariff').value;
+['editWidthGroup', 'editHoursGroup'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
+document.getElementById('editLengthGroup')?.classList.remove('hidden');
+if (['RASPIL_M2', 'SKLEIKA_OB', 'SKLEIKA_NO_OB'].includes(tariff)) {
+document.getElementById('editWidthGroup')?.classList.remove('hidden');
 } else if (tariff === 'TIME') {
-if (editLengthGroup) editLengthGroup.classList.add('hidden');
-var editHoursGroup = document.getElementById('editHoursGroup');
-if (editHoursGroup) editHoursGroup.classList.remove('hidden');
+document.getElementById('editLengthGroup')?.classList.add('hidden');
+document.getElementById('editHoursGroup')?.classList.remove('hidden');
 }
 }
 function startShift() {
-var shift = getCurrentShift();
+const shift = getCurrentShift();
 if (shift && shift.active) {
 alert('Смена уже активна!');
 return;
 }
-var newShift = { id: Date.now(), startedAt: new Date().toISOString(), active: true };
+const newShift = { id: Date.now(), startedAt: new Date().toISOString(), active: true };
 setCurrentShift(newShift);
 alert('✅ Смена начата!');
 updateUI();
 }
 function endShift() {
-var shift = getCurrentShift();
+const shift = getCurrentShift();
 if (!shift || !shift.active) {
 alert('Нет активной смены для завершения!');
 return;
 }
-var orders = loadOrders();
-var finalAmount = orders
-.filter(function(o) { return o.shiftId === shift.id; })
-.reduce(function(sum, o) { return sum + (parseFloat(o.amount) || 0); }, 0);
+const orders = loadOrders();
+const finalAmount = orders
+.filter(o => o.shiftId === shift.id)
+.reduce((sum, o) => sum + (parseFloat(o.amount) || 0), 0);
 shift.active = false;
 shift.finishedAt = new Date().toISOString();
 shift.finalAmount = finalAmount;
 setCurrentShift(shift);
-alert('✅ Смена завершена!\nЗаработано: ' + finalAmount.toFixed(2) + ' ₽');
+alert(`✅ Смена завершена!
+Заработано: ${finalAmount.toFixed(2)} ₽`);
 updateUI();
 }
 function deleteOrder(orderId) {
 if (!confirm('Вы уверены, что хотите удалить этот заказ?')) return;
-var orders = loadOrders();
-var idx = orders.findIndex(function(o) { return o.id === orderId; });
+const orders = loadOrders();
+const idx = orders.findIndex(o => o.id === orderId);
 if (idx === -1) return;
 orders.splice(idx, 1);
 saveOrders(orders);
-var shift = getCurrentShift();
+const shift = getCurrentShift();
 if (shift && shift.active) updateUI();
 showOrdersByDate();
 alert('✅ Заказ удален!');
 }
 function deletePreorder(preorderId) {
 if (!confirm('Вы уверены, что хотите удалить этот предзаказ?')) return;
-var preorders = loadPreorders();
-var idx = preorders.findIndex(function(p) { return p.id === preorderId; });
+const preorders = loadPreorders();
+const idx = preorders.findIndex(p => p.id === preorderId);
 if (idx === -1) return;
 preorders.splice(idx, 1);
 savePreorders(preorders);
 renderPreorders();
 alert('✅ Предзаказ удален!');
 }
-var pendingPreorderId = null;
+let pendingPreorderId = null;
 function openDateModal(preorderId) {
 pendingPreorderId = preorderId;
 document.getElementById('modalDate').value = todayYMD();
@@ -1293,37 +1165,36 @@ document.getElementById('dateModal').classList.remove('active');
 pendingPreorderId = null;
 }
 function confirmDateSelection() {
-var date = document.getElementById('modalDate').value;
+const date = document.getElementById('modalDate').value;
 if (!date) { alert('Выберите дату'); return; }
 if (pendingPreorderId !== null) acceptPreorder(pendingPreorderId, date);
 closeDateModal();
 }
 function viewOrderDetails(orderId) {
-var orders = loadOrders();
-var order = orders.find(function(o) { return o.id === orderId; });
+const orders = loadOrders();
+const order = orders.find(o => o.id === orderId);
 if (!order) return;
-var units = calculateUnits(order.tariff, order.length, order.width, order.hours, order.qty);
-var tariffName = TARIFF_NAMES[order.tariff] || order.tariff;
-var html = '';
-html += '<div class="details-item"><span class="details-label">№ заказа:</span><span class="details-value">' + order.orderNumber + '</span></div>';
-html += '<div class="details-item"><span class="details-label">Деталь:</span><span class="details-value">' + order.detail + '</span></div>';
-html += '<div class="details-item"><span class="details-label">Тариф:</span><span class="details-value">' + tariffName + '</span></div>';
-html += '<div class="details-item"><span class="details-label">Количество:</span><span class="details-value">' + order.qty + '</span></div>';
-if (order.length !== null) html += '<div class="details-item"><span class="details-label">Длина:</span><span class="details-value">' + order.length + ' м</span></div>';
-if (order.width !== null) html += '<div class="details-item"><span class="details-label">Ширина:</span><span class="details-value">' + order.width + ' м</span></div>';
-if (order.hours !== null) html += '<div class="details-item"><span class="details-label">Часы:</span><span class="details-value">' + order.hours + ' ч</span></div>';
-html += '<div class="details-item"><span class="details-label">Объем работ:</span><span class="details-value">' + units.value + ' ' + units.unit + '</span></div>';
-html += '<div class="details-item"><span class="details-label">Сумма:</span><span class="details-value">' + order.amount.toFixed(2) + ' ₽</span></div>';
+const units = calculateUnits(order.tariff, order.length, order.width, order.hours, order.qty);
+const tariffName = TARIFF_NAMES[order.tariff] || order.tariff;
+let html = '';
+html += `<div class="details-item"><span class="details-label">№ заказа:</span><span class="details-value">${order.orderNumber}</span></div>`;
+html += `<div class="details-item"><span class="details-label">Деталь:</span><span class="details-value">${order.detail}</span></div>`;
+html += `<div class="details-item"><span class="details-label">Тариф:</span><span class="details-value">${tariffName}</span></div>`;
+html += `<div class="details-item"><span class="details-label">Количество:</span><span class="details-value">${order.qty}</span></div>`;
+if (order.length !== null) html += `<div class="details-item"><span class="details-label">Длина:</span><span class="details-value">${order.length} м</span></div>`;
+if (order.width !== null) html += `<div class="details-item"><span class="details-label">Ширина:</span><span class="details-value">${order.width} м</span></div>`;
+if (order.hours !== null) html += `<div class="details-item"><span class="details-label">Часы:</span><span class="details-value">${order.hours} ч</span></div>`;
+html += `<div class="details-item"><span class="details-label">Объем работ:</span><span class="details-value">${units.value} ${units.unit}</span></div>`;
+html += `<div class="details-item"><span class="details-label">Сумма:</span><span class="details-value">${order.amount.toFixed(2)} ₽</span></div>`;
 document.getElementById('detailsContent').innerHTML = html;
 document.getElementById('detailsModal').classList.add('active');
 }
 function closeDetailsModal() {
 document.getElementById('detailsModal').classList.remove('active');
 }
-var editingOrder = null;
 function openEditModal(orderId) {
-var orders = loadOrders();
-var order = orders.find(function(o) { return o.id === orderId; });
+const orders = loadOrders();
+const order = orders.find(o => o.id === orderId);
 if (!order) return;
 editingOrder = order;
 document.getElementById('editOrderId').value = order.id;
@@ -1337,26 +1208,28 @@ document.getElementById('editHours').value = order.hours || '';
 updateEditFormFields();
 document.getElementById('editModal').classList.add('active');
 }
+let editingOrder = null;
 function closeEditModal() {
 document.getElementById('editModal').classList.remove('active');
 editingOrder = null;
 }
 function saveEditedOrder() {
 if (!editingOrder) return;
-var orderId = parseInt(document.getElementById('editOrderId').value);
-var num = document.getElementById('editOrderNum').value.trim();
+const orderId = parseInt(document.getElementById('editOrderId').value);
+const num = document.getElementById('editOrderNum').value.trim();
 if (!num) { alert('Укажите № заказа'); return; }
-var tariffKey = document.getElementById('editTariff').value;
-var detail = document.getElementById('editDetail').value.trim() || '—';
-var qty = parseInt(document.getElementById('editQty').value) || 1;
-var length = parseFloat(document.getElementById('editLength').value) || 0;
-var width = parseFloat(document.getElementById('editWidth').value) || 0;
-var hours = parseFloat(document.getElementById('editHours').value) || 0;
-var amount = calculateAmount(tariffKey, length, width, hours, qty);
-var orders = loadOrders();
-var idx = orders.findIndex(function(o) { return o.id === orderId; });
+const tariffKey = document.getElementById('editTariff').value;
+const detail = document.getElementById('editDetail').value.trim() || '—';
+const qty = parseInt(document.getElementById('editQty').value) || 1;
+const length = parseFloat(document.getElementById('editLength').value) || 0;
+const width = parseFloat(document.getElementById('editWidth').value) || 0;
+const hours = parseFloat(document.getElementById('editHours').value) || 0;
+const amount = calculateAmount(tariffKey, length, width, hours, qty);
+const orders = loadOrders();
+const idx = orders.findIndex(o => o.id === orderId);
 if (idx !== -1) {
-orders[idx] = Object.assign({}, orders[idx], {
+orders[idx] = {
+...orders[idx],
 orderNumber: num,
 tariff: tariffKey,
 detail: detail,
@@ -1365,7 +1238,7 @@ length: length || null,
 width: width || null,
 hours: hours || null,
 amount: amount
-});
+};
 saveOrders(orders);
 updateUI();
 showOrdersByDate();
@@ -1374,21 +1247,21 @@ alert('✅ Заказ обновлён!');
 }
 }
 function createMainOrder() {
-var num = document.getElementById('orderNum').value.trim();
+const num = document.getElementById('orderNum').value.trim();
 if (!num) { alert('Укажите № заказа'); return; }
-var tariffKey = document.getElementById('tariff').value;
-var detail = document.getElementById('detail').value.trim() || '—';
-var qty = parseInt(document.getElementById('qty').value) || 1;
-var length = parseFloat(document.getElementById('length').value) || 0;
-var width = parseFloat(document.getElementById('width').value) || 0;
-var hours = parseFloat(document.getElementById('hours').value) || 0;
-var amount = calculateAmount(tariffKey, length, width, hours, qty);
-var shift = getCurrentShift();
+const tariffKey = document.getElementById('tariff').value;
+const detail = document.getElementById('detail').value.trim() || '—';
+const qty = parseInt(document.getElementById('qty').value) || 1;
+const length = parseFloat(document.getElementById('length').value) || 0;
+const width = parseFloat(document.getElementById('width').value) || 0;
+const hours = parseFloat(document.getElementById('hours').value) || 0;
+const amount = calculateAmount(tariffKey, length, width, hours, qty);
+const shift = getCurrentShift();
 if (!shift || !shift.active) {
 alert('⚠️ Начните смену, чтобы создавать заказы!');
 return;
 }
-var order = {
+const order = {
 id: Date.now(),
 orderNumber: num,
 tariff: tariffKey,
@@ -1402,12 +1275,12 @@ date: todayYMD(),
 shiftId: shift.id,
 timestamp: new Date().toISOString()
 };
-var orders = loadOrders();
+const orders = loadOrders();
 orders.push(order);
 saveOrders(orders);
 updateUI();
-['orderNum','detail','qty','length','width','hours'].forEach(function(id) {
-var el = document.getElementById(id);
+['orderNum','detail','qty','length','width','hours'].forEach(id => {
+const el = document.getElementById(id);
 if (el) el.value = (id === 'qty') ? '1' : '';
 });
 updateMainFormFields();
@@ -1417,16 +1290,16 @@ createMainOrder();
 setTimeout(playSuccessSound, 100);
 }
 function createPreorder() {
-var num = document.getElementById('preOrderNum').value.trim();
+const num = document.getElementById('preOrderNum').value.trim();
 if (!num) { alert('Укажите № предзаказа'); return; }
-var tariffKey = document.getElementById('preTariff').value;
-var detail = document.getElementById('preDetail').value.trim() || '—';
-var qty = parseInt(document.getElementById('preQty').value) || 1;
-var length = parseFloat(document.getElementById('preLength').value) || 0;
-var width = parseFloat(document.getElementById('preWidth').value) || 0;
-var hours = parseFloat(document.getElementById('preHours').value) || 0;
-var amount = calculateAmount(tariffKey, length, width, hours, qty);
-var preorder = {
+const tariffKey = document.getElementById('preTariff').value;
+const detail = document.getElementById('preDetail').value.trim() || '—';
+const qty = parseInt(document.getElementById('preQty').value) || 1;
+const length = parseFloat(document.getElementById('preLength').value) || 0;
+const width = parseFloat(document.getElementById('preWidth').value) || 0;
+const hours = parseFloat(document.getElementById('preHours').value) || 0;
+const amount = calculateAmount(tariffKey, length, width, hours, qty);
+const preorder = {
 id: Date.now(),
 orderNumber: num,
 tariff: tariffKey,
@@ -1439,23 +1312,23 @@ amount: amount,
 date: todayYMD(),
 timestamp: new Date().toISOString()
 };
-var preorders = loadPreorders();
+const preorders = loadPreorders();
 preorders.push(preorder);
 savePreorders(preorders);
 alert('✅ Предзаказ сохранён!');
 renderPreorders();
-['preOrderNum','preDetail','preQty','preLength','preWidth','preHours'].forEach(function(id) {
-var el = document.getElementById(id);
+['preOrderNum','preDetail','preQty','preLength','preWidth','preHours'].forEach(id => {
+const el = document.getElementById(id);
 if (el) el.value = (id === 'preQty') ? '1' : '';
 });
 updatePreorderFormFields();
 }
-function acceptPreorder(preorderId, selectedDate) {
-var preorders = loadPreorders();
-var idx = preorders.findIndex(function(p) { return p.id === preorderId; });
+function acceptPreorder(preorderId, selectedDate = null) {
+const preorders = loadPreorders();
+const idx = preorders.findIndex(p => p.id === preorderId);
 if (idx === -1) return;
-var preorder = preorders[idx];
-var shift = getCurrentShift();
+const preorder = preorders[idx];
+const shift = getCurrentShift();
 if (!shift || !shift.active) {
 alert('Начните смену, чтобы принять предзаказ!');
 return;
@@ -1464,43 +1337,62 @@ if (!selectedDate) {
 openDateModal(preorderId);
 return;
 }
-var order = Object.assign({}, preorder, { shiftId: shift.id, date: selectedDate });
-var orders = loadOrders();
+const order = {...preorder, shiftId: shift.id, date: selectedDate};
+const orders = loadOrders();
 orders.push(order);
 saveOrders(orders);
 preorders.splice(idx, 1);
 savePreorders(preorders);
-alert('✅ Предзаказ "' + preorder.orderNumber + '" принят на дату ' + formatDateYMD(selectedDate) + '!');
+alert(`✅ Предзаказ "${preorder.orderNumber}" принят на дату ${formatDateYMD(selectedDate)}!`);
 updateUI();
 renderPreorders();
 }
 function renderPreorders() {
-var preorders = loadPreorders();
-var container = document.getElementById('preordersListContainer');
+const preorders = loadPreorders();
+const container = document.getElementById('preordersListContainer');
 if (preorders.length === 0) {
 container.innerHTML = '<div class="empty-msg">Нет предзаказов</div>';
 return;
 }
-var html = '<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>';
-preorders.forEach(function(p) {
-html += '<tr><td>' + p.orderNumber + '</td><td>' + p.detail + '</td><td class="amount">' + p.amount.toFixed(2) + ' ₽</td><td><button class="action-btn" onclick="acceptPreorder(' + p.id + ')"><i class="fas fa-check"></i></button><button class="action-btn" onclick="deletePreorder(' + p.id + ')"><i class="fas fa-trash"></i></button></td></tr>';
+let html = `<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>`;
+preorders.forEach(p => {
+html += `
+<tr>
+<td>${p.orderNumber}</td>
+<td>${p.detail}</td>
+<td class="amount">${p.amount.toFixed(2)} ₽</td>
+<td>
+<button class="action-btn" onclick="acceptPreorder(${p.id})"><i class="fas fa-check"></i></button>
+<button class="action-btn" onclick="deletePreorder(${p.id})"><i class="fas fa-trash"></i></button>
+</td>
+</tr>`;
 });
 html += '</tbody></table>';
 container.innerHTML = html;
 }
 function showOrdersByDate() {
-var dateInput = document.getElementById('viewDate').value;
+const dateInput = document.getElementById('viewDate').value;
 if (!dateInput) { alert('Выберите дату'); return; }
-var orders = loadOrders();
-var filtered = orders.filter(function(o) { return o.date === dateInput; });
-var formattedDate = formatDateYMD(dateInput);
-var html = '<div class="progress-title">Заказы за ' + formattedDate + '</div>';
+const orders = loadOrders();
+const filtered = orders.filter(o => o.date === dateInput);
+const formattedDate = formatDateYMD(dateInput);
+let html = `<div class="progress-title">Заказы за ${formattedDate}</div>`;
 if (filtered.length === 0) {
 html += '<div class="empty-msg">Нет заказов за эту дату</div>';
 } else {
-html += '<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>';
-filtered.forEach(function(o) {
-html += '<tr><td>' + o.orderNumber + '</td><td>' + o.detail + '</td><td class="amount">' + o.amount.toFixed(2) + ' ₽</td><td><button class="action-btn" onclick="viewOrderDetails(' + o.id + ')"><i class="fas fa-eye"></i></button><button class="action-btn" onclick="openEditModal(' + o.id + ')"><i class="fas fa-edit"></i></button><button class="action-btn" onclick="deleteOrder(' + o.id + ')"><i class="fas fa-trash"></i></button></td></tr>';
+html += `<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>`;
+filtered.forEach(o => {
+html += `
+<tr>
+<td>${o.orderNumber}</td>
+<td>${o.detail}</td>
+<td class="amount">${o.amount.toFixed(2)} ₽</td>
+<td>
+<button class="action-btn" onclick="viewOrderDetails(${o.id})"><i class="fas fa-eye"></i></button>
+<button class="action-btn" onclick="openEditModal(${o.id})"><i class="fas fa-edit"></i></button>
+<button class="action-btn" onclick="deleteOrder(${o.id})"><i class="fas fa-trash"></i></button>
+</td>
+</tr>`;
 });
 html += '</tbody></table>';
 }
@@ -1508,82 +1400,105 @@ document.getElementById('ordersListContainer').innerHTML = html;
 }
 document.getElementById('orderSearch').addEventListener('keypress', function(e) {
 if (e.key === 'Enter') {
-var query = this.value.trim().toLowerCase();
+const query = this.value.trim().toLowerCase();
 if (!query) {
 showOrdersByDate();
 return;
 }
-var orders = loadOrders();
-var matched = orders.filter(function(o) { return o.orderNumber.toLowerCase().indexOf(query) !== -1; });
-var html = '<div class="progress-title">Результаты поиска: "' + query + '"</div>';
+const orders = loadOrders();
+const matched = orders.filter(o => o.orderNumber.toLowerCase().includes(query));
+let html = `<div class="progress-title">Результаты поиска: "${query}"</div>`;
 if (matched.length === 0) {
 html += '<div class="empty-msg">Заказы не найдены</div>';
 } else {
-html += '<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>';
-matched.forEach(function(o) {
-html += '<tr><td>' + o.orderNumber + '</td><td>' + o.detail + '</td><td class="amount">' + o.amount.toFixed(2) + ' ₽</td><td><button class="action-btn" onclick="viewOrderDetails(' + o.id + ')"><i class="fas fa-eye"></i></button><button class="action-btn" onclick="openEditModal(' + o.id + ')"><i class="fas fa-edit"></i></button><button class="action-btn" onclick="deleteOrder(' + o.id + ')"><i class="fas fa-trash"></i></button></td></tr>';
+html += `<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>`;
+matched.forEach(o => {
+html += `
+<tr>
+<td>${o.orderNumber}</td>
+<td>${o.detail}</td>
+<td class="amount">${o.amount.toFixed(2)} ₽</td>
+<td>
+<button class="action-btn" onclick="viewOrderDetails(${o.id})"><i class="fas fa-eye"></i></button>
+<button class="action-btn" onclick="openEditModal(${o.id})"><i class="fas fa-edit"></i></button>
+<button class="action-btn" onclick="deleteOrder(${o.id})"><i class="fas fa-trash"></i></button>
+</td>
+</tr>`;
 });
 html += '</tbody></table>';
 }
 document.getElementById('ordersListContainer').innerHTML = html;
 if (!document.getElementById('main').classList.contains('active')) {
-document.querySelectorAll('.panel-item').forEach(function(i) { i.classList.remove('active'); });
-document.querySelectorAll('.content-block').forEach(function(c) { c.classList.remove('active'); });
+document.querySelectorAll('.panel-item').forEach(i => i.classList.remove('active'));
+document.querySelectorAll('.content-block').forEach(c => c.classList.remove('active'));
 document.querySelector('.panel-item[data-target="main"]').classList.add('active');
 document.getElementById('main').classList.add('active');
 }
 }
 });
 function saveOrdersToFile() {
-var dateInput = document.getElementById('viewDate').value;
+const dateInput = document.getElementById('viewDate').value;
 if (!dateInput) { alert('Сначала выберите дату'); return; }
-var orders = loadOrders();
-var filtered = orders.filter(function(o) { return o.date === dateInput; });
+const orders = loadOrders();
+const filtered = orders.filter(o => o.date === dateInput);
 if (filtered.length === 0) { alert('Нет заказов за эту дату'); return; }
-var formattedDate = formatDateYMD(dateInput);
-var content = 'ЗАКАЗЫ ЗА ' + formattedDate + '\n========================\n';
-var totalSum = 0;
-filtered.forEach(function(o, idx) {
-var tariffName = TARIFF_NAMES[o.tariff] || o.tariff;
-var units = calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty);
-content += '№' + (idx + 1) + '. ' + o.orderNumber + '\n' + o.detail + ' (' + tariffName + ')\n';
-if (o.length) content += '   Длина: ' + o.length + ' м\n';
-if (o.width) content += '   Ширина: ' + o.width + ' м\n';
-if (o.hours) content += '   Часы: ' + o.hours + ' ч\n';
-content += '   Кол-во: ' + o.qty + '\nОбъем: ' + units.value + ' ' + units.unit + '\nСумма: ' + o.amount.toFixed(2) + ' ₽\n---\n';
+const formattedDate = formatDateYMD(dateInput);
+let content = `ЗАКАЗЫ ЗА ${formattedDate}
+========================
+`;
+let totalSum = 0;
+filtered.forEach((o, idx) => {
+const tariffName = TARIFF_NAMES[o.tariff] || o.tariff;
+const units = calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty);
+content += `№${idx + 1}. ${o.orderNumber}
+${o.detail} (${tariffName})
+`;
+if (o.length) content += `   Длина: ${o.length} м
+`;
+if (o.width) content += `   Ширина: ${o.width} м
+`;
+if (o.hours) content += `   Часы: ${o.hours} ч
+`;
+content += `   Кол-во: ${o.qty}
+Объем: ${units.value} ${units.unit}
+Сумма: ${o.amount.toFixed(2)} ₽
+---
+`;
 totalSum += o.amount;
 });
-content += '\nИТОГО: ' + totalSum.toFixed(2) + ' ₽\nЭкспорт: ' + new Date().toLocaleString('ru-RU');
-var bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
-var blob = new Blob([bom, content], { type: 'text/plain;charset=utf-8' });
-var a = document.createElement('a');
+content += `
+ИТОГО: ${totalSum.toFixed(2)} ₽
+Экспорт: ${new Date().toLocaleString('ru-RU')}`;
+const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+const blob = new Blob([bom, content], { type: 'text/plain;charset=utf-8' });
+const a = document.createElement('a');
 a.href = URL.createObjectURL(blob);
-a.download = 'заказы_' + formattedDate + '.txt';
+a.download = `заказы_${formattedDate}.txt`;
 a.click();
 URL.revokeObjectURL(a.href);
 }
 function saveOrdersToJSON() {
-var dateInput = document.getElementById('viewDate').value;
+const dateInput = document.getElementById('viewDate').value;
 if (!dateInput) { alert('Сначала выберите дату'); return; }
-var orders = loadOrders();
-var filtered = orders.filter(function(o) { return o.date === dateInput; });
+const orders = loadOrders();
+const filtered = orders.filter(o => o.date === dateInput);
 if (filtered.length === 0) { alert('Нет заказов за эту дату'); return; }
-var jsonContent = JSON.stringify(filtered, null, 2);
-var blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8' });
-var a = document.createElement('a');
+const jsonContent = JSON.stringify(filtered, null, 2);
+const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8' });
+const a = document.createElement('a');
 a.href = URL.createObjectURL(blob);
-a.download = 'заказы_' + formatDateYMD(dateInput) + '.json';
+a.download = `заказы_${formatDateYMD(dateInput)}.json`;
 a.click();
 URL.revokeObjectURL(a.href);
 }
 document.getElementById('jsonImportInput').addEventListener('change', function(e) {
-var file = e.target.files[0];
+const file = e.target.files[0];
 if (!file) return;
-var reader = new FileReader();
+const reader = new FileReader();
 reader.onload = function(event) {
 try {
-var content = event.target.result;
-var importedOrders = [];
+const content = event.target.result;
+let importedOrders = [];
 if (content.trim().startsWith('{') || content.trim().startsWith('[')) {
 importedOrders = JSON.parse(content);
 if (!Array.isArray(importedOrders)) importedOrders = [importedOrders];
@@ -1594,9 +1509,8 @@ if (importedOrders.length === 0) {
 alert('Не удалось найти заказы в файле!');
 return;
 }
-var preorders = loadPreorders();
-var newPreorders = importedOrders.map(function(item) {
-return {
+const preorders = loadPreorders();
+const newPreorders = importedOrders.map(item => ({
 id: Date.now() + Math.random(),
 orderNumber: item.orderNumber || 'ИМП-' + (preorders.length + 1),
 tariff: item.tariff || 'RASPIL_M2',
@@ -1605,29 +1519,38 @@ qty: item.qty || 1,
 length: item.length || null,
 width: item.width || null,
 hours: item.hours || null,
-amount: typeof item.amount === 'number' ? item.amount : calculateAmount(item.tariff || 'RASPIL_M2', item.length || 0, item.width || 0, item.hours || 0, item.qty || 1),
+amount: typeof item.amount === 'number'
+? item.amount
+: calculateAmount(
+item.tariff || 'RASPIL_M2',
+item.length || 0,
+item.width || 0,
+item.hours || 0,
+item.qty || 1
+),
 date: todayYMD(),
 timestamp: new Date().toISOString()
-};
-});
-var updated = preorders.concat(newPreorders);
+}));
+const updated = [...preorders, ...newPreorders];
 savePreorders(updated);
 renderPreorders();
-alert('✅ Загружено ' + newPreorders.length + ' предзаказов!');
+alert(`✅ Загружено ${newPreorders.length} предзаказов!`);
 } catch (err) {
 console.error(err);
-alert('Ошибка при чтении файла: ' + err.message);
+alert('Ошибка при чтении файла:
+' + err.message);
 }
 };
 reader.readAsText(file, 'utf-8');
 });
 function parseTxtOrders(txtContent) {
-var orders = [];
-var blocks = txtContent.split('---');
-blocks.forEach(function(block) {
-var lines = block.trim().split('\n').filter(function(line) { return line.trim() !== ''; });
-if (lines.length < 3) return;
-var order = {
+const orders = [];
+const blocks = txtContent.split('---');
+for (const block of blocks) {
+const lines = block.trim().split('
+').filter(line => line.trim() !== '');
+if (lines.length < 3) continue;
+const order = {
 orderNumber: '',
 detail: '',
 tariff: '',
@@ -1637,44 +1560,44 @@ width: null,
 hours: null,
 amount: 0
 };
-var currentDetail = '';
-var currentTariff = '';
-lines.forEach(function(line) {
-var cleanLine = line.trim();
-if (cleanLine.startsWith('№') && cleanLine.indexOf('.') !== -1) {
-var match = cleanLine.match(/№\d+\.\s*(.+)/);
+let currentDetail = '';
+let currentTariff = '';
+for (const line of lines) {
+const cleanLine = line.trim();
+if (cleanLine.startsWith('№') && cleanLine.includes('.')) {
+const match = cleanLine.match(/№\d+\.\s*(.+)/);
 if (match) order.orderNumber = match[1].trim();
 }
-if (cleanLine.indexOf('(') !== -1 && cleanLine.indexOf(')') !== -1 && cleanLine.indexOf('Сумма') === -1) {
-var match = cleanLine.match(/(.+)\s*\((.+)\)/);
+if (cleanLine.includes('(') && cleanLine.includes(')') && !cleanLine.includes('Сумма')) {
+const match = cleanLine.match(/(.+)\s*\((.+)\)/);
 if (match) {
 currentDetail = match[1].trim();
 currentTariff = match[2].trim();
 }
 }
 if (cleanLine.startsWith('Длина:')) {
-var match = cleanLine.match(/Длина:\s*([\d.]+)\s*м/);
+const match = cleanLine.match(/Длина:\s*([\d.]+)\s*м/);
 if (match) order.length = parseFloat(match[1]);
 }
 if (cleanLine.startsWith('Ширина:')) {
-var match = cleanLine.match(/Ширина:\s*([\d.]+)\s*м/);
+const match = cleanLine.match(/Ширина:\s*([\d.]+)\s*м/);
 if (match) order.width = parseFloat(match[1]);
 }
 if (cleanLine.startsWith('Часы:')) {
-var match = cleanLine.match(/Часы:\s*([\d.]+)\s*ч/);
+const match = cleanLine.match(/Часы:\s*([\d.]+)\s*ч/);
 if (match) order.hours = parseFloat(match[1]);
 }
 if (cleanLine.startsWith('Кол-во:')) {
-var match = cleanLine.match(/Кол-во:\s*(\d+)/);
+const match = cleanLine.match(/Кол-во:\s*(\d+)/);
 if (match) order.qty = parseInt(match[1]);
 }
 if (cleanLine.startsWith('Сумма:')) {
-var match = cleanLine.match(/Сумма:\s*([\d.]+)\s*₽/);
+const match = cleanLine.match(/Сумма:\s*([\d.]+)\s*₽/);
 if (match) order.amount = parseFloat(match[1]);
 }
-});
+}
 if (currentTariff) {
-var tariffMap = {
+const tariffMap = {
 'Распил': 'RASPIL_M2',
 'Лин. распил': 'LINEAR_RASPIL',
 'Склейка +': 'SKLEIKA_OB',
@@ -1689,25 +1612,25 @@ order.detail = currentDetail || '—';
 if (order.orderNumber) {
 orders.push(order);
 }
-});
+}
 return orders;
 }
 function calculateUnits(tariffKey, length, width, hours, qty) {
-var tariff = TARIFFS[tariffKey];
+const tariff = TARIFFS[tariffKey];
 if (!tariff) return { value: 0, unit: '' };
-var value = 0;
-var unit = tariff.unit;
+let value = 0;
+let unit = tariff.unit;
 if (tariff.unit === 'time') value = hours * qty;
 else if (tariff.unit === 'm2') value = length * width * qty;
 else value = length * qty;
 return { value: Math.round(value * 100) / 100, unit: UNIT_LABELS[unit] || unit };
 }
 function calculateStats() {
-var orders = loadOrders();
-var totalLinear = 0;
-var totalArea = 0;
-var totalTime = 0;
-var operationCount = {
+const orders = loadOrders();
+let totalLinear = 0;
+let totalArea = 0;
+let totalTime = 0;
+const operationCount = {
 RASPIL_M2: 0,
 LINEAR_RASPIL: 0,
 SKLEIKA_OB: 0,
@@ -1716,7 +1639,7 @@ PAZY: 0,
 FREZER_FASKA: 0,
 TIME: 0
 };
-orders.forEach(function(o) {
+orders.forEach(o => {
 if (o.tariff === 'LINEAR_RASPIL' || o.tariff === 'PAZY' || o.tariff === 'FREZER_FASKA') {
 totalLinear += (o.length || 0) * (o.qty || 1);
 } else if (o.tariff === 'RASPIL_M2' || o.tariff === 'SKLEIKA_OB' || o.tariff === 'SKLEIKA_NO_OB') {
@@ -1726,9 +1649,9 @@ totalTime += (o.hours || 0) * (o.qty || 1);
 }
 operationCount[o.tariff] = (operationCount[o.tariff] || 0) + 1;
 });
-var MAX_LINEAR = 1000;
-var MAX_AREA = 200;
-var MAX_TIME = 100;
+const MAX_LINEAR = 1000;
+const MAX_AREA = 200;
+const MAX_TIME = 100;
 return {
 linear: { value: totalLinear, percent: Math.min(100, totalLinear / MAX_LINEAR * 100) },
 area: { value: totalArea, percent: Math.min(100, totalArea / MAX_AREA * 100) },
@@ -1737,16 +1660,16 @@ operations: operationCount
 };
 }
 function renderStats() {
-var stats = calculateStats();
+const stats = calculateStats();
 document.getElementById('linearTotal').textContent = stats.linear.value.toFixed(1);
 document.getElementById('areaTotal').textContent = stats.area.value.toFixed(1);
 document.getElementById('timeTotal').textContent = stats.time.value.toFixed(1);
-setTimeout(function() {
-document.getElementById('linearProgress').style.width = stats.linear.percent + '%';
-document.getElementById('areaProgress').style.width = stats.area.percent + '%';
-document.getElementById('timeProgress').style.width = stats.time.percent + '%';
+setTimeout(() => {
+document.getElementById('linearProgress').style.width = `${stats.linear.percent}%`;
+document.getElementById('areaProgress').style.width = `${stats.area.percent}%`;
+document.getElementById('timeProgress').style.width = `${stats.time.percent}%`;
 }, 300);
-var opNames = {
+const opNames = {
 RASPIL_M2: 'Распил',
 LINEAR_RASPIL: 'Лин. распил',
 SKLEIKA_OB: 'Склейка +',
@@ -1755,18 +1678,27 @@ PAZY: 'Пазы',
 FREZER_FASKA: 'Фаска',
 TIME: 'Время'
 };
-var maxCount = Math.max.apply(null, Object.values(stats.operations));
+let maxCount = Math.max(...Object.values(stats.operations));
 if (maxCount === 0) maxCount = 1;
-var chartHtml = '';
-Object.keys(stats.operations).forEach(function(key) {
-var count = stats.operations[key];
-if (count === 0) return;
-var percent = (count / maxCount) * 100;
-chartHtml += '<div class="bar-item"><div class="bar-label"><span>' + opNames[key] + '</span><span>' + count + '</span></div><div class="bar-container"><div class="bar-fill" style="width: ' + percent + '%;"></div></div></div>';
-});
+let chartHtml = '';
+for (const [key, count] of Object.entries(stats.operations)) {
+if (count === 0) continue;
+const percent = (count / maxCount) * 100;
+chartHtml += `
+<div class="bar-item">
+<div class="bar-label">
+<span>${opNames[key]}</span>
+<span>${count}</span>
+</div>
+<div class="bar-container">
+<div class="bar-fill" style="width: ${percent}%;"></div>
+</div>
+</div>
+`;
+}
 document.getElementById('operationsChart').innerHTML = chartHtml || '<p style="color:var(--text-muted); text-align:center;">Нет данных</p>';
 }
-var currentCalendarDate = new Date();
+let currentCalendarDate = new Date();
 function loadCalendarData() {
 try {
 return JSON.parse(localStorage.getItem('operator_calendar') || '{}');
@@ -1776,43 +1708,41 @@ function saveCalendarData(data) {
 localStorage.setItem('operator_calendar', JSON.stringify(data));
 }
 function renderCalendar() {
-var year = currentCalendarDate.getFullYear();
-var month = currentCalendarDate.getMonth();
-var data = loadCalendarData();
-var today = todayYMD();
-var monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
-document.getElementById('calendarMonthYear').textContent = monthNames[month] + ' ' + year;
-var firstDay = new Date(year, month, 1).getDay();
-var daysInMonth = new Date(year, month + 1, 0).getDate();
-var grid = document.getElementById('calendarGrid');
+const year = currentCalendarDate.getFullYear();
+const month = currentCalendarDate.getMonth();
+const data = loadCalendarData();
+const today = todayYMD();
+const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+document.getElementById('calendarMonthYear').textContent = `${monthNames[month]} ${year}`;
+const firstDay = new Date(year, month, 1).getDay();
+const daysInMonth = new Date(year, month + 1, 0).getDate();
+const grid = document.getElementById('calendarGrid');
 grid.innerHTML = '';
-for (var i = 0; i < firstDay; i++) {
-var empty = document.createElement('div');
+for (let i = 0; i < firstDay; i++) {
+const empty = document.createElement('div');
 grid.appendChild(empty);
 }
-for (var d = 1; d <= daysInMonth; d++) {
-var dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
-var dayData = data[dateStr] || { hours: 0, isHoliday: false };
-var dayOfWeek = new Date(year, month, d).getDay();
-var isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
-var isToday = (dateStr === today);
-var cell = document.createElement('div');
+for (let d = 1; d <= daysInMonth; d++) {
+const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+const dayData = data[dateStr] || { hours: 0, isHoliday: false };
+const dayOfWeek = new Date(year, month, d).getDay();
+const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+const isToday = (dateStr === today);
+const cell = document.createElement('div');
 cell.className = 'calendar-day';
 if (isToday) cell.classList.add('today');
 if (dayData.hours > 0) cell.classList.add('worked');
 if (isWeekend) cell.classList.add('weekend');
 if (dayData.isHoliday) cell.classList.add('holiday');
-var html = '<div class="day-num">' + d + '</div>';
+let html = `<div class="day-num">${d}</div>`;
 if (dayData.hours > 0) {
-html += '<div class="day-hours">' + dayData.hours + ' ч</div>';
+html += `<div class="day-hours">${dayData.hours} ч</div>`;
 }
 if (dayData.isHoliday) {
-html += '<i class="fas fa-star holiday-icon"></i>';
+html += `<i class="fas fa-star holiday-icon"></i>`;
 }
 cell.innerHTML = html;
-cell.onclick = (function(date) {
-return function() { openDayModal(date); };
-})(dateStr);
+cell.onclick = () => openDayModal(dateStr, dayData);
 grid.appendChild(cell);
 }
 }
@@ -1820,9 +1750,7 @@ function changeMonth(delta) {
 currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
 renderCalendar();
 }
-function openDayModal(dateStr) {
-var data = loadCalendarData();
-var dayData = data[dateStr] || { hours: 0, isHoliday: false };
+function openDayModal(dateStr, dayData) {
 document.getElementById('editDayDate').value = dateStr;
 document.getElementById('displayDayDate').textContent = formatDateYMD(dateStr);
 document.getElementById('dayHours').value = dayData.hours || '';
@@ -1833,188 +1761,36 @@ function closeDayModal() {
 document.getElementById('dayModal').classList.remove('active');
 }
 function saveDayData() {
-var dateStr = document.getElementById('editDayDate').value;
-var hours = parseFloat(document.getElementById('dayHours').value) || 0;
-var isHoliday = document.getElementById('dayHoliday').checked;
-var data = loadCalendarData();
-data[dateStr] = { hours: hours, isHoliday: isHoliday };
+const dateStr = document.getElementById('editDayDate').value;
+const hours = parseFloat(document.getElementById('dayHours').value) || 0;
+const isHoliday = document.getElementById('dayHoliday').checked;
+const data = loadCalendarData();
+data[dateStr] = { hours, isHoliday };
 saveCalendarData(data);
 closeDayModal();
 renderCalendar();
 alert('✅ Данные дня сохранены!');
 }
-// === TIMER FUNCTIONS ===
-function formatTime(seconds) {
-var h = Math.floor(seconds / 3600);
-var m = Math.floor((seconds % 3600) / 60);
-var s = seconds % 60;
-return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
-}
-function updateTimerDisplay() {
-var display = document.getElementById('timerDisplay');
-display.textContent = formatTime(timerSeconds);
-var hours = timerSeconds / 3600;
-var hoursRounded = Math.round(hours * 10) / 10;
-document.getElementById('timerHours').textContent = hoursRounded.toFixed(1);
-var earned = calculateAmount('TIME', 0, 0, hoursRounded, 1);
-document.getElementById('timerEarned').textContent = earned.toFixed(2) + ' ₽';
-}
-async function requestWakeLock() {
-try {
-if ('wakeLock' in navigator) {
-wakeLock = await navigator.wakeLock.request('screen');
-updateWakeLockStatus(true);
-wakeLock.addEventListener('release', function() {
-updateWakeLockStatus(false);
-});
-}
-} catch (err) {
-console.warn('Wake Lock не поддерживается:', err);
-updateWakeLockStatus(false);
-}
-}
-function updateWakeLockStatus(active) {
-var status = document.getElementById('wakeLockStatus');
-if (active) {
-status.classList.add('active');
-status.innerHTML = '<i class="fas fa-check-circle"></i><span>Экран не будет гаснуть</span>';
-} else {
-status.classList.remove('active');
-status.innerHTML = '<i class="fas fa-info-circle"></i><span>Wake Lock не активен</span>';
-}
-}
-function releaseWakeLock() {
-if (wakeLock !== null) {
-wakeLock.release();
-wakeLock = null;
-updateWakeLockStatus(false);
-}
-}
-function startTimer() {
-if (timerRunning) return;
-var shift = getCurrentShift();
-if (!shift || !shift.active) {
-alert('⚠️ Начните смену, чтобы запустить таймер!');
-return;
-}
-timerRunning = true;
-timerPaused = false;
-document.getElementById('timerStartBtn').disabled = true;
-document.getElementById('timerPauseBtn').disabled = false;
-document.getElementById('timerStopBtn').disabled = false;
-document.getElementById('timerDisplay').classList.add('running');
-document.getElementById('timerDisplay').classList.remove('paused');
-requestWakeLock();
-timerInterval = setInterval(function() {
-timerSeconds++;
-updateTimerDisplay();
-}, 1000);
-}
-function togglePause() {
-if (!timerRunning) return;
-if (timerPaused) {
-timerPaused = false;
-document.getElementById('timerPauseBtn').innerHTML = '<i class="fas fa-pause"></i> Пауза';
-document.getElementById('timerDisplay').classList.add('running');
-document.getElementById('timerDisplay').classList.remove('paused');
-requestWakeLock();
-timerInterval = setInterval(function() {
-timerSeconds++;
-updateTimerDisplay();
-}, 1000);
-} else {
-timerPaused = true;
-clearInterval(timerInterval);
-document.getElementById('timerPauseBtn').innerHTML = '<i class="fas fa-play"></i> Продолжить';
-document.getElementById('timerDisplay').classList.remove('running');
-document.getElementById('timerDisplay').classList.add('paused');
-releaseWakeLock();
-}
-}
-function stopTimer() {
-if (!timerRunning) return;
-clearInterval(timerInterval);
-timerRunning = false;
-timerPaused = false;
-document.getElementById('timerStartBtn').disabled = false;
-document.getElementById('timerPauseBtn').disabled = true;
-document.getElementById('timerPauseBtn').innerHTML = '<i class="fas fa-pause"></i> Пауза';
-document.getElementById('timerStopBtn').disabled = true;
-document.getElementById('timerDisplay').classList.remove('running', 'paused');
-releaseWakeLock();
-openTimerOrderModal();
-}
-function openTimerOrderModal() {
-var hours = timerSeconds / 3600;
-var hoursRounded = Math.round(hours * 10) / 10;
-document.getElementById('timerHoursInput').value = hoursRounded.toFixed(1);
-var amount = calculateAmount('TIME', 0, 0, hoursRounded, 1);
-document.getElementById('timerOrderAmount').textContent = amount.toFixed(2) + ' ₽';
-document.getElementById('timerOrderModal').classList.add('active');
-}
-function closeTimerOrderModal() {
-document.getElementById('timerOrderModal').classList.remove('active');
-}
-function createTimerOrder() {
-var num = document.getElementById('timerOrderNum').value.trim();
-if (!num) { alert('Укажите № заказа'); return; }
-var detail = document.getElementById('timerDetail').value.trim() || 'Работа по времени';
-var qty = parseInt(document.getElementById('timerQty').value) || 1;
-var hours = parseFloat(document.getElementById('timerHoursInput').value) || 0;
-var amount = calculateAmount('TIME', 0, 0, hours, qty);
-var shift = getCurrentShift();
-if (!shift || !shift.active) {
-alert('⚠️ Начните смену, чтобы создавать заказы!');
-return;
-}
-var order = {
-id: Date.now(),
-orderNumber: num,
-tariff: 'TIME',
-detail: detail,
-qty: qty,
-length: null,
-width: null,
-hours: hours,
-amount: amount,
-date: todayYMD(),
-shiftId: shift.id,
-timestamp: new Date().toISOString()
-};
-var orders = loadOrders();
-orders.push(order);
-saveOrders(orders);
-updateUI();
-closeTimerOrderModal();
-timerSeconds = 0;
-updateTimerDisplay();
-playSuccessSound();
-alert('✅ Заказ создан!\nСумма: ' + amount.toFixed(2) + ' ₽');
-}
-// === END TIMER FUNCTIONS ===
-document.querySelectorAll('.panel-item').forEach(function(item) {
-item.addEventListener('click', function() {
-document.querySelectorAll('.panel-item').forEach(function(i) { i.classList.remove('active'); });
-document.querySelectorAll('.content-block').forEach(function(c) { c.classList.remove('active'); });
-this.classList.add('active');
-var target = this.dataset.target;
+document.querySelectorAll('.panel-item').forEach(item => {
+item.addEventListener('click', () => {
+document.querySelectorAll('.panel-item').forEach(i => i.classList.remove('active'));
+document.querySelectorAll('.content-block').forEach(c => c.classList.remove('active'));
+item.classList.add('active');
+const target = item.dataset.target;
 document.getElementById(target).classList.add('active');
 if (target === 'stats') renderStats();
 else if (target === 'main') updateUI();
 else if (target === 'calendar') renderCalendar();
 else if (target === 'preorders') renderPreorders();
-else if (target === 'timer') {
-updateTimerDisplay();
-}
 });
 });
 function loadAvatar() {
-var avatarData = localStorage.getItem('operator_avatar');
-var avatarBtn = document.getElementById('avatarBtn');
+const avatarData = localStorage.getItem('operator_avatar');
+const avatarBtn = document.getElementById('avatarBtn');
 if (avatarData) {
-var img = document.createElement('img');
+const img = document.createElement('img');
 img.src = avatarData;
-img.onerror = function() {
+img.onerror = () => {
 localStorage.removeItem('operator_avatar');
 avatarBtn.innerHTML = '<i class="fas fa-user"></i>';
 };
@@ -2024,28 +1800,28 @@ avatarBtn.appendChild(img);
 avatarBtn.innerHTML = '<i class="fas fa-user"></i>';
 }
 }
-document.getElementById('avatarBtn').addEventListener('click', function() {
+document.getElementById('avatarBtn').addEventListener('click', () => {
 document.getElementById('avatarUpload').click();
 });
 document.getElementById('avatarUpload').addEventListener('change', function(e) {
-var file = e.target.files[0];
+const file = e.target.files[0];
 if (!file) return;
 if (!file.type.match('image.*')) {
 alert('Пожалуйста, выберите изображение (JPG, PNG, WEBP)');
 return;
 }
-var reader = new FileReader();
+const reader = new FileReader();
 reader.onload = function(event) {
 localStorage.setItem('operator_avatar', event.target.result);
 loadAvatar();
 };
 reader.readAsDataURL(file);
 });
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
 document.getElementById('viewDate').value = todayYMD();
-['tariff','preTariff','editTariff'].forEach(function(id) {
-var el = document.getElementById(id);
-if (el) el.addEventListener('change', function() {
+['tariff','preTariff','editTariff'].forEach(id => {
+const el = document.getElementById(id);
+if (el) el.addEventListener('change', () => {
 if (id === 'tariff') updateMainFormFields();
 else if (id === 'preTariff') updatePreorderFormFields();
 else updateEditFormFields();
@@ -2055,12 +1831,6 @@ updateUI();
 renderPreorders();
 loadAvatar();
 renderCalendar();
-updateTimerDisplay();
-document.addEventListener('visibilitychange', function() {
-if (document.visibilityState === 'visible' && timerRunning && !timerPaused) {
-requestWakeLock();
-}
-});
 });
 </script>
 </body>
