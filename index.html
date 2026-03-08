@@ -384,7 +384,7 @@ right: 4px;
 font-size: 0.7rem;
 color: var(--accent-red);
 }
-/* Task Indicator on Calendar */
+/* Task indicator on calendar */
 .calendar-day .task-indicator {
 position: absolute;
 bottom: 4px;
@@ -393,12 +393,10 @@ width: 6px;
 height: 6px;
 background: var(--accent-blue-dark);
 border-radius: 50%;
-box-shadow: 0 0 4px rgba(59, 66, 86, 0.5);
 }
 .calendar-day.worked .task-indicator {
 background: #F0F1F3;
 }
-
 .progress-title {
 margin: 16px 0 8px;
 color: var(--text-muted);
@@ -524,22 +522,21 @@ background: transparent;
 color: #F0F1F3;
 border: 1px solid #F0F1F3;
 }
-/* Task Styles in Modal */
+/* Task Styles */
 .task-list {
 list-style: none;
-margin: 8px 0;
-max-height: 150px;
+margin: 12px 0;
+max-height: 200px;
 overflow-y: auto;
-padding: 0;
 }
 .task-item {
 display: flex;
 align-items: center;
 gap: 8px;
-padding: 6px 8px;
+padding: 8px;
 background: var(--bg);
 border-radius: 8px;
-margin-bottom: 4px;
+margin-bottom: 6px;
 transition: all 0.2s;
 }
 .task-item:hover {
@@ -549,16 +546,15 @@ background: var(--card);
 text-decoration: line-through;
 opacity: 0.6;
 }
+.task-checkbox {
+width: 18px;
+height: 18px;
+accent-color: var(--accent-solid);
+cursor: pointer;
+}
 .task-text {
 flex: 1;
 font-size: 0.9rem;
-word-break: break-word;
-}
-.task-checkbox {
-accent-color: var(--accent-solid);
-width: 18px;
-height: 18px;
-cursor: pointer;
 }
 .task-delete {
 background: none;
@@ -566,15 +562,10 @@ border: none;
 color: var(--accent-red);
 cursor: pointer;
 padding: 4px;
-display: flex;
-align-items: center;
-justify-content: center;
-opacity: 0.7;
+font-size: 0.9rem;
 }
 .task-delete:hover {
-opacity: 1;
-background: rgba(220, 38, 38, 0.1);
-border-radius: 4px;
+opacity: 0.7;
 }
 .task-input-group {
 display: flex;
@@ -583,9 +574,6 @@ margin-top: 8px;
 }
 .task-input-group input {
 flex: 1;
-}
-.task-input-group button {
-padding: 8px 12px;
 }
 
 @media (max-width: 480px) {
@@ -948,18 +936,14 @@ padding: 0 8px;
 <input type="checkbox" id="dayHoliday">
 <label for="dayHoliday" style="margin:0; cursor:pointer;">Праздничный день</label>
 </div>
-
-<!-- Task Section -->
 <div class="modal-row">
 <label>Задачи на день</label>
-<div class="task-list" id="dayTaskList"></div>
+<ul class="task-list" id="taskList"></ul>
 <div class="task-input-group">
-<input type="text" id="newTaskInput" class="neu-input" placeholder="Новая задача..." onkeypress="if(event.key==='Enter') addTask()">
+<input type="text" id="newTaskInput" class="neu-input" placeholder="Новая задача...">
 <button class="neu-btn neu-btn-accent" onclick="addTask()"><i class="fas fa-plus"></i></button>
 </div>
 </div>
-<!-- End Task Section -->
-
 <div class="modal-buttons">
 <button class="neu-btn" onclick="closeDayModal()">Отмена</button>
 <button class="neu-btn neu-btn-accent" onclick="saveDayData()">Сохранить</button>
@@ -1102,13 +1086,7 @@ const container = document.getElementById('toastContainer');
 const toast = document.createElement('div');
 toast.className = 'toast';
 toast.style.borderLeftColor = color;
-toast.innerHTML = `
-<div class="toast-icon">${emoji}</div>
-<div class="toast-content">
-<div class="toast-title" style="color:${color}">${title}</div>
-<div class="toast-msg">${message}</div>
-</div>
-`;
+toast.innerHTML = '<div class="toast-icon">' + emoji + '</div><div class="toast-content"><div class="toast-title" style="color:' + color + '">' + title + '</div><div class="toast-msg">' + message + '</div></div>';
 container.appendChild(toast);
 setTimeout(() => {
 toast.style.animation = 'fadeOut 0.3s ease-in forwards';
@@ -1118,11 +1096,11 @@ setTimeout(() => toast.remove(), 300);
 function checkMilestones(amount) {
 const shift = getCurrentShift();
 if (!shift || !shift.active) return;
-const storageKey = `notified_milestones_${shift.id}`;
+const storageKey = 'notified_milestones_' + shift.id;
 let notified = JSON.parse(localStorage.getItem(storageKey) || '[]');
 EARNINGS_MILESTONES.forEach(m => {
 if (amount >= m.amount && !notified.includes(m.amount)) {
-showToast(m.emoji, m.color, `Заработано ${m.amount} ₽`, m.text);
+showToast(m.emoji, m.color, 'Заработано ' + m.amount + ' ₽', m.text);
 notified.push(m.amount);
 localStorage.setItem(storageKey, JSON.stringify(notified));
 }
@@ -1220,8 +1198,7 @@ shift.active = false;
 shift.finishedAt = new Date().toISOString();
 shift.finalAmount = finalAmount;
 setCurrentShift(shift);
-alert(`✅ Смена завершена!
-Заработано: ${finalAmount.toFixed(2)} ₽`);
+alert('✅ Смена завершена!\nЗаработано: ' + finalAmount.toFixed(2) + ' ₽');
 updateUI();
 }
 function deleteOrder(orderId) {
@@ -1269,15 +1246,15 @@ if (!order) return;
 const units = calculateUnits(order.tariff, order.length, order.width, order.hours, order.qty);
 const tariffName = TARIFF_NAMES[order.tariff] || order.tariff;
 let html = '';
-html += `<div class="details-item"><span class="details-label">№ заказа:</span><span class="details-value">${order.orderNumber}</span></div>`;
-html += `<div class="details-item"><span class="details-label">Деталь:</span><span class="details-value">${order.detail}</span></div>`;
-html += `<div class="details-item"><span class="details-label">Тариф:</span><span class="details-value">${tariffName}</span></div>`;
-html += `<div class="details-item"><span class="details-label">Количество:</span><span class="details-value">${order.qty}</span></div>`;
-if (order.length !== null) html += `<div class="details-item"><span class="details-label">Длина:</span><span class="details-value">${order.length} м</span></div>`;
-if (order.width !== null) html += `<div class="details-item"><span class="details-label">Ширина:</span><span class="details-value">${order.width} м</span></div>`;
-if (order.hours !== null) html += `<div class="details-item"><span class="details-label">Часы:</span><span class="details-value">${order.hours} ч</span></div>`;
-html += `<div class="details-item"><span class="details-label">Объем работ:</span><span class="details-value">${units.value} ${units.unit}</span></div>`;
-html += `<div class="details-item"><span class="details-label">Сумма:</span><span class="details-value">${order.amount.toFixed(2)} ₽</span></div>`;
+html += '<div class="details-item"><span class="details-label">№ заказа:</span><span class="details-value">' + order.orderNumber + '</span></div>';
+html += '<div class="details-item"><span class="details-label">Деталь:</span><span class="details-value">' + order.detail + '</span></div>';
+html += '<div class="details-item"><span class="details-label">Тариф:</span><span class="details-value">' + tariffName + '</span></div>';
+html += '<div class="details-item"><span class="details-label">Количество:</span><span class="details-value">' + order.qty + '</span></div>';
+if (order.length !== null) html += '<div class="details-item"><span class="details-label">Длина:</span><span class="details-value">' + order.length + ' м</span></div>';
+if (order.width !== null) html += '<div class="details-item"><span class="details-label">Ширина:</span><span class="details-value">' + order.width + ' м</span></div>';
+if (order.hours !== null) html += '<div class="details-item"><span class="details-label">Часы:</span><span class="details-value">' + order.hours + ' ч</span></div>';
+html += '<div class="details-item"><span class="details-label">Объем работ:</span><span class="details-value">' + units.value + ' ' + units.unit + '</span></div>';
+html += '<div class="details-item"><span class="details-label">Сумма:</span><span class="details-value">' + order.amount.toFixed(2) + ' ₽</span></div>';
 document.getElementById('detailsContent').innerHTML = html;
 document.getElementById('detailsModal').classList.add('active');
 }
@@ -1415,7 +1392,7 @@ if (el) el.value = (id === 'preQty') ? '1' : '';
 });
 updatePreorderFormFields();
 }
-function acceptPreorder(preorderId, selectedDate = null) {
+function acceptPreorder(preorderId, selectedDate) {
 const preorders = loadPreorders();
 const idx = preorders.findIndex(p => p.id === preorderId);
 if (idx === -1) return;
@@ -1429,13 +1406,13 @@ if (!selectedDate) {
 openDateModal(preorderId);
 return;
 }
-const order = {...preorder, shiftId: shift.id, date: selectedDate};
+const order = Object.assign({}, preorder, { shiftId: shift.id, date: selectedDate });
 const orders = loadOrders();
 orders.push(order);
 saveOrders(orders);
 preorders.splice(idx, 1);
 savePreorders(preorders);
-alert(`✅ Предзаказ "${preorder.orderNumber}" принят на дату ${formatDateYMD(selectedDate)}!`);
+alert('✅ Предзаказ "' + preorder.orderNumber + '" принят на дату ' + formatDateYMD(selectedDate) + '!');
 updateUI();
 renderPreorders();
 }
@@ -1446,18 +1423,9 @@ if (preorders.length === 0) {
 container.innerHTML = '<div class="empty-msg">Нет предзаказов</div>';
 return;
 }
-let html = `<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>`;
+let html = '<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>';
 preorders.forEach(p => {
-html += `
-<tr>
-<td>${p.orderNumber}</td>
-<td>${p.detail}</td>
-<td class="amount">${p.amount.toFixed(2)} ₽</td>
-<td>
-<button class="action-btn" onclick="acceptPreorder(${p.id})"><i class="fas fa-check"></i></button>
-<button class="action-btn" onclick="deletePreorder(${p.id})"><i class="fas fa-trash"></i></button>
-</td>
-</tr>`;
+html += '<tr><td>' + p.orderNumber + '</td><td>' + p.detail + '</td><td class="amount">' + p.amount.toFixed(2) + ' ₽</td><td><button class="action-btn" onclick="acceptPreorder(' + p.id + ')"><i class="fas fa-check"></i></button><button class="action-btn" onclick="deletePreorder(' + p.id + ')"><i class="fas fa-trash"></i></button></td></tr>';
 });
 html += '</tbody></table>';
 container.innerHTML = html;
@@ -1468,23 +1436,13 @@ if (!dateInput) { alert('Выберите дату'); return; }
 const orders = loadOrders();
 const filtered = orders.filter(o => o.date === dateInput);
 const formattedDate = formatDateYMD(dateInput);
-let html = `<div class="progress-title">Заказы за ${formattedDate}</div>`;
+let html = '<div class="progress-title">Заказы за ' + formattedDate + '</div>';
 if (filtered.length === 0) {
 html += '<div class="empty-msg">Нет заказов за эту дату</div>';
 } else {
-html += `<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>`;
+html += '<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>';
 filtered.forEach(o => {
-html += `
-<tr>
-<td>${o.orderNumber}</td>
-<td>${o.detail}</td>
-<td class="amount">${o.amount.toFixed(2)} ₽</td>
-<td>
-<button class="action-btn" onclick="viewOrderDetails(${o.id})"><i class="fas fa-eye"></i></button>
-<button class="action-btn" onclick="openEditModal(${o.id})"><i class="fas fa-edit"></i></button>
-<button class="action-btn" onclick="deleteOrder(${o.id})"><i class="fas fa-trash"></i></button>
-</td>
-</tr>`;
+html += '<tr><td>' + o.orderNumber + '</td><td>' + o.detail + '</td><td class="amount">' + o.amount.toFixed(2) + ' ₽</td><td><button class="action-btn" onclick="viewOrderDetails(' + o.id + ')"><i class="fas fa-eye"></i></button><button class="action-btn" onclick="openEditModal(' + o.id + ')"><i class="fas fa-edit"></i></button><button class="action-btn" onclick="deleteOrder(' + o.id + ')"><i class="fas fa-trash"></i></button></td></tr>';
 });
 html += '</tbody></table>';
 }
@@ -1499,23 +1457,13 @@ return;
 }
 const orders = loadOrders();
 const matched = orders.filter(o => o.orderNumber.toLowerCase().includes(query));
-let html = `<div class="progress-title">Результаты поиска: "${query}"</div>`;
+let html = '<div class="progress-title">Результаты поиска: "' + query + '"</div>';
 if (matched.length === 0) {
 html += '<div class="empty-msg">Заказы не найдены</div>';
 } else {
-html += `<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>`;
+html += '<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>';
 matched.forEach(o => {
-html += `
-<tr>
-<td>${o.orderNumber}</td>
-<td>${o.detail}</td>
-<td class="amount">${o.amount.toFixed(2)} ₽</td>
-<td>
-<button class="action-btn" onclick="viewOrderDetails(${o.id})"><i class="fas fa-eye"></i></button>
-<button class="action-btn" onclick="openEditModal(${o.id})"><i class="fas fa-edit"></i></button>
-<button class="action-btn" onclick="deleteOrder(${o.id})"><i class="fas fa-trash"></i></button>
-</td>
-</tr>`;
+html += '<tr><td>' + o.orderNumber + '</td><td>' + o.detail + '</td><td class="amount">' + o.amount.toFixed(2) + ' ₽</td><td><button class="action-btn" onclick="viewOrderDetails(' + o.id + ')"><i class="fas fa-eye"></i></button><button class="action-btn" onclick="openEditModal(' + o.id + ')"><i class="fas fa-edit"></i></button><button class="action-btn" onclick="deleteOrder(' + o.id + ')"><i class="fas fa-trash"></i></button></td></tr>';
 });
 html += '</tbody></table>';
 }
@@ -1535,37 +1483,24 @@ const orders = loadOrders();
 const filtered = orders.filter(o => o.date === dateInput);
 if (filtered.length === 0) { alert('Нет заказов за эту дату'); return; }
 const formattedDate = formatDateYMD(dateInput);
-let content = `ЗАКАЗЫ ЗА ${formattedDate}
-========================
-`;
+let content = 'ЗАКАЗЫ ЗА ' + formattedDate + '\n========================\n';
 let totalSum = 0;
 filtered.forEach((o, idx) => {
 const tariffName = TARIFF_NAMES[o.tariff] || o.tariff;
 const units = calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty);
-content += `№${idx + 1}. ${o.orderNumber}
-${o.detail} (${tariffName})
-`;
-if (o.length) content += `   Длина: ${o.length} м
-`;
-if (o.width) content += `   Ширина: ${o.width} м
-`;
-if (o.hours) content += `   Часы: ${o.hours} ч
-`;
-content += `   Кол-во: ${o.qty}
-Объем: ${units.value} ${units.unit}
-Сумма: ${o.amount.toFixed(2)} ₽
----
-`;
+content += '№' + (idx + 1) + '. ' + o.orderNumber + '\n' + o.detail + ' (' + tariffName + ')\n';
+if (o.length) content += '   Длина: ' + o.length + ' м\n';
+if (o.width) content += '   Ширина: ' + o.width + ' м\n';
+if (o.hours) content += '   Часы: ' + o.hours + ' ч\n';
+content += '   Кол-во: ' + o.qty + '\nОбъем: ' + units.value + ' ' + units.unit + '\nСумма: ' + o.amount.toFixed(2) + ' ₽\n---\n';
 totalSum += o.amount;
 });
-content += `
-ИТОГО: ${totalSum.toFixed(2)} ₽
-Экспорт: ${new Date().toLocaleString('ru-RU')}`;
+content += '\nИТОГО: ' + totalSum.toFixed(2) + ' ₽\nЭкспорт: ' + new Date().toLocaleString('ru-RU');
 const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
 const blob = new Blob([bom, content], { type: 'text/plain;charset=utf-8' });
 const a = document.createElement('a');
 a.href = URL.createObjectURL(blob);
-a.download = `заказы_${formattedDate}.txt`;
+a.download = 'заказы_' + formattedDate + '.txt';
 a.click();
 URL.revokeObjectURL(a.href);
 }
@@ -1579,7 +1514,7 @@ const jsonContent = JSON.stringify(filtered, null, 2);
 const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8' });
 const a = document.createElement('a');
 a.href = URL.createObjectURL(blob);
-a.download = `заказы_${formatDateYMD(dateInput)}.json`;
+a.download = 'заказы_' + formatDateYMD(dateInput) + '.json';
 a.click();
 URL.revokeObjectURL(a.href);
 }
@@ -1611,26 +1546,17 @@ qty: item.qty || 1,
 length: item.length || null,
 width: item.width || null,
 hours: item.hours || null,
-amount: typeof item.amount === 'number'
-? item.amount
-: calculateAmount(
-item.tariff || 'RASPIL_M2',
-item.length || 0,
-item.width || 0,
-item.hours || 0,
-item.qty || 1
-),
+amount: typeof item.amount === 'number' ? item.amount : calculateAmount(item.tariff || 'RASPIL_M2', item.length || 0, item.width || 0, item.hours || 0, item.qty || 1),
 date: todayYMD(),
 timestamp: new Date().toISOString()
 }));
-const updated = [...preorders, ...newPreorders];
+const updated = preorders.concat(newPreorders);
 savePreorders(updated);
 renderPreorders();
-alert(`✅ Загружено ${newPreorders.length} предзаказов!`);
+alert('✅ Загружено ' + newPreorders.length + ' предзаказов!');
 } catch (err) {
 console.error(err);
-alert('Ошибка при чтении файла:
-' + err.message);
+alert('Ошибка при чтении файла: ' + err.message);
 }
 };
 reader.readAsText(file, 'utf-8');
@@ -1639,8 +1565,7 @@ function parseTxtOrders(txtContent) {
 const orders = [];
 const blocks = txtContent.split('---');
 for (const block of blocks) {
-const lines = block.trim().split('
-').filter(line => line.trim() !== '');
+const lines = block.trim().split('\n').filter(line => line.trim() !== '');
 if (lines.length < 3) continue;
 const order = {
 orderNumber: '',
@@ -1757,9 +1682,9 @@ document.getElementById('linearTotal').textContent = stats.linear.value.toFixed(
 document.getElementById('areaTotal').textContent = stats.area.value.toFixed(1);
 document.getElementById('timeTotal').textContent = stats.time.value.toFixed(1);
 setTimeout(() => {
-document.getElementById('linearProgress').style.width = `${stats.linear.percent}%`;
-document.getElementById('areaProgress').style.width = `${stats.area.percent}%`;
-document.getElementById('timeProgress').style.width = `${stats.time.percent}%`;
+document.getElementById('linearProgress').style.width = stats.linear.percent + '%';
+document.getElementById('areaProgress').style.width = stats.area.percent + '%';
+document.getElementById('timeProgress').style.width = stats.time.percent + '%';
 }, 300);
 const opNames = {
 RASPIL_M2: 'Распил',
@@ -1770,37 +1695,21 @@ PAZY: 'Пазы',
 FREZER_FASKA: 'Фаска',
 TIME: 'Время'
 };
-let maxCount = Math.max(...Object.values(stats.operations));
+let maxCount = Math.max.apply(null, Object.values(stats.operations));
 if (maxCount === 0) maxCount = 1;
 let chartHtml = '';
-for (const [key, count] of Object.entries(stats.operations)) {
+for (const key in stats.operations) {
+const count = stats.operations[key];
 if (count === 0) continue;
 const percent = (count / maxCount) * 100;
-chartHtml += `
-<div class="bar-item">
-<div class="bar-label">
-<span>${opNames[key]}</span>
-<span>${count}</span>
-</div>
-<div class="bar-container">
-<div class="bar-fill" style="width: ${percent}%;"></div>
-</div>
-</div>
-`;
+chartHtml += '<div class="bar-item"><div class="bar-label"><span>' + opNames[key] + '</span><span>' + count + '</span></div><div class="bar-container"><div class="bar-fill" style="width: ' + percent + '%;"></div></div></div>';
 }
 document.getElementById('operationsChart').innerHTML = chartHtml || '<p style="color:var(--text-muted); text-align:center;">Нет данных</p>';
 }
 let currentCalendarDate = new Date();
 function loadCalendarData() {
 try {
-const data = JSON.parse(localStorage.getItem('operator_calendar') || '{}');
-// Migration: ensure tasks array exists for all days
-for (const date in data) {
-if (!data[date].tasks) {
-data[date].tasks = [];
-}
-}
-return data;
+return JSON.parse(localStorage.getItem('operator_calendar') || '{}');
 } catch (e) { return {}; }
 }
 function saveCalendarData(data) {
@@ -1812,7 +1721,7 @@ const month = currentCalendarDate.getMonth();
 const data = loadCalendarData();
 const today = todayYMD();
 const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
-document.getElementById('calendarMonthYear').textContent = `${monthNames[month]} ${year}`;
+document.getElementById('calendarMonthYear').textContent = monthNames[month] + ' ' + year;
 const firstDay = new Date(year, month, 1).getDay();
 const daysInMonth = new Date(year, month + 1, 0).getDate();
 const grid = document.getElementById('calendarGrid');
@@ -1822,7 +1731,7 @@ const empty = document.createElement('div');
 grid.appendChild(empty);
 }
 for (let d = 1; d <= daysInMonth; d++) {
-const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+const dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
 const dayData = data[dateStr] || { hours: 0, isHoliday: false, tasks: [] };
 const dayOfWeek = new Date(year, month, d).getDay();
 const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
@@ -1833,32 +1742,22 @@ if (isToday) cell.classList.add('today');
 if (dayData.hours > 0) cell.classList.add('worked');
 if (isWeekend) cell.classList.add('weekend');
 if (dayData.isHoliday) cell.classList.add('holiday');
-
-// Task Indicator
 if (dayData.tasks && dayData.tasks.length > 0) {
 const indicator = document.createElement('div');
 indicator.className = 'task-indicator';
 cell.appendChild(indicator);
 }
-
-let html = `<div class="day-num">${d}</div>`;
+let html = '<div class="day-num">' + d + '</div>';
 if (dayData.hours > 0) {
-html += `<div class="day-hours">${dayData.hours} ч</div>`;
+html += '<div class="day-hours">' + dayData.hours + ' ч</div>';
 }
 if (dayData.isHoliday) {
-html += `<i class="fas fa-star holiday-icon"></i>`;
+html += '<i class="fas fa-star holiday-icon"></i>';
 }
-cell.innerHTML = html + cell.innerHTML; // Preserve indicator if added
-// Re-append indicator if innerHTML overwrite removed it (simplified logic above)
-// Better logic:
 cell.innerHTML = html;
-if (dayData.tasks && dayData.tasks.length > 0) {
-const indicator = document.createElement('div');
-indicator.className = 'task-indicator';
-cell.appendChild(indicator);
-}
-
-cell.onclick = () => openDayModal(dateStr, dayData);
+cell.onclick = (function(date) {
+return function() { openDayModal(date); };
+})(dateStr);
 grid.appendChild(cell);
 }
 }
@@ -1866,12 +1765,14 @@ function changeMonth(delta) {
 currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
 renderCalendar();
 }
-function openDayModal(dateStr, dayData) {
+function openDayModal(dateStr) {
+const data = loadCalendarData();
+const dayData = data[dateStr] || { hours: 0, isHoliday: false, tasks: [] };
 document.getElementById('editDayDate').value = dateStr;
 document.getElementById('displayDayDate').textContent = formatDateYMD(dateStr);
 document.getElementById('dayHours').value = dayData.hours || '';
 document.getElementById('dayHoliday').checked = dayData.isHoliday || false;
-renderTaskList(dateStr, dayData);
+renderTasks(dateStr, dayData.tasks || []);
 document.getElementById('dayModal').classList.add('active');
 }
 function closeDayModal() {
@@ -1882,59 +1783,50 @@ const dateStr = document.getElementById('editDayDate').value;
 const hours = parseFloat(document.getElementById('dayHours').value) || 0;
 const isHoliday = document.getElementById('dayHoliday').checked;
 const data = loadCalendarData();
-// Ensure tasks are preserved (they are saved individually, but we ensure structure)
-if (!data[dateStr]) data[dateStr] = { tasks: [] };
-data[dateStr].hours = hours;
-data[dateStr].isHoliday = isHoliday;
+const existingTasks = data[dateStr] ? data[dateStr].tasks || [] : [];
+data[dateStr] = { hours: hours, isHoliday: isHoliday, tasks: existingTasks };
 saveCalendarData(data);
 closeDayModal();
 renderCalendar();
 alert('✅ Данные дня сохранены!');
 }
-
-// === Task Functions ===
-function renderTaskList(dateStr, dayData) {
-const list = document.getElementById('dayTaskList');
-list.innerHTML = '';
-const tasks = dayData.tasks || [];
+function renderTasks(dateStr, tasks) {
+const taskList = document.getElementById('taskList');
+taskList.innerHTML = '';
 if (tasks.length === 0) {
-list.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:8px;">Нет задач</div>';
+taskList.innerHTML = '<li style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:8px;">Нет задач</li>';
 return;
 }
 tasks.forEach(task => {
-const item = document.createElement('div');
-item.className = `task-item ${task.completed ? 'completed' : ''}`;
-item.innerHTML = `
-<input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask('${dateStr}', ${task.id})">
-<span class="task-text">${escapeHtml(task.text)}</span>
-<button class="task-delete" onclick="deleteTask('${dateStr}', ${task.id})"><i class="fas fa-trash"></i></button>
-`;
-list.appendChild(item);
+const li = document.createElement('li');
+li.className = 'task-item' + (task.completed ? ' completed' : '');
+li.innerHTML = '<input type="checkbox" class="task-checkbox"' + (task.completed ? ' checked' : '') + ' onchange="toggleTask(\'' + dateStr + '\', ' + task.id + ')"><span class="task-text">' + escapeHtml(task.text) + '</span><button class="task-delete" onclick="deleteTask(\'' + dateStr + '\', ' + task.id + ')"><i class="fas fa-trash"></i></button>';
+taskList.appendChild(li);
 });
 }
-
 function addTask() {
-const dateStr = document.getElementById('editDayDate').value;
 const input = document.getElementById('newTaskInput');
 const text = input.value.trim();
 if (!text) return;
-
+const dateStr = document.getElementById('editDayDate').value;
 const data = loadCalendarData();
-if (!data[dateStr]) data[dateStr] = { hours: 0, isHoliday: false, tasks: [] };
-if (!data[dateStr].tasks) data[dateStr].tasks = [];
-
-data[dateStr].tasks.push({
+if (!data[dateStr]) {
+data[dateStr] = { hours: 0, isHoliday: false, tasks: [] };
+}
+if (!data[dateStr].tasks) {
+data[dateStr].tasks = [];
+}
+const newTask = {
 id: Date.now(),
 text: text,
 completed: false
-});
-
+};
+data[dateStr].tasks.push(newTask);
 saveCalendarData(data);
 input.value = '';
-renderTaskList(dateStr, data[dateStr]);
-renderCalendar(); // Update indicator
+renderTasks(dateStr, data[dateStr].tasks);
+renderCalendar();
 }
-
 function toggleTask(dateStr, taskId) {
 const data = loadCalendarData();
 if (!data[dateStr] || !data[dateStr].tasks) return;
@@ -1942,27 +1834,23 @@ const task = data[dateStr].tasks.find(t => t.id === taskId);
 if (task) {
 task.completed = !task.completed;
 saveCalendarData(data);
-renderTaskList(dateStr, data[dateStr]);
+renderTasks(dateStr, data[dateStr].tasks);
 }
 }
-
 function deleteTask(dateStr, taskId) {
 if (!confirm('Удалить задачу?')) return;
 const data = loadCalendarData();
 if (!data[dateStr] || !data[dateStr].tasks) return;
 data[dateStr].tasks = data[dateStr].tasks.filter(t => t.id !== taskId);
 saveCalendarData(data);
-renderTaskList(dateStr, data[dateStr]);
-renderCalendar(); // Update indicator
+renderTasks(dateStr, data[dateStr].tasks);
+renderCalendar();
 }
-
 function escapeHtml(text) {
 const div = document.createElement('div');
 div.textContent = text;
 return div.innerHTML;
 }
-// === End Task Functions ===
-
 document.querySelectorAll('.panel-item').forEach(item => {
 item.addEventListener('click', () => {
 document.querySelectorAll('.panel-item').forEach(i => i.classList.remove('active'));
