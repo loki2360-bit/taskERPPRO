@@ -370,16 +370,6 @@ right: 4px;
 font-size: 0.7rem;
 color: var(--accent-red);
 }
-.calendar-day .task-indicator {
-position: absolute;
-bottom: 4px;
-right: 4px;
-width: 6px;
-height: 6px;
-background: var(--accent-blue-dark);
-border-radius: 50%;
-}
-.calendar-day.worked .task-indicator { background: #F0F1F3; }
 .progress-title {
 margin: 16px 0 8px;
 color: var(--text-muted);
@@ -501,53 +491,11 @@ background: transparent;
 color: #F0F1F3;
 border: 1px solid #F0F1F3;
 }
-.task-list {
-list-style: none;
-margin: 12px 0;
-max-height: 200px;
-overflow-y: auto;
+/* Timer Styles */
+.timer-container {
+text-align: center;
+padding: 24px;
 }
-.task-item {
-display: flex;
-align-items: center;
-gap: 8px;
-padding: 8px;
-background: var(--bg);
-border-radius: 8px;
-margin-bottom: 6px;
-transition: all 0.2s;
-}
-.task-item:hover { background: var(--card); }
-.task-item.completed .task-text {
-text-decoration: line-through;
-opacity: 0.6;
-}
-.task-checkbox {
-width: 18px;
-height: 18px;
-accent-color: var(--accent-solid);
-cursor: pointer;
-}
-.task-text {
-flex: 1;
-font-size: 0.9rem;
-}
-.task-delete {
-background: none;
-border: none;
-color: var(--accent-red);
-cursor: pointer;
-padding: 4px;
-font-size: 0.9rem;
-}
-.task-delete:hover { opacity: 0.7; }
-.task-input-group {
-display: flex;
-gap: 8px;
-margin-top: 8px;
-}
-.task-input-group input { flex: 1; }
-.timer-container { text-align: center; padding: 24px; }
 .timer-display {
 font-size: 3.5rem;
 font-weight: 700;
@@ -779,6 +727,7 @@ padding: 0 8px;
 <div id="preordersListContainer" style="margin-top: 16px;"></div>
 </div>
 </div>
+<!-- TIMER SECTION -->
 <div id="timer" class="content-block">
 <div class="container">
 <h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-stopwatch"></i> Таймер работы</h2>
@@ -816,6 +765,7 @@ padding: 0 8px;
 </div>
 </div>
 </div>
+<!-- END TIMER SECTION -->
 <div id="calendar" class="content-block">
 <div class="container">
 <h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-calendar-alt"></i> Календарь</h2>
@@ -832,7 +782,6 @@ padding: 0 8px;
 <div style="display:flex; align-items:center; gap:6px;"><div style="width:12px; height:12px; border-radius:50%; background:var(--accent-solid);"></div> Отработано</div>
 <div style="display:flex; align-items:center; gap:6px;"><div style="width:12px; height:12px; border-radius:50%; border:2px solid var(--accent-red);"></div> Выходной/Праздник</div>
 <div style="display:flex; align-items:center; gap:6px;"><div style="width:12px; height:12px; border-radius:50%; border:2px solid var(--accent-solid);"></div> Сегодня</div>
-<div style="display:flex; align-items:center; gap:6px;"><div style="width:12px; height:12px; border-radius:50%; background:var(--accent-blue-dark);"></div> Есть задачи</div>
 </div>
 </div>
 </div>
@@ -997,20 +946,13 @@ padding: 0 8px;
 <input type="checkbox" id="dayHoliday">
 <label for="dayHoliday" style="margin:0; cursor:pointer;">Праздничный день</label>
 </div>
-<div class="modal-row">
-<label>Задачи на день</label>
-<ul class="task-list" id="taskList"></ul>
-<div class="task-input-group">
-<input type="text" id="newTaskInput" class="neu-input" placeholder="Новая задача..." onkeypress="if(event.key==='Enter')addTask()">
-<button class="neu-btn neu-btn-accent" onclick="addTask()"><i class="fas fa-plus"></i></button>
-</div>
-</div>
 <div class="modal-buttons">
 <button class="neu-btn" onclick="closeDayModal()">Отмена</button>
 <button class="neu-btn neu-btn-accent" onclick="saveDayData()">Сохранить</button>
 </div>
 </div>
 </div>
+<!-- TIMER ORDER MODAL -->
 <div id="timerOrderModal" class="modal">
 <div class="modal-content">
 <div class="modal-title">Создать заказ из таймера</div>
@@ -1042,6 +984,7 @@ padding: 0 8px;
 </div>
 </div>
 </div>
+<!-- END TIMER ORDER MODAL -->
 <script>
 // === PWA Service Worker ===
 if ('serviceWorker' in navigator) {
@@ -1076,7 +1019,7 @@ installPrompt.classList.remove('show');
 }
 // === ФЛАГ ЗВУКА ===
 var soundEnabled = true;
-// === Timer Variables ===
+// === TIMER VARIABLES ===
 var timerInterval = null;
 var timerSeconds = 0;
 var timerRunning = false;
@@ -1849,7 +1792,7 @@ grid.appendChild(empty);
 }
 for (var d = 1; d <= daysInMonth; d++) {
 var dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
-var dayData = data[dateStr] || { hours: 0, isHoliday: false, tasks: [] };
+var dayData = data[dateStr] || { hours: 0, isHoliday: false };
 var dayOfWeek = new Date(year, month, d).getDay();
 var isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
 var isToday = (dateStr === today);
@@ -1859,11 +1802,6 @@ if (isToday) cell.classList.add('today');
 if (dayData.hours > 0) cell.classList.add('worked');
 if (isWeekend) cell.classList.add('weekend');
 if (dayData.isHoliday) cell.classList.add('holiday');
-if (dayData.tasks && dayData.tasks.length > 0) {
-var indicator = document.createElement('div');
-indicator.className = 'task-indicator';
-cell.appendChild(indicator);
-}
 var html = '<div class="day-num">' + d + '</div>';
 if (dayData.hours > 0) {
 html += '<div class="day-hours">' + dayData.hours + ' ч</div>';
@@ -1884,12 +1822,11 @@ renderCalendar();
 }
 function openDayModal(dateStr) {
 var data = loadCalendarData();
-var dayData = data[dateStr] || { hours: 0, isHoliday: false, tasks: [] };
+var dayData = data[dateStr] || { hours: 0, isHoliday: false };
 document.getElementById('editDayDate').value = dateStr;
 document.getElementById('displayDayDate').textContent = formatDateYMD(dateStr);
 document.getElementById('dayHours').value = dayData.hours || '';
 document.getElementById('dayHoliday').checked = dayData.isHoliday || false;
-renderTasks(dateStr, dayData.tasks || []);
 document.getElementById('dayModal').classList.add('active');
 }
 function closeDayModal() {
@@ -1900,75 +1837,13 @@ var dateStr = document.getElementById('editDayDate').value;
 var hours = parseFloat(document.getElementById('dayHours').value) || 0;
 var isHoliday = document.getElementById('dayHoliday').checked;
 var data = loadCalendarData();
-var existingTasks = data[dateStr] ? data[dateStr].tasks || [] : [];
-data[dateStr] = { hours: hours, isHoliday: isHoliday, tasks: existingTasks };
+data[dateStr] = { hours: hours, isHoliday: isHoliday };
 saveCalendarData(data);
 closeDayModal();
 renderCalendar();
 alert('✅ Данные дня сохранены!');
 }
-function renderTasks(dateStr, tasks) {
-var taskList = document.getElementById('taskList');
-taskList.innerHTML = '';
-if (tasks.length === 0) {
-taskList.innerHTML = '<li style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:8px;">Нет задач</li>';
-return;
-}
-tasks.forEach(function(task) {
-var li = document.createElement('li');
-li.className = 'task-item' + (task.completed ? ' completed' : '');
-li.innerHTML = '<input type="checkbox" class="task-checkbox"' + (task.completed ? ' checked' : '') + ' onchange="toggleTask(\'' + dateStr + '\', ' + task.id + ')"><span class="task-text">' + escapeHtml(task.text) + '</span><button class="task-delete" onclick="deleteTask(\'' + dateStr + '\', ' + task.id + ')"><i class="fas fa-trash"></i></button>';
-taskList.appendChild(li);
-});
-}
-function addTask() {
-var input = document.getElementById('newTaskInput');
-var text = input.value.trim();
-if (!text) return;
-var dateStr = document.getElementById('editDayDate').value;
-var data = loadCalendarData();
-if (!data[dateStr]) {
-data[dateStr] = { hours: 0, isHoliday: false, tasks: [] };
-}
-if (!data[dateStr].tasks) {
-data[dateStr].tasks = [];
-}
-var newTask = {
-id: Date.now(),
-text: text,
-completed: false
-};
-data[dateStr].tasks.push(newTask);
-saveCalendarData(data);
-input.value = '';
-renderTasks(dateStr, data[dateStr].tasks);
-renderCalendar();
-}
-function toggleTask(dateStr, taskId) {
-var data = loadCalendarData();
-if (!data[dateStr] || !data[dateStr].tasks) return;
-var task = data[dateStr].tasks.find(function(t) { return t.id === taskId; });
-if (task) {
-task.completed = !task.completed;
-saveCalendarData(data);
-renderTasks(dateStr, data[dateStr].tasks);
-}
-}
-function deleteTask(dateStr, taskId) {
-if (!confirm('Удалить задачу?')) return;
-var data = loadCalendarData();
-if (!data[dateStr] || !data[dateStr].tasks) return;
-data[dateStr].tasks = data[dateStr].tasks.filter(function(t) { return t.id !== taskId; });
-saveCalendarData(data);
-renderTasks(dateStr, data[dateStr].tasks);
-renderCalendar();
-}
-function escapeHtml(text) {
-var div = document.createElement('div');
-div.textContent = text;
-return div.innerHTML;
-}
-// === Timer Functions ===
+// === TIMER FUNCTIONS ===
 function formatTime(seconds) {
 var h = Math.floor(seconds / 3600);
 var m = Math.floor((seconds % 3600) / 60);
@@ -2116,7 +1991,7 @@ updateTimerDisplay();
 playSuccessSound();
 alert('✅ Заказ создан!\nСумма: ' + amount.toFixed(2) + ' ₽');
 }
-// === End Timer Functions ===
+// === END TIMER FUNCTIONS ===
 document.querySelectorAll('.panel-item').forEach(function(item) {
 item.addEventListener('click', function() {
 document.querySelectorAll('.panel-item').forEach(function(i) { i.classList.remove('active'); });
