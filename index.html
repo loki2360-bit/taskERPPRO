@@ -573,6 +573,66 @@ margin-top: 8px;
 .task-input-group input {
 flex: 1;
 }
+/* Timer Styles */
+.timer-container {
+text-align: center;
+padding: 24px;
+}
+.timer-display {
+font-size: 3.5rem;
+font-weight: 700;
+color: var(--accent-solid);
+margin: 24px 0;
+font-family: 'Courier New', monospace;
+letter-spacing: 2px;
+}
+.timer-display.running {
+color: var(--accent-green);
+animation: pulse 1s ease-in-out infinite;
+}
+.timer-display.paused {
+color: var(--accent-red);
+}
+.timer-controls {
+display: flex;
+gap: 12px;
+justify-content: center;
+flex-wrap: wrap;
+}
+.timer-info {
+margin-top: 24px;
+padding: 16px;
+background: var(--card);
+border-radius: 12px;
+box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+}
+.timer-info-row {
+display: flex;
+justify-content: space-between;
+margin: 8px 0;
+font-size: 0.95rem;
+}
+.timer-info-label {
+color: var(--text-muted);
+}
+.timer-info-value {
+font-weight: 600;
+color: var(--accent-solid);
+}
+.wake-lock-status {
+display: flex;
+align-items: center;
+gap: 8px;
+margin-top: 16px;
+font-size: 0.85rem;
+color: var(--text-muted);
+}
+.wake-lock-status i {
+font-size: 0.9rem;
+}
+.wake-lock-status.active {
+color: var(--accent-green);
+}
 @media (max-width: 480px) {
 .glass-panel {
 bottom: 16px;
@@ -583,6 +643,7 @@ padding: 0 8px;
 .panel-item { font-size: 0.68rem; gap: 1px; }
 .panel-item i { font-size: 1.15rem; }
 .search-input { font-size: 0.9rem; padding: 7px 10px 7px 32px; }
+.timer-display { font-size: 2.5rem; }
 }
 </style>
 </head>
@@ -756,6 +817,43 @@ padding: 0 8px;
 <div id="preordersListContainer" style="margin-top: 16px;"></div>
 </div>
 </div>
+<div id="timer" class="content-block">
+<div class="container">
+<h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-stopwatch"></i> Таймер работы</h2>
+<div class="timer-container">
+<div class="timer-display" id="timerDisplay">00:00:00</div>
+<div class="timer-controls">
+<button class="neu-btn neu-btn-accent" id="timerStartBtn" onclick="startTimer()">
+<i class="fas fa-play"></i> Старт
+</button>
+<button class="neu-btn" id="timerPauseBtn" onclick="pauseTimer()" disabled>
+<i class="fas fa-pause"></i> Пауза
+</button>
+<button class="neu-btn" id="timerStopBtn" onclick="stopTimer()" disabled>
+<i class="fas fa-stop"></i> Стоп
+</button>
+</div>
+<div class="wake-lock-status" id="wakeLockStatus">
+<i class="fas fa-info-circle"></i>
+<span>Wake Lock не активен</span>
+</div>
+<div class="timer-info">
+<div class="timer-info-row">
+<span class="timer-info-label">Тариф:</span>
+<span class="timer-info-value">Время — 330 ₽/ч</span>
+</div>
+<div class="timer-info-row">
+<span class="timer-info-label">Прошло часов:</span>
+<span class="timer-info-value" id="timerHours">0.0</span>
+</div>
+<div class="timer-info-row">
+<span class="timer-info-label">Заработано:</span>
+<span class="timer-info-value" id="timerEarned">0.00 ₽</span>
+</div>
+</div>
+</div>
+</div>
+</div>
 <div id="calendar" class="content-block">
 <div class="container">
 <h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-calendar-alt"></i> Календарь</h2>
@@ -773,6 +871,7 @@ padding: 0 8px;
 <div style="display:flex; align-items:center; gap:6px;"><div style="width:12px; height:12px; border-radius:50%; border:2px solid var(--accent-red);"></div> Выходной/Праздник</div>
 <div style="display:flex; align-items:center; gap:6px;"><div style="width:12px; height:12px; border-radius:50%; border:2px solid var(--accent-solid);"></div> Сегодня</div>
 <div style="display:flex; align-items:center; gap:6px;"><div style="width:12px; height:12px; border-radius:50%; background:var(--accent-blue-dark);"></div> Есть задачи</div>
+</div>
 </div>
 </div>
 </div>
@@ -829,10 +928,13 @@ padding: 0 8px;
 <i class="fas fa-clock"></i>
 <span>Предзаказы</span>
 </div>
+<div class="panel-item" data-target="timer">
+<i class="fas fa-stopwatch"></i>
+<span>Таймер</span>
+</div>
 <div class="panel-item" data-target="calendar">
 <i class="fas fa-calendar-alt"></i>
 <span>Календарь</span>
-<div class="new-badge">NEW</div>
 </div>
 <div class="panel-item" data-target="stats">
 <i class="fas fa-chart-bar"></i>
@@ -947,6 +1049,37 @@ padding: 0 8px;
 </div>
 </div>
 </div>
+<div id="timerOrderModal" class="modal">
+<div class="modal-content">
+<div class="modal-title">Создать заказ из таймера</div>
+<div class="modal-row">
+<label>№ заказа *</label>
+<input type="text" id="timerOrderNum" class="neu-input" placeholder="ORD-001">
+</div>
+<div class="modal-row">
+<label>Деталь</label>
+<input type="text" id="timerDetail" class="neu-input" placeholder="Работа по времени">
+</div>
+<div class="modal-row">
+<label>Кол-во</label>
+<input type="number" id="timerQty" value="1" min="1" class="neu-input">
+</div>
+<div class="modal-row">
+<label>Часы (из таймера)</label>
+<input type="number" step="0.1" id="timerHoursInput" class="neu-input" readonly>
+</div>
+<div class="modal-row">
+<label>Сумма</label>
+<div id="timerOrderAmount" style="font-weight:600; color:var(--accent-solid); font-size:1.1rem;">0.00 ₽</div>
+</div>
+<div class="modal-buttons">
+<button class="neu-btn" onclick="closeTimerOrderModal()">Отмена</button>
+<button class="neu-btn neu-btn-accent" onclick="createTimerOrder()">
+<i class="fas fa-check"></i> Создать заказ
+</button>
+</div>
+</div>
+</div>
 <script>
 // === PWA Service Worker ===
 if ('serviceWorker' in navigator) {
@@ -981,6 +1114,12 @@ installPrompt.classList.remove('show');
 }
 // === ФЛАГ ЗВУКА ===
 let soundEnabled = true;
+// === Timer Variables ===
+let timerInterval = null;
+let timerSeconds = 0;
+let timerRunning = false;
+let timerPaused = false;
+let wakeLock = null;
 // === Константы ===
 const TARIFFS = {
 RASPIL_M2: { price: 65, unit: 'm2' },
@@ -1867,6 +2006,154 @@ const div = document.createElement('div');
 div.textContent = text;
 return div.innerHTML;
 }
+// === Timer Functions ===
+function formatTime(seconds) {
+const h = Math.floor(seconds / 3600);
+const m = Math.floor((seconds % 3600) / 60);
+const s = seconds % 60;
+return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+}
+function updateTimerDisplay() {
+const display = document.getElementById('timerDisplay');
+display.textContent = formatTime(timerSeconds);
+const hours = timerSeconds / 3600;
+document.getElementById('timerHours').textContent = hours.toFixed(1);
+const earned = calculateAmount('TIME', 0, 0, hours, 1);
+document.getElementById('timerEarned').textContent = earned.toFixed(2) + ' ₽';
+}
+async function requestWakeLock() {
+try {
+if ('wakeLock' in navigator) {
+wakeLock = await navigator.wakeLock.request('screen');
+updateWakeLockStatus(true);
+wakeLock.addEventListener('release', () => {
+updateWakeLockStatus(false);
+});
+}
+} catch (err) {
+console.warn('Wake Lock не поддерживается:', err);
+updateWakeLockStatus(false);
+}
+}
+function updateWakeLockStatus(active) {
+const status = document.getElementById('wakeLockStatus');
+if (active) {
+status.classList.add('active');
+status.innerHTML = '<i class="fas fa-check-circle"></i><span>Экран не будет гаснуть</span>';
+} else {
+status.classList.remove('active');
+status.innerHTML = '<i class="fas fa-info-circle"></i><span>Wake Lock не активен</span>';
+}
+}
+function releaseWakeLock() {
+if (wakeLock !== null) {
+wakeLock.release();
+wakeLock = null;
+updateWakeLockStatus(false);
+}
+}
+function startTimer() {
+if (timerRunning) return;
+const shift = getCurrentShift();
+if (!shift || !shift.active) {
+alert('⚠️ Начните смену, чтобы запустить таймер!');
+return;
+}
+timerRunning = true;
+timerPaused = false;
+document.getElementById('timerStartBtn').disabled = true;
+document.getElementById('timerPauseBtn').disabled = false;
+document.getElementById('timerStopBtn').disabled = false;
+document.getElementById('timerDisplay').classList.add('running');
+document.getElementById('timerDisplay').classList.remove('paused');
+requestWakeLock();
+timerInterval = setInterval(function() {
+timerSeconds++;
+updateTimerDisplay();
+}, 1000);
+}
+function pauseTimer() {
+if (!timerRunning || timerPaused) return;
+timerPaused = true;
+clearInterval(timerInterval);
+document.getElementById('timerPauseBtn').innerHTML = '<i class="fas fa-play"></i> Продолжить';
+document.getElementById('timerDisplay').classList.remove('running');
+document.getElementById('timerDisplay').classList.add('paused');
+releaseWakeLock();
+}
+function resumeTimer() {
+if (!timerRunning || !timerPaused) return;
+timerPaused = false;
+document.getElementById('timerPauseBtn').innerHTML = '<i class="fas fa-pause"></i> Пауза';
+document.getElementById('timerDisplay').classList.add('running');
+document.getElementById('timerDisplay').classList.remove('paused');
+requestWakeLock();
+timerInterval = setInterval(function() {
+timerSeconds++;
+updateTimerDisplay();
+}, 1000);
+}
+function stopTimer() {
+if (!timerRunning) return;
+clearInterval(timerInterval);
+timerRunning = false;
+timerPaused = false;
+document.getElementById('timerStartBtn').disabled = false;
+document.getElementById('timerPauseBtn').disabled = true;
+document.getElementById('timerPauseBtn').innerHTML = '<i class="fas fa-pause"></i> Пауза';
+document.getElementById('timerStopBtn').disabled = true;
+document.getElementById('timerDisplay').classList.remove('running', 'paused');
+releaseWakeLock();
+openTimerOrderModal();
+}
+function openTimerOrderModal() {
+const hours = timerSeconds / 3600;
+document.getElementById('timerHoursInput').value = hours.toFixed(1);
+const amount = calculateAmount('TIME', 0, 0, hours, 1);
+document.getElementById('timerOrderAmount').textContent = amount.toFixed(2) + ' ₽';
+document.getElementById('timerOrderModal').classList.add('active');
+}
+function closeTimerOrderModal() {
+document.getElementById('timerOrderModal').classList.remove('active');
+}
+function createTimerOrder() {
+const num = document.getElementById('timerOrderNum').value.trim();
+if (!num) { alert('Укажите № заказа'); return; }
+const detail = document.getElementById('timerDetail').value.trim() || 'Работа по времени';
+const qty = parseInt(document.getElementById('timerQty').value) || 1;
+const hours = parseFloat(document.getElementById('timerHoursInput').value) || 0;
+const amount = calculateAmount('TIME', 0, 0, hours, qty);
+const shift = getCurrentShift();
+if (!shift || !shift.active) {
+alert('⚠️ Начните смену, чтобы создавать заказы!');
+return;
+}
+const order = {
+id: Date.now(),
+orderNumber: num,
+tariff: 'TIME',
+detail: detail,
+qty: qty,
+length: null,
+width: null,
+hours: hours,
+amount: amount,
+date: todayYMD(),
+shiftId: shift.id,
+timestamp: new Date().toISOString()
+};
+const orders = loadOrders();
+orders.push(order);
+saveOrders(orders);
+updateUI();
+closeTimerOrderModal();
+// Reset timer
+timerSeconds = 0;
+updateTimerDisplay();
+playSuccessSound();
+alert('✅ Заказ создан!\nСумма: ' + amount.toFixed(2) + ' ₽');
+}
+// === End Timer Functions ===
 document.querySelectorAll('.panel-item').forEach(function(item) {
 item.addEventListener('click', function() {
 document.querySelectorAll('.panel-item').forEach(function(i) { i.classList.remove('active'); });
@@ -1878,6 +2165,9 @@ if (target === 'stats') renderStats();
 else if (target === 'main') updateUI();
 else if (target === 'calendar') renderCalendar();
 else if (target === 'preorders') renderPreorders();
+else if (target === 'timer') {
+updateTimerDisplay();
+}
 });
 });
 function loadAvatar() {
@@ -1913,6 +2203,14 @@ loadAvatar();
 };
 reader.readAsDataURL(file);
 });
+// Handle pause/resume button toggle
+document.getElementById('timerPauseBtn').addEventListener('click', function() {
+if (timerPaused) {
+resumeTimer();
+} else {
+pauseTimer();
+}
+});
 document.addEventListener('DOMContentLoaded', function() {
 document.getElementById('viewDate').value = todayYMD();
 ['tariff','preTariff','editTariff'].forEach(function(id) {
@@ -1927,6 +2225,13 @@ updateUI();
 renderPreorders();
 loadAvatar();
 renderCalendar();
+updateTimerDisplay();
+// Request wake lock on page visibility change
+document.addEventListener('visibilitychange', function() {
+if (document.visibilityState === 'visible' && timerRunning && !timerPaused) {
+requestWakeLock();
+}
+});
 });
 </script>
 </body>
