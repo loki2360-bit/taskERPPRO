@@ -2,18 +2,16 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Кабинет оператора</title>
-
 <!-- PWA Meta Tags -->
 <meta name="theme-color" content="#3B4256">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Оператор">
-<meta name="description" content="Система учёта заказов">
-<!-- Манифест встроен через Data URI, чтобы избежать 404 -->
-<link rel="manifest" id="manifest-placeholder">
-
+<meta name="apple-mobile-web-app-title" content="Кабинет оператора">
+<meta name="description" content="Система учёта заказов для оператора">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
 :root {
@@ -31,89 +29,572 @@
 --shadow-light: #FFFFFF;
 --shadow-dark: #9CA1B4;
 }
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
-body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh; line-height: 1.4; overflow-x: hidden; }
-.header-bar { position: fixed; top: 0; left: 0; width: 100%; background: var(--card); padding: 12px 16px; display: flex; align-items: center; gap: 12px; z-index: 200; box-shadow: 0 4px 12px rgba(59, 66, 86, 0.15); }
-.avatar-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--accent-solid); display: flex; align-items: center; justify-content: center; color: #F0F1F3; font-weight: bold; font-size: 18px; cursor: pointer; overflow: hidden; position: relative; }
-.avatar-btn img { width: 100%; height: 100%; object-fit: cover; }
-.avatar-btn i { pointer-events: none; }
-.search-container { flex: 1; position: relative; }
-.search-input { width: 100%; padding: 8px 12px 8px 36px; background: var(--bg); border: 1px solid var(--border); border-radius: 20px; color: var(--text); font-size: 0.95rem; }
-.search-input::placeholder { color: var(--text-muted); }
-.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
-.main-content { padding: 72px 16px 80px; max-width: 768px; margin: 0 auto; }
-.glass-panel { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; justify-content: space-around; height: 48px; width: calc(100% - 40px); max-width: 500px; border-radius: 30px; padding: 0 10px; background: rgba(205, 208, 217, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 6px 24px rgba(59, 66, 86, 0.15); border: 1px solid var(--border); z-index: 200; }
-.panel-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--text-muted); font-size: 0.72rem; text-align: center; cursor: pointer; padding: 4px 2px; user-select: none; position: relative; }
-.panel-item i { font-size: 1.2rem; }
-.panel-item.active { color: var(--accent-solid); }
-.new-badge { position: absolute; top: -2px; right: -4px; background: linear-gradient(135deg, #DC2626, #EF4444); color: white; font-size: 0.6rem; font-weight: bold; padding: 2px 5px; border-radius: 8px; animation: pulse 1.5s ease-in-out infinite; box-shadow: 0 2px 6px rgba(220, 38, 38, 0.4); }
-@keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: 0.85; } }
-.neu-btn { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; font-weight: 600; color: var(--text); cursor: pointer; box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light); transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
-.neu-btn:active { box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light); }
-.neu-btn-accent { background: var(--accent-solid); color: #F0F1F3; border-color: var(--accent-solid); box-shadow: 4px 4px 8px rgba(59, 66, 86, 0.3), -2px -2px 6px rgba(255, 255, 255, 0.5); }
-.neu-btn-accent:hover { background: var(--accent-blue-dark); border-color: var(--accent-blue-dark); }
-.neu-input, .neu-select { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; color: var(--text); box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light); width: 100%; }
-.progress-container { height: 24px; background: var(--card); border-radius: 12px; overflow: hidden; margin: 12px 0; box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light); border: 1px solid var(--border); position: relative; }
-.progress-fill { height: 100%; border-radius: 12px; background: var(--accent-solid); width: 0; transition: width 1.2s cubic-bezier(0.22, 0.61, 0.36, 1); position: relative; }
-.bar-container { height: 28px; background: var(--card); border-radius: 14px; overflow: hidden; box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light); border: 1px solid var(--border); }
-.bar-fill { height: 100%; background: var(--accent-solid); border-radius: 14px; width: 0; transition: width 1.4s cubic-bezier(0.22, 0.61, 0.36, 1); }
-.status-bar { display: flex; align-items: center; gap: 6px; padding: 8px 0; margin: 8px 0; }
-.step { width: 10px; height: 10px; border-radius: 50%; background: var(--border); box-shadow: 0 0 0 1px rgba(59, 66, 86, 0.1); }
-.step.active { background: var(--accent-solid); box-shadow: 0 0 8px rgba(59, 66, 86, 0.4); }
-.step.current { background: var(--accent-blue-dark); box-shadow: 0 0 0 2px rgba(59, 66, 86, 0.3); }
-.step.completed { background: var(--accent-green); box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.4); }
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+body {
+background: var(--bg);
+color: var(--text);
+padding: 0;
+min-height: 100vh;
+line-height: 1.4;
+}
+.header-bar {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+background: var(--card);
+padding: 12px 16px;
+display: flex;
+align-items: center;
+gap: 12px;
+z-index: 200;
+box-shadow: 0 4px 12px rgba(59, 66, 86, 0.15);
+}
+.avatar-btn {
+width: 40px;
+height: 40px;
+border-radius: 50%;
+background: var(--accent-solid);
+display: flex;
+align-items: center;
+justify-content: center;
+color: #F0F1F3;
+font-weight: bold;
+font-size: 18px;
+cursor: pointer;
+overflow: hidden;
+position: relative;
+}
+.avatar-btn img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+.avatar-btn i {
+pointer-events: none;
+}
+.search-container {
+flex: 1;
+position: relative;
+}
+.search-input {
+width: 100%;
+padding: 8px 12px 8px 36px;
+background: var(--bg);
+border: 1px solid var(--border);
+border-radius: 20px;
+color: var(--text);
+font-size: 0.95rem;
+}
+.search-input::placeholder {
+color: var(--text-muted);
+}
+.search-icon {
+position: absolute;
+left: 12px;
+top: 50%;
+transform: translateY(-50%);
+color: var(--text-muted);
+pointer-events: none;
+}
+.main-content {
+padding: 72px 16px 70px;
+max-width: 768px;
+margin: 0 auto;
+}
+.glass-panel {
+position: fixed;
+bottom: 20px;
+left: 50%;
+transform: translateX(-50%);
+display: flex;
+align-items: center;
+justify-content: space-around;
+height: 48px;
+width: calc(100% - 40px);
+max-width: 500px;
+border-radius: 30px;
+padding: 0 10px;
+background: rgba(205, 208, 217, 0.85);
+backdrop-filter: blur(20px);
+-webkit-backdrop-filter: blur(20px);
+box-shadow: 0 6px 24px rgba(59, 66, 86, 0.15);
+border: 1px solid var(--border);
+z-index: 200;
+}
+.panel-item {
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+gap: 2px;
+color: var(--text-muted);
+font-size: 0.72rem;
+text-align: center;
+cursor: pointer;
+padding: 4px 2px;
+user-select: none;
+position: relative;
+}
+.panel-item i {
+font-size: 1.2rem;
+}
+.panel-item.active {
+color: var(--accent-solid);
+}
+.new-badge {
+position: absolute;
+top: -2px;
+right: -4px;
+background: linear-gradient(135deg, #DC2626, #EF4444);
+color: white;
+font-size: 0.6rem;
+font-weight: bold;
+padding: 2px 5px;
+border-radius: 8px;
+animation: pulse 1.5s ease-in-out infinite;
+box-shadow: 0 2px 6px rgba(220, 38, 38, 0.4);
+}
+@keyframes pulse {
+0%, 100% { transform: scale(1); opacity: 1; }
+50% { transform: scale(1.15); opacity: 0.85; }
+}
+.neu-btn {
+background: var(--card);
+border: 1px solid var(--border);
+border-radius: 12px;
+padding: 12px 16px;
+font-weight: 600;
+color: var(--text);
+cursor: pointer;
+box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+transition: all 0.2s;
+display: inline-flex;
+align-items: center;
+gap: 8px;
+}
+.neu-btn:active {
+box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+}
+.neu-btn-accent {
+background: var(--accent-solid);
+color: #F0F1F3;
+border-color: var(--accent-solid);
+box-shadow: 4px 4px 8px rgba(59, 66, 86, 0.3), -2px -2px 6px rgba(255, 255, 255, 0.5);
+}
+.neu-btn-accent:hover {
+background: var(--accent-blue-dark);
+border-color: var(--accent-blue-dark);
+}
+.neu-input,
+.neu-select {
+background: var(--card);
+border: 1px solid var(--border);
+border-radius: 10px;
+padding: 10px 14px;
+color: var(--text);
+box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+width: 100%;
+}
+.progress-container {
+height: 24px;
+background: var(--card);
+border-radius: 12px;
+overflow: hidden;
+margin: 12px 0;
+box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+border: 1px solid var(--border);
+position: relative;
+}
+.progress-fill {
+height: 100%;
+border-radius: 12px;
+background: var(--accent-solid);
+width: 0;
+transition: width 1.2s cubic-bezier(0.22, 0.61, 0.36, 1);
+position: relative;
+}
+.bar-container {
+height: 28px;
+background: var(--card);
+border-radius: 14px;
+overflow: hidden;
+box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+border: 1px solid var(--border);
+}
+.bar-fill {
+height: 100%;
+background: var(--accent-solid);
+border-radius: 14px;
+width: 0;
+transition: width 1.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.status-bar {
+display: flex;
+align-items: center;
+gap: 6px;
+padding: 8px 0;
+margin: 8px 0;
+}
+.step {
+width: 10px;
+height: 10px;
+border-radius: 50%;
+background: var(--border);
+box-shadow: 0 0 0 1px rgba(59, 66, 86, 0.1);
+}
+.step.active {
+background: var(--accent-solid);
+box-shadow: 0 0 8px rgba(59, 66, 86, 0.4);
+}
+.step.current {
+background: var(--accent-blue-dark);
+box-shadow: 0 0 0 2px rgba(59, 66, 86, 0.3);
+}
+.step.completed {
+background: var(--accent-green);
+box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.4);
+}
 .content-block { display: none; }
 .content-block.active { display: block; animation: fadeIn 0.5s ease-out; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn {
+from { opacity: 0; transform: translateY(10px); }
+to { opacity: 1; transform: translateY(0); }
+}
 .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(59, 66, 86, 0.7); z-index:1000; justify-content:center; align-items:center; }
 .modal.active { display: flex; }
-.modal-content { background: var(--card); padding: 24px; border-radius: 12px; max-width: 400px; width: 90%; box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light); border: 1px solid var(--border); }
-.modal-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 16px; color: var(--accent-solid); }
+.modal-content {
+background: var(--card);
+padding: 24px;
+border-radius: 12px;
+max-width: 400px;
+width: 90%;
+box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+border: 1px solid var(--border);
+}
+.modal-title {
+font-size: 1.2rem;
+font-weight: 600;
+margin-bottom: 16px;
+color: var(--accent-solid);
+}
 .orders-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
 .orders-table th, .orders-table td { padding: 12px 8px; text-align: left; border-bottom: 1px solid var(--border); }
-.orders-table th { color: var(--accent-solid); font-weight: 600; }
-.orders-table .amount { color: var(--accent-solid); font-weight: 600; }
+.orders-table th {
+color: var(--accent-solid);
+font-weight: 600;
+}
+.orders-table .amount {
+color: var(--accent-solid);
+font-weight: 600;
+}
 .empty-msg { text-align: center; color: var(--text-muted); padding: 20px; font-style: italic; }
-.action-btn { width: 32px; height: 32px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light); }
-.action-btn:hover { background: var(--accent-solid); color: #F0F1F3; border-color: var(--accent-solid); }
+.action-btn {
+width: 32px;
+height: 32px;
+border: 1px solid var(--border);
+border-radius: 6px;
+background: var(--card);
+color: var(--text);
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light);
+}
+.action-btn:hover {
+background: var(--accent-solid);
+color: #F0F1F3;
+border-color: var(--accent-solid);
+}
 .hidden { display: none !important; }
-.calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.calendar-nav-btn { background: var(--card); border: 1px solid var(--border); color: var(--text); width: 36px; height: 36px; border-radius: 50%; cursor: pointer; box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light); }
-.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
-.calendar-day { aspect-ratio: 1; background: var(--card); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; position: relative; box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light); transition: all 0.2s; border: 1px solid var(--border); }
-.calendar-day:hover { transform: translateY(-2px); }
-.calendar-day.today { border-color: var(--accent-solid); border-width: 2px; box-shadow: 0 0 10px rgba(59, 66, 86, 0.3); }
-.calendar-day.worked { background: var(--accent-solid); color: #F0F1F3; }
-.calendar-day.weekend { opacity: 0.7; border-color: var(--accent-red); }
-.calendar-day.holiday { border-color: var(--accent-red); border-width: 2px; box-shadow: 0 0 8px rgba(220, 38, 38, 0.4); }
-.calendar-day .day-num { font-size: 0.9rem; font-weight: 600; }
-.calendar-day .day-hours { font-size: 0.7rem; opacity: 0.9; }
-.calendar-day .holiday-icon { position: absolute; top: 4px; right: 4px; font-size: 0.7rem; color: var(--accent-red); }
-.progress-title { margin: 16px 0 8px; color: var(--text-muted); font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
-.progress-title i { color: var(--accent-solid); }
-.progress-label { display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--text-muted); }
-.modal-row { margin-bottom: 12px; }
-.modal-row label { display: block; margin-bottom: 6px; color: var(--text-muted); font-size: 0.9rem; }
-.modal-buttons { display: flex; gap: 12px; margin-top: 20px; justify-content: flex-end; }
-.checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
-.checkbox-row input { width: 18px; height: 18px; accent-color: var(--accent-solid); }
-.toast-container { position: fixed; top: 80px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
-.toast { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light); animation: slideIn 0.3s ease-out; pointer-events: auto; min-width: 250px; border-left: 4px solid transparent; }
+.calendar-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 16px;
+}
+.calendar-nav-btn {
+background: var(--card);
+border: 1px solid var(--border);
+color: var(--text);
+width: 36px;
+height: 36px;
+border-radius: 50%;
+cursor: pointer;
+box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light);
+}
+.calendar-grid {
+display: grid;
+grid-template-columns: repeat(7, 1fr);
+gap: 8px;
+}
+.calendar-day {
+aspect-ratio: 1;
+background: var(--card);
+border-radius: 8px;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+position: relative;
+box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light);
+transition: all 0.2s;
+border: 1px solid var(--border);
+}
+.calendar-day:hover {
+transform: translateY(-2px);
+}
+.calendar-day.today {
+border-color: var(--accent-solid);
+border-width: 2px;
+box-shadow: 0 0 10px rgba(59, 66, 86, 0.3);
+}
+.calendar-day.worked {
+background: var(--accent-solid);
+color: #F0F1F3;
+}
+.calendar-day.weekend {
+opacity: 0.7;
+border-color: var(--accent-red);
+}
+.calendar-day.holiday {
+border-color: var(--accent-red);
+border-width: 2px;
+box-shadow: 0 0 8px rgba(220, 38, 38, 0.4);
+}
+.calendar-day .day-num {
+font-size: 0.9rem;
+font-weight: 600;
+}
+.calendar-day .day-hours {
+font-size: 0.7rem;
+opacity: 0.9;
+}
+.calendar-day .holiday-icon {
+position: absolute;
+top: 4px;
+right: 4px;
+font-size: 0.7rem;
+color: var(--accent-red);
+}
+/* Task Indicator on Calendar */
+.calendar-day .task-indicator {
+position: absolute;
+bottom: 4px;
+right: 4px;
+width: 6px;
+height: 6px;
+background: var(--accent-blue-dark);
+border-radius: 50%;
+box-shadow: 0 0 4px rgba(59, 66, 86, 0.5);
+}
+.calendar-day.worked .task-indicator {
+background: #F0F1F3;
+}
+
+.progress-title {
+margin: 16px 0 8px;
+color: var(--text-muted);
+font-size: 0.9rem;
+display: flex;
+align-items: center;
+gap: 8px;
+}
+.progress-title i {
+color: var(--accent-solid);
+}
+.progress-label {
+display: flex;
+justify-content: space-between;
+font-size: 0.9rem;
+color: var(--text-muted);
+}
+.modal-row {
+margin-bottom: 12px;
+}
+.modal-row label {
+display: block;
+margin-bottom: 6px;
+color: var(--text-muted);
+font-size: 0.9rem;
+}
+.modal-buttons {
+display: flex;
+gap: 12px;
+margin-top: 20px;
+justify-content: flex-end;
+}
+.checkbox-row {
+display: flex;
+align-items: center;
+gap: 8px;
+margin-bottom: 12px;
+}
+.checkbox-row input {
+width: 18px;
+height: 18px;
+accent-color: var(--accent-solid);
+}
+.toast-container {
+position: fixed;
+top: 80px;
+right: 20px;
+z-index: 1000;
+display: flex;
+flex-direction: column;
+gap: 10px;
+pointer-events: none;
+}
+.toast {
+background: var(--card);
+border: 1px solid var(--border);
+border-radius: 12px;
+padding: 12px 16px;
+display: flex;
+align-items: center;
+gap: 12px;
+box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+animation: slideIn 0.3s ease-out;
+pointer-events: auto;
+min-width: 250px;
+border-left: 4px solid transparent;
+}
 .toast-icon { font-size: 1.5rem; }
 .toast-content { display: flex; flex-direction: column; }
 .toast-title { font-weight: 600; font-size: 0.9rem; }
 .toast-msg { font-size: 0.8rem; color: var(--text-muted); }
-@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-@keyframes fadeOut { to { opacity: 0; transform: translateX(100%); } }
-.install-prompt { display: none; position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--accent-solid); color: #F0F1F3; padding: 16px 24px; border-radius: 12px; box-shadow: 0 8px 24px rgba(59, 66, 86, 0.4); z-index: 1000; text-align: center; max-width: 90%; width: 400px; }
-.install-prompt.show { display: block; animation: slideUp 0.3s ease-out; }
-@keyframes slideUp { from { transform: translate(-50%, 100px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
-.install-prompt-buttons { display: flex; gap: 12px; justify-content: center; margin-top: 12px; }
-.install-prompt button { padding: 8px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
-.install-prompt .install-btn { background: #F0F1F3; color: var(--accent-solid); }
-.install-prompt .later-btn { background: transparent; color: #F0F1F3; border: 1px solid #F0F1F3; }
+@keyframes slideIn {
+from { transform: translateX(100%); opacity: 0; }
+to { transform: translateX(0); opacity: 1; }
+}
+@keyframes fadeOut {
+to { opacity: 0; transform: translateX(100%); }
+}
+.install-prompt {
+display: none;
+position: fixed;
+bottom: 80px;
+left: 50%;
+transform: translateX(-50%);
+background: var(--accent-solid);
+color: #F0F1F3;
+padding: 16px 24px;
+border-radius: 12px;
+box-shadow: 0 8px 24px rgba(59, 66, 86, 0.4);
+z-index: 1000;
+text-align: center;
+max-width: 90%;
+width: 400px;
+}
+.install-prompt.show {
+display: block;
+animation: slideUp 0.3s ease-out;
+}
+@keyframes slideUp {
+from { transform: translate(-50%, 100px); opacity: 0; }
+to { transform: translate(-50%, 0); opacity: 1; }
+}
+.install-prompt-buttons {
+display: flex;
+gap: 12px;
+justify-content: center;
+margin-top: 12px;
+}
+.install-prompt button {
+padding: 8px 20px;
+border: none;
+border-radius: 8px;
+cursor: pointer;
+font-weight: 600;
+font-size: 0.9rem;
+}
+.install-prompt .install-btn {
+background: #F0F1F3;
+color: var(--accent-solid);
+}
+.install-prompt .later-btn {
+background: transparent;
+color: #F0F1F3;
+border: 1px solid #F0F1F3;
+}
+/* Task Styles in Modal */
+.task-list {
+list-style: none;
+margin: 8px 0;
+max-height: 150px;
+overflow-y: auto;
+padding: 0;
+}
+.task-item {
+display: flex;
+align-items: center;
+gap: 8px;
+padding: 6px 8px;
+background: var(--bg);
+border-radius: 8px;
+margin-bottom: 4px;
+transition: all 0.2s;
+}
+.task-item:hover {
+background: var(--card);
+}
+.task-item.completed .task-text {
+text-decoration: line-through;
+opacity: 0.6;
+}
+.task-text {
+flex: 1;
+font-size: 0.9rem;
+word-break: break-word;
+}
+.task-checkbox {
+accent-color: var(--accent-solid);
+width: 18px;
+height: 18px;
+cursor: pointer;
+}
+.task-delete {
+background: none;
+border: none;
+color: var(--accent-red);
+cursor: pointer;
+padding: 4px;
+display: flex;
+align-items: center;
+justify-content: center;
+opacity: 0.7;
+}
+.task-delete:hover {
+opacity: 1;
+background: rgba(220, 38, 38, 0.1);
+border-radius: 4px;
+}
+.task-input-group {
+display: flex;
+gap: 8px;
+margin-top: 8px;
+}
+.task-input-group input {
+flex: 1;
+}
+.task-input-group button {
+padding: 8px 12px;
+}
+
 @media (max-width: 480px) {
-.glass-panel { bottom: 16px; height: 44px; width: calc(100% - 32px); padding: 0 8px; }
+.glass-panel {
+bottom: 16px;
+height: 44px;
+width: calc(100% - 32px);
+padding: 0 8px;
+}
 .panel-item { font-size: 0.68rem; gap: 1px; }
 .panel-item i { font-size: 1.15rem; }
 .search-input { font-size: 0.9rem; padding: 7px 10px 7px 32px; }
@@ -122,37 +603,54 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
 </head>
 <body>
 <div class="header-bar">
-<div class="avatar-btn" id="avatarBtn" title="Загрузить аватар"><i class="fas fa-user"></i></div>
+<div class="avatar-btn" id="avatarBtn" title="Загрузить аватар">
+<i class="fas fa-user"></i>
+</div>
 <div class="search-container">
 <i class="fas fa-search search-icon"></i>
 <input type="text" class="search-input" id="orderSearch" placeholder="Поиск по № заказа...">
 </div>
 </div>
-
 <div class="main-content" id="mainContent">
-<!-- Основное -->
 <div id="main" class="content-block active">
 <div>
 <h2>Александр<span id="opId"></span></h2>
 <p>Всего: <b><span id="totalAll">0.00</span> ₽</b></p>
 </div>
-<div class="progress-title"><i class="fas fa-bullseye"></i> План: <b>3000 ₽</b></div>
+<div class="progress-title">
+<i class="fas fa-bullseye"></i> План: <b>3000 ₽</b>
+</div>
 <div class="status-bar" id="planStatusBar">
 <div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div>
 <div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div>
 <div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div>
 <div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div>
 </div>
-<div class="progress-label"><span>Текущая смена:</span><span><b><span id="todayEarned">0.00</span> ₽</b></span></div>
-<div class="progress-label"><span id="shiftStatus">Смена не начата</span></div>
-<div style="margin: 24px 0;">
-<button class="neu-btn neu-btn-accent" onclick="startShift()"><i class="fas fa-play"></i> Начать смену</button>
-<button class="neu-btn neu-btn-accent" onclick="endShift()" style="margin-left: 12px;"><i class="fas fa-stop"></i> Завершить смену</button>
+<div class="progress-label">
+<span>Текущая смена:</span>
+<span><b><span id="todayEarned">0.00</span> ₽</b></span>
 </div>
-<div class="progress-title" style="margin-top: 24px;"><i class="fas fa-plus"></i> Новый заказ</div>
+<div class="progress-label">
+<span id="shiftStatus">Смена не начата</span>
+</div>
+<div style="margin: 24px 0;">
+<button class="neu-btn neu-btn-accent" onclick="startShift()">
+<i class="fas fa-play"></i> Начать смену
+</button>
+<button class="neu-btn neu-btn-accent" onclick="endShift()" style="margin-left: 12px;">
+<i class="fas fa-stop"></i> Завершить смену
+</button>
+</div>
+<div class="progress-title" style="margin-top: 24px;">
+<i class="fas fa-plus"></i> Новый заказ
+</div>
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0;">
-<div><label style="display: block; margin-bottom: 6px;">№ заказа</label><input type="text" id="orderNum" class="neu-input" placeholder="ORD-001"></div>
-<div><label style="display: block; margin-bottom: 6px;">Тариф</label>
+<div>
+<label style="display: block; margin-bottom: 6px;">№ заказа</label>
+<input type="text" id="orderNum" class="neu-input" placeholder="ORD-001">
+</div>
+<div>
+<label style="display: block; margin-bottom: 6px;">Тариф</label>
 <select id="tariff" class="neu-select">
 <option value="RASPIL_M2">Распил — 65 ₽/м²</option>
 <option value="LINEAR_RASPIL">Лин. распил — 26 ₽/м</option>
@@ -161,37 +659,68 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
 <option value="PAZY">Пазы — 30 ₽/м</option>
 <option value="FREZER_FASKA">Фаска — 16 ₽/м</option>
 <option value="TIME">Время — 330 ₽/ч</option>
-</select></div>
+</select>
+</div>
 </div>
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 12px 0;">
-<div><label style="display: block; margin-bottom: 6px;">Деталь</label><input type="text" id="detail" class="neu-input" placeholder="Название"></div>
-<div><label style="display: block; margin-bottom: 6px;">Кол-во</label><input type="number" id="qty" value="1" min="1" class="neu-input"></div>
+<div>
+<label style="display: block; margin-bottom: 6px;">Деталь</label>
+<input type="text" id="detail" class="neu-input" placeholder="Название">
+</div>
+<div>
+<label style="display: block; margin-bottom: 6px;">Кол-во</label>
+<input type="number" id="qty" value="1" min="1" class="neu-input">
+</div>
 </div>
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 12px 0;">
-<div id="lengthGroup"><label style="display: block; margin-bottom: 6px;">Длина (м)</label><input type="number" step="0.01" id="length" class="neu-input" placeholder="0.00"></div>
-<div id="widthGroup" class="hidden"><label style="display: block; margin-bottom: 6px;">Ширина (м)</label><input type="number" step="0.01" id="width" class="neu-input" placeholder="0.00"></div>
-<div id="hoursGroup" class="hidden"><label style="display: block; margin-bottom: 6px;">Часы</label><input type="number" step="0.1" id="hours" class="neu-input" placeholder="0.0"></div>
+<div id="lengthGroup">
+<label style="display: block; margin-bottom: 6px;">Длина (м)</label>
+<input type="number" step="0.01" id="length" class="neu-input" placeholder="0.00">
 </div>
-<button class="neu-btn neu-btn-accent" onclick="createMainOrderWithSound()" style="margin-top: 12px;"><i class="fas fa-check"></i> Создать заказ</button>
-<div class="progress-title" style="margin-top: 24px;"><i class="fas fa-history"></i> Заказы по дате</div>
+<div id="widthGroup" class="hidden">
+<label style="display: block; margin-bottom: 6px;">Ширина (м)</label>
+<input type="number" step="0.01" id="width" class="neu-input" placeholder="0.00">
+</div>
+<div id="hoursGroup" class="hidden">
+<label style="display: block; margin-bottom: 6px;">Часы</label>
+<input type="number" step="0.1" id="hours" class="neu-input" placeholder="0.0">
+</div>
+</div>
+<button class="neu-btn neu-btn-accent" onclick="createMainOrderWithSound()" style="margin-top: 12px;">
+<i class="fas fa-check"></i> Создать заказ
+</button>
+<div class="progress-title" style="margin-top: 24px;">
+<i class="fas fa-history"></i> Заказы по дате
+</div>
 <div style="display: grid; grid-template-columns: 1fr; gap: 16px; margin: 16px 0;">
-<div><label style="display: block; margin-bottom: 6px;">Дата</label><input type="date" id="viewDate" class="neu-input" value=""></div>
+<div>
+<label style="display: block; margin-bottom: 6px;">Дата</label>
+<input type="date" id="viewDate" class="neu-input" value="">
+</div>
 </div>
 <div style="display: flex; gap: 12px; margin-top: 12px;">
-<button class="neu-btn neu-btn-accent" onclick="showOrdersByDate()"><i class="fas fa-eye"></i> Показать</button>
-<button class="neu-btn" onclick="saveOrdersToFile()"><i class="fas fa-download"></i> В TXT</button>
-<button class="neu-btn" onclick="saveOrdersToJSON()"><i class="fas fa-file-code"></i> В JSON</button>
+<button class="neu-btn neu-btn-accent" onclick="showOrdersByDate()">
+<i class="fas fa-eye"></i> Показать
+</button>
+<button class="neu-btn" onclick="saveOrdersToFile()">
+<i class="fas fa-download"></i> В TXT
+</button>
+<button class="neu-btn" onclick="saveOrdersToJSON()">
+<i class="fas fa-file-code"></i> В JSON
+</button>
 </div>
 <div id="ordersListContainer" style="margin-top: 24px;"></div>
 </div>
-
-<!-- Предзаказы -->
 <div id="preorders" class="content-block">
 <div class="container">
 <h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-clock"></i> Предзаказы</h2>
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
-<div><label style="display: block; margin-bottom: 6px;">№ заказа</label><input type="text" id="preOrderNum" class="neu-input" placeholder="PRE-001"></div>
-<div><label style="display: block; margin-bottom: 6px;">Тариф</label>
+<div>
+<label style="display: block; margin-bottom: 6px;">№ заказа</label>
+<input type="text" id="preOrderNum" class="neu-input" placeholder="PRE-001">
+</div>
+<div>
+<label style="display: block; margin-bottom: 6px;">Тариф</label>
 <select id="preTariff" class="neu-select">
 <option value="RASPIL_M2">Распил — 65 ₽/м²</option>
 <option value="LINEAR_RASPIL">Лин. распил — 26 ₽/м</option>
@@ -200,28 +729,48 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
 <option value="PAZY">Пазы — 30 ₽/м</option>
 <option value="FREZER_FASKA">Фаска — 16 ₽/м</option>
 <option value="TIME">Время — 330 ₽/ч</option>
-</select></div>
+</select>
+</div>
 </div>
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
-<div><label style="display: block; margin-bottom: 6px;">Деталь</label><input type="text" id="preDetail" class="neu-input" placeholder="Название"></div>
-<div><label style="display: block; margin-bottom: 6px;">Кол-во</label><input type="number" id="preQty" value="1" min="1" class="neu-input"></div>
+<div>
+<label style="display: block; margin-bottom: 6px;">Деталь</label>
+<input type="text" id="preDetail" class="neu-input" placeholder="Название">
+</div>
+<div>
+<label style="display: block; margin-bottom: 6px;">Кол-во</label>
+<input type="number" id="preQty" value="1" min="1" class="neu-input">
+</div>
 </div>
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-<div id="preLengthGroup"><label style="display: block; margin-bottom: 6px;">Длина (м)</label><input type="number" step="0.01" id="preLength" class="neu-input" placeholder="0.00"></div>
-<div id="preWidthGroup" class="hidden"><label style="display: block; margin-bottom: 6px;">Ширина (м)</label><input type="number" step="0.01" id="preWidth" class="neu-input" placeholder="0.00"></div>
-<div id="preHoursGroup" class="hidden"><label style="display: block; margin-bottom: 6px;">Часы</label><input type="number" step="0.1" id="preHours" class="neu-input" placeholder="0.0"></div>
+<div id="preLengthGroup">
+<label style="display: block; margin-bottom: 6px;">Длина (м)</label>
+<input type="number" step="0.01" id="preLength" class="neu-input" placeholder="0.00">
+</div>
+<div id="preWidthGroup" class="hidden">
+<label style="display: block; margin-bottom: 6px;">Ширина (м)</label>
+<input type="number" step="0.01" id="preWidth" class="neu-input" placeholder="0.00">
+</div>
+<div id="preHoursGroup" class="hidden">
+<label style="display: block; margin-bottom: 6px;">Часы</label>
+<input type="number" step="0.1" id="preHours" class="neu-input" placeholder="0.0">
+</div>
 </div>
 <div style="display: flex; gap: 12px; margin-top: 12px;">
-<button class="neu-btn neu-btn-accent" onclick="createPreorder()"><i class="fas fa-save"></i> Сохранить предзаказ</button>
-<button class="neu-btn" onclick="document.getElementById('jsonImportInput').click()"><i class="fas fa-upload"></i> Загрузить TXT/JSON</button>
+<button class="neu-btn neu-btn-accent" onclick="createPreorder()">
+<i class="fas fa-save"></i> Сохранить предзаказ
+</button>
+<button class="neu-btn" onclick="document.getElementById('jsonImportInput').click()">
+<i class="fas fa-upload"></i> Загрузить TXT/JSON
+</button>
 </div>
 <input type="file" id="jsonImportInput" accept=".txt,.json" style="display: none;" />
-<div class="progress-title" style="margin-top: 24px;"><i class="fas fa-list"></i> Список предзаказов</div>
+<div class="progress-title" style="margin-top: 24px;">
+<i class="fas fa-list"></i> Список предзаказов
+</div>
 <div id="preordersListContainer" style="margin-top: 16px;"></div>
 </div>
 </div>
-
-<!-- Календарь -->
 <div id="calendar" class="content-block">
 <div class="container">
 <h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-calendar-alt"></i> Календарь</h2>
@@ -231,65 +780,104 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
 <button class="calendar-nav-btn" onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
 </div>
 <div class="calendar-grid" id="calendarGrid"></div>
-<div class="progress-title" style="margin-top: 24px;"><i class="fas fa-info-circle"></i> Легенда</div>
+<div class="progress-title" style="margin-top: 24px;">
+<i class="fas fa-info-circle"></i> Легенда
+</div>
 <div style="display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.85rem; color: var(--text-muted);">
 <div style="display:flex; align-items:center; gap:6px;"><div style="width:12px; height:12px; border-radius:50%; background:var(--accent-solid);"></div> Отработано</div>
 <div style="display:flex; align-items:center; gap:6px;"><div style="width:12px; height:12px; border-radius:50%; border:2px solid var(--accent-red);"></div> Выходной/Праздник</div>
 <div style="display:flex; align-items:center; gap:6px;"><div style="width:12px; height:12px; border-radius:50%; border:2px solid var(--accent-solid);"></div> Сегодня</div>
+<div style="display:flex; align-items:center; gap:6px;"><div style="width:12px; height:12px; border-radius:50%; background:var(--accent-blue-dark);"></div> Есть задачи</div>
 </div>
 </div>
 </div>
-
-<!-- Статистика -->
 <div id="stats" class="content-block">
 <div class="container">
 <h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-chart-bar"></i> Общая статистика</h2>
-<div class="progress-title"><i class="fas fa-ruler-horizontal"></i> Погонные метры</div>
-<div class="progress-container"><div class="progress-fill" id="linearProgress"></div></div>
-<div class="progress-label"><span>Всего</span><span><b id="linearTotal">0.0</b> м</span></div>
-<div class="progress-title"><i class="fas fa-border-all"></i> Квадратные метры</div>
-<div class="progress-container"><div class="progress-fill" id="areaProgress"></div></div>
-<div class="progress-label"><span>Всего</span><span><b id="areaTotal">0.0</b> м²</span></div>
-<div class="progress-title"><i class="fas fa-clock"></i> Время работы</div>
-<div class="progress-container"><div class="progress-fill" id="timeProgress"></div></div>
-<div class="progress-label"><span>Всего</span><span><b id="timeTotal">0.0</b> ч</span></div>
+<div class="progress-title">
+<i class="fas fa-ruler-horizontal"></i> Погонные метры
+</div>
+<div class="progress-container">
+<div class="progress-fill" id="linearProgress"></div>
+</div>
+<div class="progress-label">
+<span>Всего</span>
+<span><b id="linearTotal">0.0</b> м</span>
+</div>
+<div class="progress-title">
+<i class="fas fa-border-all"></i> Квадратные метры
+</div>
+<div class="progress-container">
+<div class="progress-fill" id="areaProgress"></div>
+</div>
+<div class="progress-label">
+<span>Всего</span>
+<span><b id="areaTotal">0.0</b> м²</span>
+</div>
+<div class="progress-title">
+<i class="fas fa-clock"></i> Время работы
+</div>
+<div class="progress-container">
+<div class="progress-fill" id="timeProgress"></div>
+</div>
+<div class="progress-label">
+<span>Всего</span>
+<span><b id="timeTotal">0.0</b> ч</span>
+</div>
 <div class="chart-container">
-<div class="chart-title"><i class="fas fa-tasks"></i> Популярность операций</div>
-<div id="operationsChart"><p style="color: var(--text-muted); text-align: center;">Данные появятся после создания заказов</p></div>
+<div class="chart-title">
+<i class="fas fa-tasks"></i> Популярность операций
+</div>
+<div id="operationsChart">
+<p style="color: var(--text-muted); text-align: center;">Данные появятся после создания заказов</p>
 </div>
 </div>
 </div>
 </div>
-
-<!-- Стеклянная панель -->
+</div>
 <div class="glass-panel">
-<div class="panel-item active" data-target="main"><i class="fas fa-home"></i><span>Основное</span></div>
-<div class="panel-item" data-target="preorders"><i class="fas fa-clock"></i><span>Предзаказы</span></div>
-<div class="panel-item" data-target="calendar"><i class="fas fa-calendar-alt"></i><span>Календарь</span><div class="new-badge">NEW</div></div>
-<div class="panel-item" data-target="stats"><i class="fas fa-chart-bar"></i><span>Статистика</span></div>
+<div class="panel-item active" data-target="main">
+<i class="fas fa-home"></i>
+<span>Основное</span>
 </div>
-
+<div class="panel-item" data-target="preorders">
+<i class="fas fa-clock"></i>
+<span>Предзаказы</span>
+</div>
+<div class="panel-item" data-target="calendar">
+<i class="fas fa-calendar-alt"></i>
+<span>Календарь</span>
+<div class="new-badge">NEW</div>
+</div>
+<div class="panel-item" data-target="stats">
+<i class="fas fa-chart-bar"></i>
+<span>Статистика</span>
+</div>
+</div>
 <input type="file" id="avatarUpload" accept="image/jpeg,image/png,image/webp" style="display: none;" />
 <div id="toastContainer" class="toast-container"></div>
-
-<!-- PWA Install Prompt -->
 <div id="installPrompt" class="install-prompt">
 <div style="font-size: 1.1rem; margin-bottom: 8px;">📱 Установить приложение</div>
-<div style="font-size: 0.9rem; opacity: 0.9;">Для быстрого доступа без браузера</div>
+<div style="font-size: 0.9rem; opacity: 0.9;">Установите приложение для быстрого доступа</div>
 <div class="install-prompt-buttons">
-<button class="install-btn" id="installBtn">Установить</button>
-<button class="later-btn" onclick="document.getElementById('installPrompt').classList.remove('show')">Позже</button>
+<button class="install-btn" onclick="installApp()">Установить</button>
+<button class="later-btn" onclick="closeInstallPrompt()">Позже</button>
 </div>
 </div>
-
-<!-- Модальные окна -->
 <div id="editModal" class="modal">
 <div class="modal-content">
 <div class="modal-title">Редактировать заказ</div>
 <input type="hidden" id="editOrderId">
-<div class="modal-row"><label>№ заказа</label><input type="text" id="editOrderNum" class="neu-input"></div>
-<div class="modal-row"><label>Деталь</label><input type="text" id="editDetail" class="neu-input"></div>
-<div class="modal-row"><label>Тариф</label>
+<div class="modal-row">
+<label>№ заказа</label>
+<input type="text" id="editOrderNum" class="neu-input">
+</div>
+<div class="modal-row">
+<label>Деталь</label>
+<input type="text" id="editDetail" class="neu-input">
+</div>
+<div class="modal-row">
+<label>Тариф</label>
 <select id="editTariff" class="neu-select">
 <option value="RASPIL_M2">Распил — 65 ₽/м²</option>
 <option value="LINEAR_RASPIL">Лин. распил — 26 ₽/м</option>
@@ -298,163 +886,248 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
 <option value="PAZY">Пазы — 30 ₽/м</option>
 <option value="FREZER_FASKA">Фаска — 16 ₽/м</option>
 <option value="TIME">Время — 330 ₽/ч</option>
-</select></div>
-<div class="modal-row"><label>Кол-во</label><input type="number" id="editQty" min="1" class="neu-input"></div>
-<div class="modal-row" id="editLengthGroup"><label>Длина (м)</label><input type="number" step="0.01" id="editLength" class="neu-input"></div>
-<div class="modal-row hidden" id="editWidthGroup"><label>Ширина (м)</label><input type="number" step="0.01" id="editWidth" class="neu-input"></div>
-<div class="modal-row hidden" id="editHoursGroup"><label>Часы</label><input type="number" step="0.1" id="editHours" class="neu-input"></div>
+</select>
+</div>
+<div class="modal-row">
+<label>Кол-во</label>
+<input type="number" id="editQty" min="1" class="neu-input">
+</div>
+<div class="modal-row" id="editLengthGroup">
+<label>Длина (м)</label>
+<input type="number" step="0.01" id="editLength" class="neu-input">
+</div>
+<div class="modal-row hidden" id="editWidthGroup">
+<label>Ширина (м)</label>
+<input type="number" step="0.01" id="editWidth" class="neu-input">
+</div>
+<div class="modal-row hidden" id="editHoursGroup">
+<label>Часы</label>
+<input type="number" step="0.1" id="editHours" class="neu-input">
+</div>
 <div class="modal-buttons">
 <button class="neu-btn" onclick="closeEditModal()">Отмена</button>
 <button class="neu-btn neu-btn-accent" onclick="saveEditedOrder()">Сохранить</button>
 </div>
 </div>
 </div>
-
 <div id="dateModal" class="modal">
 <div class="modal-content">
 <div class="modal-title">Выберите дату для заказа</div>
-<div class="modal-row"><label>Дата</label><input type="date" id="modalDate" class="neu-input"></div>
+<div class="modal-row">
+<label>Дата</label>
+<input type="date" id="modalDate" class="neu-input">
+</div>
 <div class="modal-buttons">
 <button class="neu-btn" onclick="closeDateModal()">Отмена</button>
 <button class="neu-btn neu-btn-accent" onclick="confirmDateSelection()">Подтвердить</button>
 </div>
 </div>
 </div>
-
 <div id="detailsModal" class="modal">
 <div class="modal-content">
 <div class="modal-title">Детали заказа</div>
 <div id="detailsContent"></div>
-<div class="modal-buttons"><button class="neu-btn" onclick="closeDetailsModal()">Закрыть</button></div>
+<div class="modal-buttons">
+<button class="neu-btn" onclick="closeDetailsModal()">Закрыть</button>
 </div>
 </div>
-
+</div>
 <div id="dayModal" class="modal">
 <div class="modal-content">
 <div class="modal-title">Редактирование дня</div>
 <input type="hidden" id="editDayDate">
-<div class="modal-row"><label>Дата</label><div id="displayDayDate" style="font-weight:600; color:var(--text);"></div></div>
-<div class="modal-row"><label>Отработано часов</label><input type="number" id="dayHours" step="0.5" min="0" class="neu-input" placeholder="0"></div>
-<div class="checkbox-row"><input type="checkbox" id="dayHoliday"><label for="dayHoliday" style="margin:0; cursor:pointer;">Праздничный день</label></div>
+<div class="modal-row">
+<label>Дата</label>
+<div id="displayDayDate" style="font-weight:600; color:var(--text);"></div>
+</div>
+<div class="modal-row">
+<label>Отработано часов</label>
+<input type="number" id="dayHours" step="0.5" min="0" class="neu-input" placeholder="0">
+</div>
+<div class="checkbox-row">
+<input type="checkbox" id="dayHoliday">
+<label for="dayHoliday" style="margin:0; cursor:pointer;">Праздничный день</label>
+</div>
+
+<!-- Task Section -->
+<div class="modal-row">
+<label>Задачи на день</label>
+<div class="task-list" id="dayTaskList"></div>
+<div class="task-input-group">
+<input type="text" id="newTaskInput" class="neu-input" placeholder="Новая задача..." onkeypress="if(event.key==='Enter') addTask()">
+<button class="neu-btn neu-btn-accent" onclick="addTask()"><i class="fas fa-plus"></i></button>
+</div>
+</div>
+<!-- End Task Section -->
+
 <div class="modal-buttons">
 <button class="neu-btn" onclick="closeDayModal()">Отмена</button>
 <button class="neu-btn neu-btn-accent" onclick="saveDayData()">Сохранить</button>
 </div>
 </div>
 </div>
-
 <script>
-// === PWA: Встроенный манифест (чтобы не было 404) ===
-const manifest = {
-  "name": "Кабинет оператора",
-  "short_name": "Оператор",
-  "description": "Система учёта заказов",
-  "start_url": "./index.html",
-  "display": "standalone",
-  "background_color": "#F0F1F3",
-  "theme_color": "#3B4256",
-  "orientation": "portrait-primary",
-  "icons": [
-    { "src": "https://via.placeholder.com/192/3B4256/FFFFFF?text=OP", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "https://via.placeholder.com/512/3B4256/FFFFFF?text=OP", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
-  ],
-  "lang": "ru-RU"
-};
-const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
-const manifestURL = URL.createObjectURL(manifestBlob);
-document.getElementById('manifest-placeholder').setAttribute('href', manifestURL);
-
-// === PWA: Встроенный Service Worker (чтобы не было 404) ===
-const swCode = `
-const CACHE_NAME = 'operator-app-v1';
-const urlsToCache = ['./', './index.html'];
-self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache)));
-  self.skipWaiting();
-});
-self.addEventListener('activate', event => {
-  event.waitUntil(caches.keys().then(names => Promise.all(names.map(n => n !== CACHE_NAME ? caches.delete(n) : null))));
-  self.clients.claim();
-});
-self.addEventListener('fetch', event => {
-  event.respondWith(caches.match(event.request).then(res => res || fetch(event.request).catch(() => caches.match('./index.html'))));
-});
-`;
-const swBlob = new Blob([swCode], {type: 'application/javascript'});
-const swURL = URL.createObjectURL(swBlob);
-
+// === PWA Service Worker ===
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register(swURL)
-      .then(reg => console.log('SW зарегистрирован:', reg.scope))
-      .catch(err => console.log('SW ошибка:', err));
-  });
+window.addEventListener('load', () => {
+navigator.serviceWorker.register('sw.js')
+.then(reg => console.log('Service Worker registered'))
+.catch(err => console.log('Service Worker registration failed'));
+});
 }
-
-// === PWA: Кнопка установки ===
+// === PWA Install Prompt ===
 let deferredPrompt;
+const installPrompt = document.getElementById('installPrompt');
 window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault();
-  deferredPrompt = e;
-  document.getElementById('installPrompt').classList.add('show');
+e.preventDefault();
+deferredPrompt = e;
+installPrompt.classList.add('show');
 });
-document.getElementById('installBtn')?.addEventListener('click', async () => {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-    deferredPrompt = null;
-    document.getElementById('installPrompt').classList.remove('show');
-  }
+function installApp() {
+if (deferredPrompt) {
+deferredPrompt.prompt();
+deferredPrompt.userChoice.then(choiceResult => {
+if (choiceResult.outcome === 'accepted') {
+console.log('User accepted the install prompt');
+}
+deferredPrompt = null;
+installPrompt.classList.remove('show');
 });
-
-// === Логика приложения ===
+}
+}
+function closeInstallPrompt() {
+installPrompt.classList.remove('show');
+}
+// === ФЛАГ ЗВУКА ===
 let soundEnabled = true;
-const TARIFFS = { RASPIL_M2: { price: 65, unit: 'm2' }, LINEAR_RASPIL: { price: 26, unit: 'linear' }, SKLEIKA_OB: { price: 210, unit: 'm2' }, SKLEIKA_NO_OB: { price: 165, unit: 'm2' }, PAZY: { price: 30, unit: 'linear' }, FREZER_FASKA: { price: 16, unit: 'linear' }, TIME: { price: 330, unit: 'time' } };
-const TARIFF_NAMES = { RASPIL_M2: 'Распил', LINEAR_RASPIL: 'Лин. распил', SKLEIKA_OB: 'Склейка +', SKLEIKA_NO_OB: 'Склейка –', PAZY: 'Пазы', FREZER_FASKA: 'Фаска', TIME: 'Время' };
-const UNIT_LABELS = { m2: 'м²', linear: 'пог. м', time: 'часы' };
+// === Константы ===
+const TARIFFS = {
+RASPIL_M2: { price: 65, unit: 'm2' },
+LINEAR_RASPIL: { price: 26, unit: 'linear' },
+SKLEIKA_OB: { price: 210, unit: 'm2' },
+SKLEIKA_NO_OB: { price: 165, unit: 'm2' },
+PAZY: { price: 30, unit: 'linear' },
+FREZER_FASKA: { price: 16, unit: 'linear' },
+TIME: { price: 330, unit: 'time' }
+};
+const TARIFF_NAMES = {
+RASPIL_M2: 'Распил',
+LINEAR_RASPIL: 'Лин. распил',
+SKLEIKA_OB: 'Склейка +',
+SKLEIKA_NO_OB: 'Склейка –',
+PAZY: 'Пазы',
+FREZER_FASKA: 'Фаска',
+TIME: 'Время'
+};
+const UNIT_LABELS = {
+m2: 'м²',
+linear: 'пог. м',
+time: 'часы'
+};
 const EARNINGS_MILESTONES = [
-    { amount: 500, emoji: '😡', color: '#DC2626', text: 'Разгон...' },
-    { amount: 1000, emoji: '😢', color: '#3B82F6', text: 'Первая тысяча' },
-    { amount: 1500, emoji: '😐', color: '#6B7285', text: 'Половина пути' },
-    { amount: 2000, emoji: '🙂', color: '#16A34A', text: 'Хороший результат' },
-    { amount: 2500, emoji: '😄', color: '#F59E0B', text: 'Почти план!' }
+{ amount: 500, emoji: '😡', color: '#DC2626', text: 'Разгон...' },
+{ amount: 1000, emoji: '😢', color: '#3B82F6', text: 'Первая тысяча' },
+{ amount: 1500, emoji: '😐', color: '#6B7285', text: 'Половина пути' },
+{ amount: 2000, emoji: '🙂', color: '#16A34A', text: 'Хороший результат' },
+{ amount: 2500, emoji: '😄', color: '#F59E0B', text: 'Почти план!' }
 ];
-
-function formatDateYMD(dateStr) { const [y, m, d] = dateStr.split('-'); return `${d}.${m}.${y}`; }
-function todayYMD() { return new Date().toISOString().split('T')[0]; }
-function loadOrders() { try { return JSON.parse(localStorage.getItem('operator_orders') || '[]'); } catch (e) { return []; } }
-function saveOrders(orders) { localStorage.setItem('operator_orders', JSON.stringify(orders)); }
-function loadPreorders() { try { return JSON.parse(localStorage.getItem('operator_preorders') || '[]'); } catch (e) { return []; } }
-function savePreorders(preorders) { localStorage.setItem('operator_preorders', JSON.stringify(preorders)); }
-function getCurrentShift() { try { return JSON.parse(localStorage.getItem('current_shift') || 'null'); } catch (e) { return null; } }
-function setCurrentShift(shift) { if (shift === null) { localStorage.removeItem('current_shift'); } else { localStorage.setItem('current_shift', JSON.stringify(shift)); } }
-function playSuccessSound() { if (!soundEnabled) return; try { const ctx = new (window.AudioContext || window.webkitAudioContext)(); const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination); osc.type = 'sine'; osc.frequency.value = 800; gain.gain.setValueAtTime(0.3, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3); osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.3); } catch (e) {} }
-function calculateAmount(tariffKey, length, width, hours, qty) { const tariff = TARIFFS[tariffKey]; if (!tariff) return 0; let amount = 0; if (tariff.unit === 'time') { amount = tariff.price * hours * qty; } else if (tariff.unit === 'm2') { amount = tariff.price * length * width * qty; } else { amount = tariff.price * length * qty; } return Math.round(amount * 100) / 100; }
-
+function formatDateYMD(dateStr) {
+const [y, m, d] = dateStr.split('-');
+return `${d}.${m}.${y}`;
+}
+function todayYMD() {
+return new Date().toISOString().split('T')[0];
+}
+function loadOrders() {
+try {
+return JSON.parse(localStorage.getItem('operator_orders') || '[]');
+} catch (e) { return []; }
+}
+function saveOrders(orders) {
+localStorage.setItem('operator_orders', JSON.stringify(orders));
+}
+function loadPreorders() {
+try {
+return JSON.parse(localStorage.getItem('operator_preorders') || '[]');
+} catch (e) { return []; }
+}
+function savePreorders(preorders) {
+localStorage.setItem('operator_preorders', JSON.stringify(preorders));
+}
+function getCurrentShift() {
+try {
+return JSON.parse(localStorage.getItem('current_shift') || 'null');
+} catch (e) { return null; }
+}
+function setCurrentShift(shift) {
+if (shift === null) {
+localStorage.removeItem('current_shift');
+} else {
+localStorage.setItem('current_shift', JSON.stringify(shift));
+}
+}
+function playSuccessSound() {
+if (!soundEnabled) return;
+try {
+const ctx = new (window.AudioContext || window.webkitAudioContext)();
+const oscillator = ctx.createOscillator();
+const gainNode = ctx.createGain();
+oscillator.connect(gainNode);
+gainNode.connect(ctx.destination);
+oscillator.type = 'sine';
+oscillator.frequency.value = 800;
+gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+oscillator.start(ctx.currentTime);
+oscillator.stop(ctx.currentTime + 0.3);
+} catch (e) {
+console.warn("Audio feedback not supported", e);
+}
+}
+function calculateAmount(tariffKey, length, width, hours, qty) {
+const tariff = TARIFFS[tariffKey];
+if (!tariff) return 0;
+let amount = 0;
+if (tariff.unit === 'time') {
+amount = tariff.price * hours * qty;
+} else if (tariff.unit === 'm2') {
+amount = tariff.price * length * width * qty;
+} else {
+amount = tariff.price * length * qty;
+}
+return Math.round(amount * 100) / 100;
+}
 function showToast(emoji, color, title, message) {
-    const container = document.getElementById('toastContainer');
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.style.borderLeftColor = color;
-    toast.innerHTML = `<div class="toast-icon">${emoji}</div><div class="toast-content"><div class="toast-title" style="color:${color}">${title}</div><div class="toast-msg">${message}</div></div>`;
-    container.appendChild(toast);
-    setTimeout(() => { toast.style.animation = 'fadeOut 0.3s ease-in forwards'; setTimeout(() => toast.remove(), 300); }, 4000);
+const container = document.getElementById('toastContainer');
+const toast = document.createElement('div');
+toast.className = 'toast';
+toast.style.borderLeftColor = color;
+toast.innerHTML = `
+<div class="toast-icon">${emoji}</div>
+<div class="toast-content">
+<div class="toast-title" style="color:${color}">${title}</div>
+<div class="toast-msg">${message}</div>
+</div>
+`;
+container.appendChild(toast);
+setTimeout(() => {
+toast.style.animation = 'fadeOut 0.3s ease-in forwards';
+setTimeout(() => toast.remove(), 300);
+}, 4000);
 }
-
 function checkMilestones(amount) {
-    const shift = getCurrentShift();
-    if (!shift || !shift.active) return;
-    const storageKey = `notified_milestones_${shift.id}`;
-    let notified = JSON.parse(localStorage.getItem(storageKey) || '[]');
-    EARNINGS_MILESTONES.forEach(m => {
-        if (amount >= m.amount && !notified.includes(m.amount)) {
-            showToast(m.emoji, m.color, `Заработано ${m.amount} ₽`, m.text);
-            notified.push(m.amount);
-            localStorage.setItem(storageKey, JSON.stringify(notified));
-        }
-    });
+const shift = getCurrentShift();
+if (!shift || !shift.active) return;
+const storageKey = `notified_milestones_${shift.id}`;
+let notified = JSON.parse(localStorage.getItem(storageKey) || '[]');
+EARNINGS_MILESTONES.forEach(m => {
+if (amount >= m.amount && !notified.includes(m.amount)) {
+showToast(m.emoji, m.color, `Заработано ${m.amount} ₽`, m.text);
+notified.push(m.amount);
+localStorage.setItem(storageKey, JSON.stringify(notified));
 }
-
+});
+}
 function updateUI() {
 const orders = loadOrders();
 const totalAll = orders.reduce((sum, o) => sum + (parseFloat(o.amount) || 0), 0);
@@ -462,7 +1135,9 @@ const shift = getCurrentShift();
 let currentShiftAmount = 0;
 let statusText = 'Смена не начата';
 if (shift && shift.active) {
-currentShiftAmount = orders.filter(o => o.shiftId === shift.id).reduce((sum, o) => sum + (parseFloat(o.amount) || 0), 0);
+currentShiftAmount = orders
+.filter(o => o.shiftId === shift.id)
+.reduce((sum, o) => sum + (parseFloat(o.amount) || 0), 0);
 statusText = 'Смена активна';
 } else if (shift && !shift.active) {
 currentShiftAmount = shift.finalAmount || 0;
@@ -475,37 +1150,57 @@ const steps = document.querySelectorAll('#planStatusBar .step');
 const targetStep = Math.min(19, Math.floor((currentShiftAmount / 3000) * 20));
 steps.forEach((step, i) => {
 step.classList.remove('active', 'current', 'completed');
-if (i < targetStep) { step.classList.add('active'); } else if (i === targetStep) { step.classList.add('current'); }
-if (currentShiftAmount >= 3000 && i === 19) { step.classList.remove('current'); step.classList.add('completed'); }
+if (i < targetStep) {
+step.classList.add('active');
+} else if (i === targetStep) {
+step.classList.add('current');
+}
+if (currentShiftAmount >= 3000 && i === 19) {
+step.classList.remove('current');
+step.classList.add('completed');
+}
 });
 checkMilestones(currentShiftAmount);
 }
-
 function updateMainFormFields() {
 const tariff = document.getElementById('tariff').value;
 ['widthGroup', 'hoursGroup'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
 document.getElementById('lengthGroup')?.classList.remove('hidden');
-if (['RASPIL_M2', 'SKLEIKA_OB', 'SKLEIKA_NO_OB'].includes(tariff)) { document.getElementById('widthGroup')?.classList.remove('hidden'); } 
-else if (tariff === 'TIME') { document.getElementById('lengthGroup')?.classList.add('hidden'); document.getElementById('hoursGroup')?.classList.remove('hidden'); }
+if (['RASPIL_M2', 'SKLEIKA_OB', 'SKLEIKA_NO_OB'].includes(tariff)) {
+document.getElementById('widthGroup')?.classList.remove('hidden');
+} else if (tariff === 'TIME') {
+document.getElementById('lengthGroup')?.classList.add('hidden');
+document.getElementById('hoursGroup')?.classList.remove('hidden');
+}
 }
 function updatePreorderFormFields() {
 const tariff = document.getElementById('preTariff').value;
 ['preWidthGroup', 'preHoursGroup'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
 document.getElementById('preLengthGroup')?.classList.remove('hidden');
-if (['RASPIL_M2', 'SKLEIKA_OB', 'SKLEIKA_NO_OB'].includes(tariff)) { document.getElementById('preWidthGroup')?.classList.remove('hidden'); } 
-else if (tariff === 'TIME') { document.getElementById('preLengthGroup')?.classList.add('hidden'); document.getElementById('preHoursGroup')?.classList.remove('hidden'); }
+if (['RASPIL_M2', 'SKLEIKA_OB', 'SKLEIKA_NO_OB'].includes(tariff)) {
+document.getElementById('preWidthGroup')?.classList.remove('hidden');
+} else if (tariff === 'TIME') {
+document.getElementById('preLengthGroup')?.classList.add('hidden');
+document.getElementById('preHoursGroup')?.classList.remove('hidden');
+}
 }
 function updateEditFormFields() {
 const tariff = document.getElementById('editTariff').value;
 ['editWidthGroup', 'editHoursGroup'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
 document.getElementById('editLengthGroup')?.classList.remove('hidden');
-if (['RASPIL_M2', 'SKLEIKA_OB', 'SKLEIKA_NO_OB'].includes(tariff)) { document.getElementById('editWidthGroup')?.classList.remove('hidden'); } 
-else if (tariff === 'TIME') { document.getElementById('editLengthGroup')?.classList.add('hidden'); document.getElementById('editHoursGroup')?.classList.remove('hidden'); }
+if (['RASPIL_M2', 'SKLEIKA_OB', 'SKLEIKA_NO_OB'].includes(tariff)) {
+document.getElementById('editWidthGroup')?.classList.remove('hidden');
+} else if (tariff === 'TIME') {
+document.getElementById('editLengthGroup')?.classList.add('hidden');
+document.getElementById('editHoursGroup')?.classList.remove('hidden');
 }
-
+}
 function startShift() {
 const shift = getCurrentShift();
-if (shift && shift.active) { alert('Смена уже активна!'); return; }
+if (shift && shift.active) {
+alert('Смена уже активна!');
+return;
+}
 const newShift = { id: Date.now(), startedAt: new Date().toISOString(), active: true };
 setCurrentShift(newShift);
 alert('✅ Смена начата!');
@@ -513,19 +1208,24 @@ updateUI();
 }
 function endShift() {
 const shift = getCurrentShift();
-if (!shift || !shift.active) { alert('Нет активной смены!'); return; }
+if (!shift || !shift.active) {
+alert('Нет активной смены для завершения!');
+return;
+}
 const orders = loadOrders();
-const finalAmount = orders.filter(o => o.shiftId === shift.id).reduce((sum, o) => sum + (parseFloat(o.amount) || 0), 0);
+const finalAmount = orders
+.filter(o => o.shiftId === shift.id)
+.reduce((sum, o) => sum + (parseFloat(o.amount) || 0), 0);
 shift.active = false;
 shift.finishedAt = new Date().toISOString();
 shift.finalAmount = finalAmount;
 setCurrentShift(shift);
-alert(`✅ Смена завершена!\nЗаработано: ${finalAmount.toFixed(2)} ₽`);
+alert(`✅ Смена завершена!
+Заработано: ${finalAmount.toFixed(2)} ₽`);
 updateUI();
 }
-
 function deleteOrder(orderId) {
-if (!confirm('Удалить заказ?')) return;
+if (!confirm('Вы уверены, что хотите удалить этот заказ?')) return;
 const orders = loadOrders();
 const idx = orders.findIndex(o => o.id === orderId);
 if (idx === -1) return;
@@ -534,44 +1234,56 @@ saveOrders(orders);
 const shift = getCurrentShift();
 if (shift && shift.active) updateUI();
 showOrdersByDate();
-alert('✅ Удален!');
+alert('✅ Заказ удален!');
 }
 function deletePreorder(preorderId) {
-if (!confirm('Удалить предзаказ?')) return;
+if (!confirm('Вы уверены, что хотите удалить этот предзаказ?')) return;
 const preorders = loadPreorders();
 const idx = preorders.findIndex(p => p.id === preorderId);
 if (idx === -1) return;
 preorders.splice(idx, 1);
 savePreorders(preorders);
 renderPreorders();
-alert('✅ Удален!');
+alert('✅ Предзаказ удален!');
 }
-
 let pendingPreorderId = null;
-function openDateModal(preorderId) { pendingPreorderId = preorderId; document.getElementById('modalDate').value = todayYMD(); document.getElementById('dateModal').classList.add('active'); }
-function closeDateModal() { document.getElementById('dateModal').classList.remove('active'); pendingPreorderId = null; }
-function confirmDateSelection() { const date = document.getElementById('modalDate').value; if (!date) { alert('Выберите дату'); return; } if (pendingPreorderId !== null) acceptPreorder(pendingPreorderId, date); closeDateModal(); }
-
+function openDateModal(preorderId) {
+pendingPreorderId = preorderId;
+document.getElementById('modalDate').value = todayYMD();
+document.getElementById('dateModal').classList.add('active');
+}
+function closeDateModal() {
+document.getElementById('dateModal').classList.remove('active');
+pendingPreorderId = null;
+}
+function confirmDateSelection() {
+const date = document.getElementById('modalDate').value;
+if (!date) { alert('Выберите дату'); return; }
+if (pendingPreorderId !== null) acceptPreorder(pendingPreorderId, date);
+closeDateModal();
+}
 function viewOrderDetails(orderId) {
 const orders = loadOrders();
 const order = orders.find(o => o.id === orderId);
 if (!order) return;
 const units = calculateUnits(order.tariff, order.length, order.width, order.hours, order.qty);
 const tariffName = TARIFF_NAMES[order.tariff] || order.tariff;
-let html = `<div style="display:grid; gap:8px;">
-<div><b>№ заказа:</b> ${order.orderNumber}</div>
-<div><b>Деталь:</b> ${order.detail}</div>
-<div><b>Тариф:</b> ${tariffName}</div>
-<div><b>Кол-во:</b> ${order.qty}</div>`;
-if (order.length !== null) html += `<div><b>Длина:</b> ${order.length} м</div>`;
-if (order.width !== null) html += `<div><b>Ширина:</b> ${order.width} м</div>`;
-if (order.hours !== null) html += `<div><b>Часы:</b> ${order.hours} ч</div>`;
-html += `<div><b>Объем:</b> ${units.value} ${units.unit}</div><div><b>Сумма:</b> ${order.amount.toFixed(2)} ₽</div></div>`;
+let html = '';
+html += `<div class="details-item"><span class="details-label">№ заказа:</span><span class="details-value">${order.orderNumber}</span></div>`;
+html += `<div class="details-item"><span class="details-label">Деталь:</span><span class="details-value">${order.detail}</span></div>`;
+html += `<div class="details-item"><span class="details-label">Тариф:</span><span class="details-value">${tariffName}</span></div>`;
+html += `<div class="details-item"><span class="details-label">Количество:</span><span class="details-value">${order.qty}</span></div>`;
+if (order.length !== null) html += `<div class="details-item"><span class="details-label">Длина:</span><span class="details-value">${order.length} м</span></div>`;
+if (order.width !== null) html += `<div class="details-item"><span class="details-label">Ширина:</span><span class="details-value">${order.width} м</span></div>`;
+if (order.hours !== null) html += `<div class="details-item"><span class="details-label">Часы:</span><span class="details-value">${order.hours} ч</span></div>`;
+html += `<div class="details-item"><span class="details-label">Объем работ:</span><span class="details-value">${units.value} ${units.unit}</span></div>`;
+html += `<div class="details-item"><span class="details-label">Сумма:</span><span class="details-value">${order.amount.toFixed(2)} ₽</span></div>`;
 document.getElementById('detailsContent').innerHTML = html;
 document.getElementById('detailsModal').classList.add('active');
 }
-function closeDetailsModal() { document.getElementById('detailsModal').classList.remove('active'); }
-
+function closeDetailsModal() {
+document.getElementById('detailsModal').classList.remove('active');
+}
 function openEditModal(orderId) {
 const orders = loadOrders();
 const order = orders.find(o => o.id === orderId);
@@ -589,8 +1301,10 @@ updateEditFormFields();
 document.getElementById('editModal').classList.add('active');
 }
 let editingOrder = null;
-function closeEditModal() { document.getElementById('editModal').classList.remove('active'); editingOrder = null; }
-
+function closeEditModal() {
+document.getElementById('editModal').classList.remove('active');
+editingOrder = null;
+}
 function saveEditedOrder() {
 if (!editingOrder) return;
 const orderId = parseInt(document.getElementById('editOrderId').value);
@@ -606,15 +1320,24 @@ const amount = calculateAmount(tariffKey, length, width, hours, qty);
 const orders = loadOrders();
 const idx = orders.findIndex(o => o.id === orderId);
 if (idx !== -1) {
-orders[idx] = { ...orders[idx], orderNumber: num, tariff: tariffKey, detail: detail, qty: qty, length: length || null, width: width || null, hours: hours || null, amount: amount };
+orders[idx] = {
+...orders[idx],
+orderNumber: num,
+tariff: tariffKey,
+detail: detail,
+qty: qty,
+length: length || null,
+width: width || null,
+hours: hours || null,
+amount: amount
+};
 saveOrders(orders);
 updateUI();
 showOrdersByDate();
 closeEditModal();
-alert('✅ Обновлён!');
+alert('✅ Заказ обновлён!');
 }
 }
-
 function createMainOrder() {
 const num = document.getElementById('orderNum').value.trim();
 if (!num) { alert('Укажите № заказа'); return; }
@@ -626,17 +1349,38 @@ const width = parseFloat(document.getElementById('width').value) || 0;
 const hours = parseFloat(document.getElementById('hours').value) || 0;
 const amount = calculateAmount(tariffKey, length, width, hours, qty);
 const shift = getCurrentShift();
-if (!shift || !shift.active) { alert('⚠️ Начните смену!'); return; }
-const order = { id: Date.now(), orderNumber: num, tariff: tariffKey, detail: detail, qty: qty, length: length || null, width: width || null, hours: hours || null, amount: amount, date: todayYMD(), shiftId: shift.id, timestamp: new Date().toISOString() };
+if (!shift || !shift.active) {
+alert('⚠️ Начните смену, чтобы создавать заказы!');
+return;
+}
+const order = {
+id: Date.now(),
+orderNumber: num,
+tariff: tariffKey,
+detail: detail,
+qty: qty,
+length: length || null,
+width: width || null,
+hours: hours || null,
+amount: amount,
+date: todayYMD(),
+shiftId: shift.id,
+timestamp: new Date().toISOString()
+};
 const orders = loadOrders();
 orders.push(order);
 saveOrders(orders);
 updateUI();
-['orderNum','detail','qty','length','width','hours'].forEach(id => { const el = document.getElementById(id); if (el) el.value = (id === 'qty') ? '1' : ''; });
+['orderNum','detail','qty','length','width','hours'].forEach(id => {
+const el = document.getElementById(id);
+if (el) el.value = (id === 'qty') ? '1' : '';
+});
 updateMainFormFields();
 }
-function createMainOrderWithSound() { createMainOrder(); setTimeout(playSuccessSound, 100); }
-
+function createMainOrderWithSound() {
+createMainOrder();
+setTimeout(playSuccessSound, 100);
+}
 function createPreorder() {
 const num = document.getElementById('preOrderNum').value.trim();
 if (!num) { alert('Укажите № предзаказа'); return; }
@@ -647,45 +1391,77 @@ const length = parseFloat(document.getElementById('preLength').value) || 0;
 const width = parseFloat(document.getElementById('preWidth').value) || 0;
 const hours = parseFloat(document.getElementById('preHours').value) || 0;
 const amount = calculateAmount(tariffKey, length, width, hours, qty);
-const preorder = { id: Date.now(), orderNumber: num, tariff: tariffKey, detail: detail, qty: qty, length: length || null, width: width || null, hours: hours || null, amount: amount, date: todayYMD(), timestamp: new Date().toISOString() };
+const preorder = {
+id: Date.now(),
+orderNumber: num,
+tariff: tariffKey,
+detail: detail,
+qty: qty,
+length: length || null,
+width: width || null,
+hours: hours || null,
+amount: amount,
+date: todayYMD(),
+timestamp: new Date().toISOString()
+};
 const preorders = loadPreorders();
 preorders.push(preorder);
 savePreorders(preorders);
-alert('✅ Сохранён!');
+alert('✅ Предзаказ сохранён!');
 renderPreorders();
-['preOrderNum','preDetail','preQty','preLength','preWidth','preHours'].forEach(id => { const el = document.getElementById(id); if (el) el.value = (id === 'preQty') ? '1' : ''; });
+['preOrderNum','preDetail','preQty','preLength','preWidth','preHours'].forEach(id => {
+const el = document.getElementById(id);
+if (el) el.value = (id === 'preQty') ? '1' : '';
+});
 updatePreorderFormFields();
 }
-
 function acceptPreorder(preorderId, selectedDate = null) {
 const preorders = loadPreorders();
 const idx = preorders.findIndex(p => p.id === preorderId);
 if (idx === -1) return;
 const preorder = preorders[idx];
 const shift = getCurrentShift();
-if (!shift || !shift.active) { alert('Начните смену!'); return; }
-if (!selectedDate) { openDateModal(preorderId); return; }
+if (!shift || !shift.active) {
+alert('Начните смену, чтобы принять предзаказ!');
+return;
+}
+if (!selectedDate) {
+openDateModal(preorderId);
+return;
+}
 const order = {...preorder, shiftId: shift.id, date: selectedDate};
 const orders = loadOrders();
 orders.push(order);
 saveOrders(orders);
 preorders.splice(idx, 1);
 savePreorders(preorders);
-alert(`✅ Принят на ${formatDateYMD(selectedDate)}!`);
+alert(`✅ Предзаказ "${preorder.orderNumber}" принят на дату ${formatDateYMD(selectedDate)}!`);
 updateUI();
 renderPreorders();
 }
-
 function renderPreorders() {
 const preorders = loadPreorders();
 const container = document.getElementById('preordersListContainer');
-if (preorders.length === 0) { container.innerHTML = '<div class="empty-msg">Нет предзаказов</div>'; return; }
+if (preorders.length === 0) {
+container.innerHTML = '<div class="empty-msg">Нет предзаказов</div>';
+return;
+}
 let html = `<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>`;
-preorders.forEach(p => { html += `<tr><td>${p.orderNumber}</td><td>${p.detail}</td><td class="amount">${p.amount.toFixed(2)} ₽</td><td><button class="action-btn" onclick="acceptPreorder(${p.id})"><i class="fas fa-check"></i></button><button class="action-btn" onclick="deletePreorder(${p.id})"><i class="fas fa-trash"></i></button></td></tr>`; });
+preorders.forEach(p => {
+html += `
+<tr>
+<td>${p.orderNumber}</td>
+<td>${p.detail}</td>
+<td class="amount">${p.amount.toFixed(2)} ₽</td>
+<td>
+<button class="action-btn" onclick="acceptPreorder(${p.id})"><i class="fas fa-check"></i></button>
+<button class="action-btn" onclick="deletePreorder(${p.id})"><i class="fas fa-trash"></i></button>
+</td>
+</tr>`;
+});
 html += '</tbody></table>';
 container.innerHTML = html;
 }
-
 function showOrdersByDate() {
 const dateInput = document.getElementById('viewDate').value;
 if (!dateInput) { alert('Выберите дату'); return; }
@@ -693,26 +1469,54 @@ const orders = loadOrders();
 const filtered = orders.filter(o => o.date === dateInput);
 const formattedDate = formatDateYMD(dateInput);
 let html = `<div class="progress-title">Заказы за ${formattedDate}</div>`;
-if (filtered.length === 0) { html += '<div class="empty-msg">Нет заказов</div>'; } 
-else {
+if (filtered.length === 0) {
+html += '<div class="empty-msg">Нет заказов за эту дату</div>';
+} else {
 html += `<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>`;
-filtered.forEach(o => { html += `<tr><td>${o.orderNumber}</td><td>${o.detail}</td><td class="amount">${o.amount.toFixed(2)} ₽</td><td><button class="action-btn" onclick="viewOrderDetails(${o.id})"><i class="fas fa-eye"></i></button><button class="action-btn" onclick="openEditModal(${o.id})"><i class="fas fa-edit"></i></button><button class="action-btn" onclick="deleteOrder(${o.id})"><i class="fas fa-trash"></i></button></td></tr>`; });
+filtered.forEach(o => {
+html += `
+<tr>
+<td>${o.orderNumber}</td>
+<td>${o.detail}</td>
+<td class="amount">${o.amount.toFixed(2)} ₽</td>
+<td>
+<button class="action-btn" onclick="viewOrderDetails(${o.id})"><i class="fas fa-eye"></i></button>
+<button class="action-btn" onclick="openEditModal(${o.id})"><i class="fas fa-edit"></i></button>
+<button class="action-btn" onclick="deleteOrder(${o.id})"><i class="fas fa-trash"></i></button>
+</td>
+</tr>`;
+});
 html += '</tbody></table>';
 }
 document.getElementById('ordersListContainer').innerHTML = html;
 }
-
 document.getElementById('orderSearch').addEventListener('keypress', function(e) {
 if (e.key === 'Enter') {
 const query = this.value.trim().toLowerCase();
-if (!query) { showOrdersByDate(); return; }
+if (!query) {
+showOrdersByDate();
+return;
+}
 const orders = loadOrders();
 const matched = orders.filter(o => o.orderNumber.toLowerCase().includes(query));
-let html = `<div class="progress-title">Поиск: "${query}"</div>`;
-if (matched.length === 0) { html += '<div class="empty-msg">Не найдено</div>'; } 
-else {
+let html = `<div class="progress-title">Результаты поиска: "${query}"</div>`;
+if (matched.length === 0) {
+html += '<div class="empty-msg">Заказы не найдены</div>';
+} else {
 html += `<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>`;
-matched.forEach(o => { html += `<tr><td>${o.orderNumber}</td><td>${o.detail}</td><td class="amount">${o.amount.toFixed(2)} ₽</td><td><button class="action-btn" onclick="viewOrderDetails(${o.id})"><i class="fas fa-eye"></i></button><button class="action-btn" onclick="openEditModal(${o.id})"><i class="fas fa-edit"></i></button><button class="action-btn" onclick="deleteOrder(${o.id})"><i class="fas fa-trash"></i></button></td></tr>`; });
+matched.forEach(o => {
+html += `
+<tr>
+<td>${o.orderNumber}</td>
+<td>${o.detail}</td>
+<td class="amount">${o.amount.toFixed(2)} ₽</td>
+<td>
+<button class="action-btn" onclick="viewOrderDetails(${o.id})"><i class="fas fa-eye"></i></button>
+<button class="action-btn" onclick="openEditModal(${o.id})"><i class="fas fa-edit"></i></button>
+<button class="action-btn" onclick="deleteOrder(${o.id})"><i class="fas fa-trash"></i></button>
+</td>
+</tr>`;
+});
 html += '</tbody></table>';
 }
 document.getElementById('ordersListContainer').innerHTML = html;
@@ -724,27 +1528,39 @@ document.getElementById('main').classList.add('active');
 }
 }
 });
-
 function saveOrdersToFile() {
 const dateInput = document.getElementById('viewDate').value;
-if (!dateInput) { alert('Выберите дату'); return; }
+if (!dateInput) { alert('Сначала выберите дату'); return; }
 const orders = loadOrders();
 const filtered = orders.filter(o => o.date === dateInput);
-if (filtered.length === 0) { alert('Нет заказов'); return; }
+if (filtered.length === 0) { alert('Нет заказов за эту дату'); return; }
 const formattedDate = formatDateYMD(dateInput);
-let content = `ЗАКАЗЫ ЗА ${formattedDate}\n========================\n`;
+let content = `ЗАКАЗЫ ЗА ${formattedDate}
+========================
+`;
 let totalSum = 0;
 filtered.forEach((o, idx) => {
 const tariffName = TARIFF_NAMES[o.tariff] || o.tariff;
 const units = calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty);
-content += `№${idx + 1}. ${o.orderNumber}\n${o.detail} (${tariffName})\n`;
-if (o.length) content += `   Длина: ${o.length} м\n`;
-if (o.width) content += `   Ширина: ${o.width} м\n`;
-if (o.hours) content += `   Часы: ${o.hours} ч\n`;
-content += `   Кол-во: ${o.qty}\nОбъем: ${units.value} ${units.unit}\nСумма: ${o.amount.toFixed(2)} ₽\n---\n`;
+content += `№${idx + 1}. ${o.orderNumber}
+${o.detail} (${tariffName})
+`;
+if (o.length) content += `   Длина: ${o.length} м
+`;
+if (o.width) content += `   Ширина: ${o.width} м
+`;
+if (o.hours) content += `   Часы: ${o.hours} ч
+`;
+content += `   Кол-во: ${o.qty}
+Объем: ${units.value} ${units.unit}
+Сумма: ${o.amount.toFixed(2)} ₽
+---
+`;
 totalSum += o.amount;
 });
-content += `\nИТОГО: ${totalSum.toFixed(2)} ₽\nЭкспорт: ${new Date().toLocaleString('ru-RU')}`;
+content += `
+ИТОГО: ${totalSum.toFixed(2)} ₽
+Экспорт: ${new Date().toLocaleString('ru-RU')}`;
 const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
 const blob = new Blob([bom, content], { type: 'text/plain;charset=utf-8' });
 const a = document.createElement('a');
@@ -753,13 +1569,12 @@ a.download = `заказы_${formattedDate}.txt`;
 a.click();
 URL.revokeObjectURL(a.href);
 }
-
 function saveOrdersToJSON() {
 const dateInput = document.getElementById('viewDate').value;
-if (!dateInput) { alert('Выберите дату'); return; }
+if (!dateInput) { alert('Сначала выберите дату'); return; }
 const orders = loadOrders();
 const filtered = orders.filter(o => o.date === dateInput);
-if (filtered.length === 0) { alert('Нет заказов'); return; }
+if (filtered.length === 0) { alert('Нет заказов за эту дату'); return; }
 const jsonContent = JSON.stringify(filtered, null, 2);
 const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8' });
 const a = document.createElement('a');
@@ -768,7 +1583,6 @@ a.download = `заказы_${formatDateYMD(dateInput)}.json`;
 a.click();
 URL.revokeObjectURL(a.href);
 }
-
 document.getElementById('jsonImportInput').addEventListener('change', function(e) {
 const file = e.target.files[0];
 if (!file) return;
@@ -783,7 +1597,10 @@ if (!Array.isArray(importedOrders)) importedOrders = [importedOrders];
 } else {
 importedOrders = parseTxtOrders(content);
 }
-if (importedOrders.length === 0) { alert('Нет заказов в файле!'); return; }
+if (importedOrders.length === 0) {
+alert('Не удалось найти заказы в файле!');
+return;
+}
 const preorders = loadPreorders();
 const newPreorders = importedOrders.map(item => ({
 id: Date.now() + Math.random(),
@@ -794,68 +1611,139 @@ qty: item.qty || 1,
 length: item.length || null,
 width: item.width || null,
 hours: item.hours || null,
-amount: typeof item.amount === 'number' ? item.amount : calculateAmount(item.tariff || 'RASPIL_M2', item.length || 0, item.width || 0, item.hours || 0, item.qty || 1),
+amount: typeof item.amount === 'number'
+? item.amount
+: calculateAmount(
+item.tariff || 'RASPIL_M2',
+item.length || 0,
+item.width || 0,
+item.hours || 0,
+item.qty || 1
+),
 date: todayYMD(),
 timestamp: new Date().toISOString()
 }));
 const updated = [...preorders, ...newPreorders];
 savePreorders(updated);
 renderPreorders();
-alert(`✅ Загружено ${newPreorders.length}!`);
-} catch (err) { console.error(err); alert('Ошибка:\n' + err.message); }
+alert(`✅ Загружено ${newPreorders.length} предзаказов!`);
+} catch (err) {
+console.error(err);
+alert('Ошибка при чтении файла:
+' + err.message);
+}
 };
 reader.readAsText(file, 'utf-8');
 });
-
 function parseTxtOrders(txtContent) {
 const orders = [];
 const blocks = txtContent.split('---');
 for (const block of blocks) {
-const lines = block.trim().split('\n').filter(line => line.trim() !== '');
+const lines = block.trim().split('
+').filter(line => line.trim() !== '');
 if (lines.length < 3) continue;
-const order = { orderNumber: '', detail: '', tariff: '', qty: 1, length: null, width: null, hours: null, amount: 0 };
-let currentDetail = ''; let currentTariff = '';
+const order = {
+orderNumber: '',
+detail: '',
+tariff: '',
+qty: 1,
+length: null,
+width: null,
+hours: null,
+amount: 0
+};
+let currentDetail = '';
+let currentTariff = '';
 for (const line of lines) {
 const cleanLine = line.trim();
-if (cleanLine.startsWith('№') && cleanLine.includes('.')) { const match = cleanLine.match(/№\d+\.\s*(.+)/); if (match) order.orderNumber = match[1].trim(); }
-if (cleanLine.includes('(') && cleanLine.includes(')') && !cleanLine.includes('Сумма')) { const match = cleanLine.match(/(.+)\s*\((.+)\)/); if (match) { currentDetail = match[1].trim(); currentTariff = match[2].trim(); } }
-if (cleanLine.startsWith('Длина:')) { const match = cleanLine.match(/Длина:\s*([\d.]+)\s*м/); if (match) order.length = parseFloat(match[1]); }
-if (cleanLine.startsWith('Ширина:')) { const match = cleanLine.match(/Ширина:\s*([\d.]+)\s*м/); if (match) order.width = parseFloat(match[1]); }
-if (cleanLine.startsWith('Часы:')) { const match = cleanLine.match(/Часы:\s*([\d.]+)\s*ч/); if (match) order.hours = parseFloat(match[1]); }
-if (cleanLine.startsWith('Кол-во:')) { const match = cleanLine.match(/Кол-во:\s*(\d+)/); if (match) order.qty = parseInt(match[1]); }
-if (cleanLine.startsWith('Сумма:')) { const match = cleanLine.match(/Сумма:\s*([\d.]+)\s*₽/); if (match) order.amount = parseFloat(match[1]); }
+if (cleanLine.startsWith('№') && cleanLine.includes('.')) {
+const match = cleanLine.match(/№\d+\.\s*(.+)/);
+if (match) order.orderNumber = match[1].trim();
+}
+if (cleanLine.includes('(') && cleanLine.includes(')') && !cleanLine.includes('Сумма')) {
+const match = cleanLine.match(/(.+)\s*\((.+)\)/);
+if (match) {
+currentDetail = match[1].trim();
+currentTariff = match[2].trim();
+}
+}
+if (cleanLine.startsWith('Длина:')) {
+const match = cleanLine.match(/Длина:\s*([\d.]+)\s*м/);
+if (match) order.length = parseFloat(match[1]);
+}
+if (cleanLine.startsWith('Ширина:')) {
+const match = cleanLine.match(/Ширина:\s*([\d.]+)\s*м/);
+if (match) order.width = parseFloat(match[1]);
+}
+if (cleanLine.startsWith('Часы:')) {
+const match = cleanLine.match(/Часы:\s*([\d.]+)\s*ч/);
+if (match) order.hours = parseFloat(match[1]);
+}
+if (cleanLine.startsWith('Кол-во:')) {
+const match = cleanLine.match(/Кол-во:\s*(\d+)/);
+if (match) order.qty = parseInt(match[1]);
+}
+if (cleanLine.startsWith('Сумма:')) {
+const match = cleanLine.match(/Сумма:\s*([\d.]+)\s*₽/);
+if (match) order.amount = parseFloat(match[1]);
+}
 }
 if (currentTariff) {
-const tariffMap = { 'Распил': 'RASPIL_M2', 'Лин. распил': 'LINEAR_RASPIL', 'Склейка +': 'SKLEIKA_OB', 'Склейка –': 'SKLEIKA_NO_OB', 'Пазы': 'PAZY', 'Фаска': 'FREZER_FASKA', 'Время': 'TIME' };
+const tariffMap = {
+'Распил': 'RASPIL_M2',
+'Лин. распил': 'LINEAR_RASPIL',
+'Склейка +': 'SKLEIKA_OB',
+'Склейка –': 'SKLEIKA_NO_OB',
+'Пазы': 'PAZY',
+'Фаска': 'FREZER_FASKA',
+'Время': 'TIME'
+};
 order.tariff = tariffMap[currentTariff] || 'RASPIL_M2';
 }
 order.detail = currentDetail || '—';
-if (order.orderNumber) { orders.push(order); }
+if (order.orderNumber) {
+orders.push(order);
+}
 }
 return orders;
 }
-
 function calculateUnits(tariffKey, length, width, hours, qty) {
 const tariff = TARIFFS[tariffKey];
 if (!tariff) return { value: 0, unit: '' };
-let value = 0; let unit = tariff.unit;
+let value = 0;
+let unit = tariff.unit;
 if (tariff.unit === 'time') value = hours * qty;
 else if (tariff.unit === 'm2') value = length * width * qty;
 else value = length * qty;
 return { value: Math.round(value * 100) / 100, unit: UNIT_LABELS[unit] || unit };
 }
-
 function calculateStats() {
 const orders = loadOrders();
-let totalLinear = 0; let totalArea = 0; let totalTime = 0;
-const operationCount = { RASPIL_M2: 0, LINEAR_RASPIL: 0, SKLEIKA_OB: 0, SKLEIKA_NO_OB: 0, PAZY: 0, FREZER_FASKA: 0, TIME: 0 };
+let totalLinear = 0;
+let totalArea = 0;
+let totalTime = 0;
+const operationCount = {
+RASPIL_M2: 0,
+LINEAR_RASPIL: 0,
+SKLEIKA_OB: 0,
+SKLEIKA_NO_OB: 0,
+PAZY: 0,
+FREZER_FASKA: 0,
+TIME: 0
+};
 orders.forEach(o => {
-if (o.tariff === 'LINEAR_RASPIL' || o.tariff === 'PAZY' || o.tariff === 'FREZER_FASKA') { totalLinear += (o.length || 0) * (o.qty || 1); } 
-else if (o.tariff === 'RASPIL_M2' || o.tariff === 'SKLEIKA_OB' || o.tariff === 'SKLEIKA_NO_OB') { totalArea += (o.length || 0) * (o.width || 0) * (o.qty || 1); } 
-else if (o.tariff === 'TIME') { totalTime += (o.hours || 0) * (o.qty || 1); }
+if (o.tariff === 'LINEAR_RASPIL' || o.tariff === 'PAZY' || o.tariff === 'FREZER_FASKA') {
+totalLinear += (o.length || 0) * (o.qty || 1);
+} else if (o.tariff === 'RASPIL_M2' || o.tariff === 'SKLEIKA_OB' || o.tariff === 'SKLEIKA_NO_OB') {
+totalArea += (o.length || 0) * (o.width || 0) * (o.qty || 1);
+} else if (o.tariff === 'TIME') {
+totalTime += (o.hours || 0) * (o.qty || 1);
+}
 operationCount[o.tariff] = (operationCount[o.tariff] || 0) + 1;
 });
-const MAX_LINEAR = 1000; const MAX_AREA = 200; const MAX_TIME = 100;
+const MAX_LINEAR = 1000;
+const MAX_AREA = 200;
+const MAX_TIME = 100;
 return {
 linear: { value: totalLinear, percent: Math.min(100, totalLinear / MAX_LINEAR * 100) },
 area: { value: totalArea, percent: Math.min(100, totalArea / MAX_AREA * 100) },
@@ -863,7 +1751,6 @@ time: { value: totalTime, percent: Math.min(100, totalTime / MAX_TIME * 100) },
 operations: operationCount
 };
 }
-
 function renderStats() {
 const stats = calculateStats();
 document.getElementById('linearTotal').textContent = stats.linear.value.toFixed(1);
@@ -874,22 +1761,51 @@ document.getElementById('linearProgress').style.width = `${stats.linear.percent}
 document.getElementById('areaProgress').style.width = `${stats.area.percent}%`;
 document.getElementById('timeProgress').style.width = `${stats.time.percent}%`;
 }, 300);
-const opNames = { RASPIL_M2: 'Распил', LINEAR_RASPIL: 'Лин. распил', SKLEIKA_OB: 'Склейка +', SKLEIKA_NO_OB: 'Склейка –', PAZY: 'Пазы', FREZER_FASKA: 'Фаска', TIME: 'Время' };
+const opNames = {
+RASPIL_M2: 'Распил',
+LINEAR_RASPIL: 'Лин. распил',
+SKLEIKA_OB: 'Склейка +',
+SKLEIKA_NO_OB: 'Склейка –',
+PAZY: 'Пазы',
+FREZER_FASKA: 'Фаска',
+TIME: 'Время'
+};
 let maxCount = Math.max(...Object.values(stats.operations));
 if (maxCount === 0) maxCount = 1;
 let chartHtml = '';
 for (const [key, count] of Object.entries(stats.operations)) {
 if (count === 0) continue;
 const percent = (count / maxCount) * 100;
-chartHtml += `<div class="bar-item" style="margin-bottom:12px;"><div class="bar-label" style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:0.85rem;"><span>${opNames[key]}</span><span>${count}</span></div><div class="bar-container"><div class="bar-fill" style="width: ${percent}%;"></div></div></div>`;
+chartHtml += `
+<div class="bar-item">
+<div class="bar-label">
+<span>${opNames[key]}</span>
+<span>${count}</span>
+</div>
+<div class="bar-container">
+<div class="bar-fill" style="width: ${percent}%;"></div>
+</div>
+</div>
+`;
 }
 document.getElementById('operationsChart').innerHTML = chartHtml || '<p style="color:var(--text-muted); text-align:center;">Нет данных</p>';
 }
-
 let currentCalendarDate = new Date();
-function loadCalendarData() { try { return JSON.parse(localStorage.getItem('operator_calendar') || '{}'); } catch (e) { return {}; } }
-function saveCalendarData(data) { localStorage.setItem('operator_calendar', JSON.stringify(data)); }
-
+function loadCalendarData() {
+try {
+const data = JSON.parse(localStorage.getItem('operator_calendar') || '{}');
+// Migration: ensure tasks array exists for all days
+for (const date in data) {
+if (!data[date].tasks) {
+data[date].tasks = [];
+}
+}
+return data;
+} catch (e) { return {}; }
+}
+function saveCalendarData(data) {
+localStorage.setItem('operator_calendar', JSON.stringify(data));
+}
 function renderCalendar() {
 const year = currentCalendarDate.getFullYear();
 const month = currentCalendarDate.getMonth();
@@ -901,10 +1817,13 @@ const firstDay = new Date(year, month, 1).getDay();
 const daysInMonth = new Date(year, month + 1, 0).getDate();
 const grid = document.getElementById('calendarGrid');
 grid.innerHTML = '';
-for (let i = 0; i < firstDay; i++) { const empty = document.createElement('div'); grid.appendChild(empty); }
+for (let i = 0; i < firstDay; i++) {
+const empty = document.createElement('div');
+grid.appendChild(empty);
+}
 for (let d = 1; d <= daysInMonth; d++) {
 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-const dayData = data[dateStr] || { hours: 0, isHoliday: false };
+const dayData = data[dateStr] || { hours: 0, isHoliday: false, tasks: [] };
 const dayOfWeek = new Date(year, month, d).getDay();
 const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
 const isToday = (dateStr === today);
@@ -914,34 +1833,135 @@ if (isToday) cell.classList.add('today');
 if (dayData.hours > 0) cell.classList.add('worked');
 if (isWeekend) cell.classList.add('weekend');
 if (dayData.isHoliday) cell.classList.add('holiday');
+
+// Task Indicator
+if (dayData.tasks && dayData.tasks.length > 0) {
+const indicator = document.createElement('div');
+indicator.className = 'task-indicator';
+cell.appendChild(indicator);
+}
+
 let html = `<div class="day-num">${d}</div>`;
-if (dayData.hours > 0) { html += `<div class="day-hours">${dayData.hours} ч</div>`; }
-if (dayData.isHoliday) { html += `<i class="fas fa-star holiday-icon"></i>`; }
+if (dayData.hours > 0) {
+html += `<div class="day-hours">${dayData.hours} ч</div>`;
+}
+if (dayData.isHoliday) {
+html += `<i class="fas fa-star holiday-icon"></i>`;
+}
+cell.innerHTML = html + cell.innerHTML; // Preserve indicator if added
+// Re-append indicator if innerHTML overwrite removed it (simplified logic above)
+// Better logic:
 cell.innerHTML = html;
+if (dayData.tasks && dayData.tasks.length > 0) {
+const indicator = document.createElement('div');
+indicator.className = 'task-indicator';
+cell.appendChild(indicator);
+}
+
 cell.onclick = () => openDayModal(dateStr, dayData);
 grid.appendChild(cell);
 }
 }
-function changeMonth(delta) { currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta); renderCalendar(); }
+function changeMonth(delta) {
+currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
+renderCalendar();
+}
 function openDayModal(dateStr, dayData) {
 document.getElementById('editDayDate').value = dateStr;
 document.getElementById('displayDayDate').textContent = formatDateYMD(dateStr);
 document.getElementById('dayHours').value = dayData.hours || '';
 document.getElementById('dayHoliday').checked = dayData.isHoliday || false;
+renderTaskList(dateStr, dayData);
 document.getElementById('dayModal').classList.add('active');
 }
-function closeDayModal() { document.getElementById('dayModal').classList.remove('active'); }
+function closeDayModal() {
+document.getElementById('dayModal').classList.remove('active');
+}
 function saveDayData() {
 const dateStr = document.getElementById('editDayDate').value;
 const hours = parseFloat(document.getElementById('dayHours').value) || 0;
 const isHoliday = document.getElementById('dayHoliday').checked;
 const data = loadCalendarData();
-data[dateStr] = { hours, isHoliday };
+// Ensure tasks are preserved (they are saved individually, but we ensure structure)
+if (!data[dateStr]) data[dateStr] = { tasks: [] };
+data[dateStr].hours = hours;
+data[dateStr].isHoliday = isHoliday;
 saveCalendarData(data);
 closeDayModal();
 renderCalendar();
-alert('✅ Сохранено!');
+alert('✅ Данные дня сохранены!');
 }
+
+// === Task Functions ===
+function renderTaskList(dateStr, dayData) {
+const list = document.getElementById('dayTaskList');
+list.innerHTML = '';
+const tasks = dayData.tasks || [];
+if (tasks.length === 0) {
+list.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:8px;">Нет задач</div>';
+return;
+}
+tasks.forEach(task => {
+const item = document.createElement('div');
+item.className = `task-item ${task.completed ? 'completed' : ''}`;
+item.innerHTML = `
+<input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask('${dateStr}', ${task.id})">
+<span class="task-text">${escapeHtml(task.text)}</span>
+<button class="task-delete" onclick="deleteTask('${dateStr}', ${task.id})"><i class="fas fa-trash"></i></button>
+`;
+list.appendChild(item);
+});
+}
+
+function addTask() {
+const dateStr = document.getElementById('editDayDate').value;
+const input = document.getElementById('newTaskInput');
+const text = input.value.trim();
+if (!text) return;
+
+const data = loadCalendarData();
+if (!data[dateStr]) data[dateStr] = { hours: 0, isHoliday: false, tasks: [] };
+if (!data[dateStr].tasks) data[dateStr].tasks = [];
+
+data[dateStr].tasks.push({
+id: Date.now(),
+text: text,
+completed: false
+});
+
+saveCalendarData(data);
+input.value = '';
+renderTaskList(dateStr, data[dateStr]);
+renderCalendar(); // Update indicator
+}
+
+function toggleTask(dateStr, taskId) {
+const data = loadCalendarData();
+if (!data[dateStr] || !data[dateStr].tasks) return;
+const task = data[dateStr].tasks.find(t => t.id === taskId);
+if (task) {
+task.completed = !task.completed;
+saveCalendarData(data);
+renderTaskList(dateStr, data[dateStr]);
+}
+}
+
+function deleteTask(dateStr, taskId) {
+if (!confirm('Удалить задачу?')) return;
+const data = loadCalendarData();
+if (!data[dateStr] || !data[dateStr].tasks) return;
+data[dateStr].tasks = data[dateStr].tasks.filter(t => t.id !== taskId);
+saveCalendarData(data);
+renderTaskList(dateStr, data[dateStr]);
+renderCalendar(); // Update indicator
+}
+
+function escapeHtml(text) {
+const div = document.createElement('div');
+div.textContent = text;
+return div.innerHTML;
+}
+// === End Task Functions ===
 
 document.querySelectorAll('.panel-item').forEach(item => {
 item.addEventListener('click', () => {
@@ -956,30 +1976,39 @@ else if (target === 'calendar') renderCalendar();
 else if (target === 'preorders') renderPreorders();
 });
 });
-
 function loadAvatar() {
 const avatarData = localStorage.getItem('operator_avatar');
 const avatarBtn = document.getElementById('avatarBtn');
 if (avatarData) {
 const img = document.createElement('img');
 img.src = avatarData;
-img.onerror = () => { localStorage.removeItem('operator_avatar'); avatarBtn.innerHTML = '<i class="fas fa-user"></i>'; };
+img.onerror = () => {
+localStorage.removeItem('operator_avatar');
+avatarBtn.innerHTML = '<i class="fas fa-user"></i>';
+};
 avatarBtn.innerHTML = '';
 avatarBtn.appendChild(img);
 } else {
 avatarBtn.innerHTML = '<i class="fas fa-user"></i>';
 }
 }
-document.getElementById('avatarBtn').addEventListener('click', () => { document.getElementById('avatarUpload').click(); });
+document.getElementById('avatarBtn').addEventListener('click', () => {
+document.getElementById('avatarUpload').click();
+});
 document.getElementById('avatarUpload').addEventListener('change', function(e) {
 const file = e.target.files[0];
 if (!file) return;
-if (!file.type.match('image.*')) { alert('Выберите изображение (JPG, PNG, WEBP)'); return; }
+if (!file.type.match('image.*')) {
+alert('Пожалуйста, выберите изображение (JPG, PNG, WEBP)');
+return;
+}
 const reader = new FileReader();
-reader.onload = function(event) { localStorage.setItem('operator_avatar', event.target.result); loadAvatar(); };
+reader.onload = function(event) {
+localStorage.setItem('operator_avatar', event.target.result);
+loadAvatar();
+};
 reader.readAsDataURL(file);
 });
-
 document.addEventListener('DOMContentLoaded', () => {
 document.getElementById('viewDate').value = todayYMD();
 ['tariff','preTariff','editTariff'].forEach(id => {
