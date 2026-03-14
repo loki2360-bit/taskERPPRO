@@ -103,7 +103,7 @@ color: var(--text-muted);
 pointer-events: none;
 }
 .main-content {
-padding: 72px 16px 80px; /* Увеличил отступ снизу для новой панели */
+padding: 72px 16px 80px;
 max-width: 768px;
 margin: 0 auto;
 }
@@ -115,7 +115,7 @@ transform: translateX(-50%);
 display: flex;
 align-items: center;
 justify-content: space-around;
-height: 52px; /* Чуть выше для 5 элементов */
+height: 52px;
 width: calc(100% - 40px);
 max-width: 500px;
 border-radius: 30px;
@@ -134,7 +134,7 @@ align-items: center;
 justify-content: center;
 gap: 2px;
 color: var(--text-muted);
-font-size: 0.65rem; /* Чуть меньше шрифт */
+font-size: 0.65rem;
 text-align: center;
 cursor: pointer;
 padding: 4px 2px;
@@ -148,23 +148,6 @@ margin-bottom: 2px;
 }
 .panel-item.active {
 color: var(--accent-solid);
-}
-.new-badge {
-position: absolute;
-top: -2px;
-right: -4px;
-background: linear-gradient(135deg, #DC2626, #EF4444);
-color: white;
-font-size: 0.6rem;
-font-weight: bold;
-padding: 2px 5px;
-border-radius: 8px;
-animation: pulse 1.5s ease-in-out infinite;
-box-shadow: 0 2px 6px rgba(220, 38, 38, 0.4);
-}
-@keyframes pulse {
-0%, 100% { transform: scale(1); opacity: 1; }
-50% { transform: scale(1.15); opacity: 0.85; }
 }
 .neu-btn {
 background: var(--card);
@@ -582,6 +565,79 @@ justify-content: center;
 cursor: pointer;
 }
 
+/* Стили для зума фото */
+.zoom-preview-container {
+position: relative;
+text-align: center;
+margin-bottom: 15px;
+}
+.zoom-preview-img {
+max-width: 100%;
+max-height: 150px;
+border-radius: 8px;
+border: 1px solid var(--border);
+}
+.zoom-btn {
+position: absolute;
+bottom: 8px;
+right: 8px;
+background: rgba(59, 66, 86, 0.8);
+color: white;
+border: none;
+border-radius: 50%;
+width: 32px;
+height: 32px;
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+font-size: 1rem;
+box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+.zoom-btn:hover {
+background: var(--accent-solid);
+}
+
+/* Полноэкранное модальное окно */
+#photoZoomModal .modal-content {
+max-width: 95%;
+width: 95%;
+height: 95%;
+background: rgba(0,0,0,0.9);
+border: none;
+box-shadow: none;
+padding: 10px;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+}
+#photoZoomModal img {
+max-width: 100%;
+max-height: 90vh;
+object-fit: contain;
+border-radius: 4px;
+}
+#photoZoomModal .close-zoom-btn {
+position: absolute;
+top: 20px;
+right: 20px;
+background: rgba(255,255,255,0.2);
+color: white;
+border: none;
+border-radius: 50%;
+width: 40px;
+height: 40px;
+font-size: 1.2rem;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+#photoZoomModal .close-zoom-btn:hover {
+background: rgba(255,255,255,0.4);
+}
+
 @media (max-width: 480px) {
 .glass-panel {
 bottom: 16px;
@@ -784,8 +840,9 @@ padding: 0 5px;
 </div>
 </div>
 </div>
+</div>
 
-<!-- НОВАЯ ВКЛАДКА ФОТО -->
+<!-- ВКЛАДКА ФОТО -->
 <div id="photos" class="content-block">
 <div class="container">
 <h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-camera"></i> Фото заказов</h2>
@@ -860,7 +917,6 @@ padding: 0 5px;
 <div class="panel-item" data-target="calendar">
 <i class="fas fa-calendar-alt"></i>
 <span>Календарь</span>
-<!-- Плашка NEW удалена -->
 </div>
 <div class="panel-item" data-target="photos">
 <i class="fas fa-camera"></i>
@@ -976,9 +1032,11 @@ padding: 0 5px;
 <div id="photoOrderModal" class="modal">
 <div class="modal-content">
 <div class="modal-title">Оформить заказ по фото</div>
-<input type="hidden" id="photoOrderId">
-<div style="text-align: center; margin-bottom: 15px;">
-<img id="photoPreviewImg" src="" alt="Preview" style="max-width: 100%; max-height: 150px; border-radius: 8px; border: 1px solid var(--border);">
+<div class="zoom-preview-container">
+<img id="photoPreviewImg" src="" alt="Preview" class="zoom-preview-img">
+<button class="zoom-btn" onclick="openPhotoZoom()" title="Увеличить фото">
+<i class="fas fa-search-plus"></i>
+</button>
 </div>
 <div class="modal-row">
 <label>№ заказа</label>
@@ -1022,6 +1080,14 @@ padding: 0 5px;
 <button class="neu-btn" onclick="closePhotoOrderModal()">Отмена</button>
 <button class="neu-btn neu-btn-accent" onclick="confirmPhotoOrder()">Оформить в предзаказ</button>
 </div>
+</div>
+</div>
+
+<!-- Полноэкранное модальное окно для зума -->
+<div id="photoZoomModal" class="modal">
+<div class="modal-content">
+<button class="close-zoom-btn" onclick="closePhotoZoom()"><i class="fas fa-times"></i></button>
+<img id="zoomedImage" src="" alt="Zoomed Photo">
 </div>
 </div>
 
@@ -2017,6 +2083,17 @@ document.getElementById('photoOrderModal').classList.add('active');
 function closePhotoOrderModal() {
 document.getElementById('photoOrderModal').classList.remove('active');
 currentPhotoIdForOrder = null;
+}
+
+// Функции для зума фото
+function openPhotoZoom() {
+const src = document.getElementById('photoPreviewImg').src;
+document.getElementById('zoomedImage').src = src;
+document.getElementById('photoZoomModal').classList.add('active');
+}
+
+function closePhotoZoom() {
+document.getElementById('photoZoomModal').classList.remove('active');
 }
 
 function confirmPhotoOrder() {
