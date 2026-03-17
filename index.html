@@ -148,29 +148,31 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
 .tag-TIME { background-color: #6B7285; } 
 .tag-UNKNOWN { background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); }
 
-/* Кнопка выбора тега прямо на карточке */
-.photo-tag-selector {
+/* Контейнер для селекторов (тег и дата) */
+.photo-controls {
     position: absolute;
-    bottom: 32px; /* Над панелью действий */
+    bottom: 32px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 15;
     width: 90%;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
     text-align: center;
     opacity: 0;
     transition: opacity 0.2s;
 }
-.photo-card:hover .photo-tag-selector, .photo-card:active .photo-tag-selector { opacity: 1; }
-/* На мобильных всегда показываем селектор или делаем его более заметным */
+.photo-card:hover .photo-controls, .photo-card:active .photo-controls { opacity: 1; }
 @media (max-width: 600px) {
-    .photo-tag-selector { opacity: 1; bottom: 36px; }
+    .photo-controls { opacity: 1; bottom: 36px; }
 }
 
-.tag-select-mini {
+.control-select {
     width: 100%;
-    font-size: 0.7rem;
-    padding: 4px;
-    border-radius: 6px;
+    font-size: 0.65rem;
+    padding: 3px;
+    border-radius: 4px;
     border: 1px solid rgba(255,255,255,0.5);
     background: rgba(59, 66, 86, 0.9);
     color: white;
@@ -178,9 +180,9 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
     cursor: pointer;
     backdrop-filter: blur(4px);
 }
-.tag-select-mini option { background: var(--card); color: var(--text); }
+.control-select option { background: var(--card); color: var(--text); }
 
-/* Панель действий (удалить/оформить) */
+/* Панель действий */
 .photo-actions { 
     position: absolute; 
     bottom: 0; 
@@ -335,7 +337,7 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
 <div class="container">
 <h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-camera"></i> Фото заказов</h2>
 <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px; text-align: center;">
-    <i class="fas fa-info-circle"></i> Выберите тип операции в списке на фото, чтобы появился цветной ярлык.
+    <i class="fas fa-info-circle"></i> Выберите тип операции и дату на фото.
 </p>
 <div class="capture-btn-container">
 <label for="cameraInput" class="capture-btn" title="Сделать фото"><i class="fas fa-camera"></i></label>
@@ -433,10 +435,16 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
 <img id="photoPreviewImg" src="" alt="Preview" class="zoom-preview-img">
 <button class="zoom-btn" onclick="openPhotoZoom()" title="Увеличить фото"><i class="fas fa-search-plus"></i></button>
 </div>
-<!-- Отображение выбранного тега -->
-<div class="modal-row">
-    <label>Тип операции (выбран на фото)</label>
-    <div id="photoTagDisplay" style="font-weight:bold; color:var(--accent-solid); padding: 8px; background:var(--bg); border-radius:6px; text-align:center;">Не выбран</div>
+<!-- Отображение выбранных параметров -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+    <div class="modal-row" style="margin-bottom:0;">
+        <label>Тип (выбран на фото)</label>
+        <div id="photoTagDisplay" style="font-weight:bold; color:var(--accent-solid); padding: 6px; background:var(--bg); border-radius:6px; text-align:center; font-size:0.8rem;">Не выбран</div>
+    </div>
+    <div class="modal-row" style="margin-bottom:0;">
+        <label>Дата (выбрана на фото)</label>
+        <div id="photoDateDisplay" style="font-weight:bold; color:var(--accent-solid); padding: 6px; background:var(--bg); border-radius:6px; text-align:center; font-size:0.8rem;">Не выбрана</div>
+    </div>
 </div>
 
 <div class="modal-row"><label>№ заказа</label><input type="text" id="photoOrderNum" class="neu-input" placeholder="ORD-001"></div>
@@ -506,6 +514,27 @@ const TAG_OPTIONS = [
 function getTagName(val) {
     const opt = TAG_OPTIONS.find(o => o.val === val);
     return opt ? opt.label : 'Не выбрано';
+}
+
+// Генерация опций для дат (Сегодня, Завтра, +7 дней)
+function getDateOptions() {
+    const options = [{ val: '', label: '-- Дата --' }];
+    const today = new Date();
+    for (let i = 0; i <= 7; i++) {
+        const d = new Date(today);
+        d.setDate(today.getDate() + i);
+        const dateStr = d.toISOString().split('T')[0];
+        let label = '';
+        if (i === 0) label = 'Сегодня';
+        else if (i === 1) label = 'Завтра';
+        else {
+            const day = d.getDate().toString().padStart(2, '0');
+            const month = (d.getMonth() + 1).toString().padStart(2, '0');
+            label = `${day}.${month}`;
+        }
+        options.push({ val: dateStr, label: label });
+    }
+    return options;
 }
 
 const TARIFFS = {
@@ -969,7 +998,7 @@ const isHoliday = document.getElementById('dayHoliday').checked;
 const data = loadCalendarData(); data[dateStr] = { hours, isHoliday }; saveCalendarData(data);
 closeDayModal(); renderCalendar(); alert('✅ Сохранено');
 }
-// === ФОТО (ОБНОВЛЕНО С ТЕГАМИ) ===
+// === ФОТО (ОБНОВЛЕНО С ТЕГАМИ И ДАТОЙ) ===
 function loadPhotos() { try { return JSON.parse(localStorage.getItem('operator_photos') || '[]'); } catch (e) { return []; } }
 function savePhotos(photos) {
 try {
@@ -1006,7 +1035,7 @@ callback(canvas.toDataURL('image/jpeg', 0.7));
 };
 }
 
-// ОТРИСОВКА ФОТО С ВЫБОРОМ ТЕГА НА КАРТОЧКЕ
+// ОТРИСОВКА ФОТО С ВЫБОРОМ ТЕГА И ДАТЫ
 function renderPhotos() {
     const photos = loadPhotos();
     const container = document.getElementById('photosListContainer');
@@ -1016,19 +1045,26 @@ function renderPhotos() {
     }
     
     let html = '';
+    const dateOptions = getDateOptions();
+    
     photos.forEach(p => {
-        // Определяем класс и имя тега
+        // Тэг
         const tagClass = p.tagType ? `tag-${p.tagType}` : 'tag-UNKNOWN';
         const tagName = p.tagType ? getTagName(p.tagType) : '';
-        
-        // HTML для ярлыка (показываем только если выбран тег)
         const tagHtml = tagName ? `<div class="photo-tag ${tagClass}">${tagName}</div>` : '';
         
-        // Генерируем опции для выпадающего списка на карточке
-        let optionsHtml = '';
+        // Опции для тега
+        let tagOptionsHtml = '';
         TAG_OPTIONS.forEach(opt => {
             const selected = (opt.val === p.tagType) ? 'selected' : '';
-            optionsHtml += `<option value="${opt.val}" ${selected}>${opt.label}</option>`;
+            tagOptionsHtml += `<option value="${opt.val}" ${selected}>${opt.label}</option>`;
+        });
+
+        // Опции для даты
+        let dateOptionsHtml = '';
+        dateOptions.forEach(opt => {
+            const selected = (opt.val === p.photoDate) ? 'selected' : '';
+            dateOptionsHtml += `<option value="${opt.val}" ${selected}>${opt.label}</option>`;
         });
 
         html += `
@@ -1036,10 +1072,13 @@ function renderPhotos() {
             ${tagHtml}
             <img src="${p.data}" alt="Photo">
             
-            <!-- Выпадающий список прямо на карточке -->
-            <div class="photo-tag-selector">
-                <select class="tag-select-mini" onchange="updatePhotoTag(${p.id}, this.value)">
-                    ${optionsHtml}
+            <!-- Контролы: Тэг и Дата -->
+            <div class="photo-controls">
+                <select class="control-select" onchange="updatePhotoTag(${p.id}, this.value)">
+                    ${tagOptionsHtml}
+                </select>
+                <select class="control-select" onchange="updatePhotoDate(${p.id}, this.value)">
+                    ${dateOptionsHtml}
                 </select>
             </div>
 
@@ -1052,14 +1091,26 @@ function renderPhotos() {
     container.innerHTML = html;
 }
 
-// Функция обновления тега для конкретного фото
+// Обновление тега
 function updatePhotoTag(photoId, newTag) {
     const photos = loadPhotos();
     const idx = photos.findIndex(p => p.id === photoId);
     if (idx !== -1) {
         photos[idx].tagType = newTag;
         savePhotos(photos);
-        renderPhotos(); // Перерисовать, чтобы обновился цветной ярлык
+        renderPhotos();
+    }
+}
+
+// Обновление даты
+function updatePhotoDate(photoId, newDate) {
+    const photos = loadPhotos();
+    const idx = photos.findIndex(p => p.id === photoId);
+    if (idx !== -1) {
+        photos[idx].photoDate = newDate;
+        savePhotos(photos);
+        // Перерисовка не обязательна для даты, но нужна если мы хотим показать что-то визуально (пока просто сохраняем)
+        // Можно добавить визуальный индикатор даты, если нужно
     }
 }
 
@@ -1068,8 +1119,8 @@ const file = e.target.files[0];
 if (!file) return;
 compressImage(file, (compressedDataUrl) => {
 const photos = loadPhotos();
-// Создаем фото без тега изначально
-const newPhoto = { id: Date.now(), data: compressedDataUrl, timestamp: new Date().toISOString(), tagType: "" };
+// Создаем фото без тега и даты изначально
+const newPhoto = { id: Date.now(), data: compressedDataUrl, timestamp: new Date().toISOString(), tagType: "", photoDate: "" };
 photos.unshift(newPhoto);
 savePhotos(photos);
 renderPhotos();
@@ -1110,8 +1161,17 @@ function openPhotoOrderModal(photoId) {
     // Отображаем выбранный тег текстом
     const tagDisplayEl = document.getElementById('photoTagDisplay');
     const tagName = getTagName(photo.tagType);
-    tagDisplayEl.textContent = tagName === 'Не выбрано' ? 'Не выбран (выберите вручную)' : tagName;
+    tagDisplayEl.textContent = tagName === 'Не выбрано' ? 'Не выбран' : tagName;
     tagDisplayEl.style.color = photo.tagType ? 'var(--accent-solid)' : 'var(--text-muted)';
+
+    // АВТОМАТИЧЕСКИ выбираем дату равную выбранной на фото (или сегодня)
+    const selectedDate = photo.photoDate || todayYMD();
+    // Дату мы не ставим в форму явно, так как в форме нет поля даты для предзаказа (она берется из объекта или сегодня)
+    // Но мы покажем её пользователю
+    const dateDisplayEl = document.getElementById('photoDateDisplay');
+    const dateLabel = dateOptions.find(o => o.val === photo.photoDate)?.label || (photo.photoDate ? formatDateYMD(photo.photoDate) : 'Сегодня');
+    dateDisplayEl.textContent = photo.photoDate ? dateLabel : 'Не выбрана (будет сегодня)';
+    dateDisplayEl.style.color = photo.photoDate ? 'var(--accent-solid)' : 'var(--text-muted)';
     
     updatePhotoFormFields();
     document.getElementById('photoOrderModal').classList.add('active');
@@ -1130,8 +1190,6 @@ function confirmPhotoOrder() {
     if (!num) { alert('Укажите № заказа'); return; }
     
     const tariffKey = document.getElementById('photoTariff').value;
-    // Тег берется из тарифа (который мы установили из тега фото)
-    const tagType = tariffKey; 
     
     const detail = document.getElementById('photoDetail').value.trim() || '—';
     const qty = parseInt(document.getElementById('photoQty').value) || 1;
@@ -1140,6 +1198,11 @@ function confirmPhotoOrder() {
     const hours = parseFloat(document.getElementById('photoHours').value) || 0;
     
     const amount = calculateAmount(tariffKey, length, width, hours, qty);
+    
+    // Получаем дату из фото (если не выбрана, то сегодня)
+    const photos = loadPhotos();
+    const photo = photos.find(p => p.id === currentPhotoIdForOrder);
+    const orderDate = (photo && photo.photoDate) ? photo.photoDate : todayYMD();
     
     const preorder = { 
         id: Date.now(), 
@@ -1151,19 +1214,18 @@ function confirmPhotoOrder() {
         width: width || null, 
         hours: hours || null, 
         amount: amount, 
-        date: todayYMD(), 
+        date: orderDate, // Используем дату из фото
         timestamp: new Date().toISOString(), 
         hasPhoto: true,
-        photoTag: tagType 
+        photoTag: tariffKey 
     };
     
     const preorders = loadPreorders(); preorders.push(preorder); savePreorders(preorders);
     
-    let photos = loadPhotos();
     photos = photos.filter(p => p.id !== currentPhotoIdForOrder);
     savePhotos(photos);
     
-    alert('✅ Оформлен в предзаказ! Фото удалено.');
+    alert(`✅ Оформлен в предзаказ на ${formatDateYMD(orderDate)}! Фото удалено.`);
     closePhotoOrderModal(); 
     renderPreorders(); 
     renderPhotos();
@@ -1209,8 +1271,13 @@ const reader = new FileReader();
 reader.onload = function(event) { localStorage.setItem('operator_avatar', event.target.result); loadAvatar(); };
 reader.readAsDataURL(file);
 });
+
+// Глобальная переменная для доступа к опциям дат в openPhotoOrderModal
+let dateOptions = [];
+
 document.addEventListener('DOMContentLoaded', () => {
 document.getElementById('viewDate').value = todayYMD();
+dateOptions = getDateOptions(); // Инициализируем опции дат
 ['tariff','preTariff','editTariff'].forEach(id => {
 const el = document.getElementById(id);
 if (el) el.addEventListener('change', () => {
