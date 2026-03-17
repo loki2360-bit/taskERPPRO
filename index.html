@@ -108,8 +108,9 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
 .install-prompt button { padding: 8px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
 .install-prompt .install-btn { background: #F0F1F3; color: var(--accent-solid); }
 .install-prompt .later-btn { background: transparent; color: #F0F1F3; border: 1px solid #F0F1F3; }
-/* Стили для вкладки Фото */
-.photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; margin-top: 16px; }
+
+/* === СТИЛИ ДЛЯ ФОТО И ТЕГОВ === */
+.photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; margin-top: 16px; }
 .photo-card { 
     background: var(--card); 
     border-radius: 12px; 
@@ -118,52 +119,86 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
     border: 1px solid var(--border); 
     position: relative; 
     aspect-ratio: 1; 
+    display: flex;
+    flex-direction: column;
 }
-.photo-card img { width: 100%; height: 100%; object-fit: cover; }
+.photo-card img { width: 100%; height: 100%; object-fit: cover; flex: 1; }
 
-/* Стили для ярлыка (тега) */
+/* Ярлык (Тэг) */
 .photo-tag {
     position: absolute;
-    top: 8px;
-    left: 8px;
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-size: 0.75rem;
+    top: 6px;
+    left: 6px;
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 0.65rem;
     font-weight: 700;
     color: #fff;
     text-transform: uppercase;
     box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    pointer-events: none; /* Чтобы клик проходил сквозь тег */
     z-index: 10;
+    pointer-events: none;
 }
-/* Цвета для разных операций */
-.tag-RASPIL_M2 { background-color: #3B82F6; } /* Синий - Распил м2 */
-.tag-LINEAR_RASPIL { background-color: #10B981; } /* Зеленый - Линейный */
-.tag-SKLEIKA_OB, .tag-SKLEIKA_NO_OB { background-color: #8B5CF6; } /* Фиолетовый - Склейка */
-.tag-PAZY { background-color: #F59E0B; } /* Оранжевый - Пазы */
-.tag-FREZER_FASKA { background-color: #EC4899; } /* Розовый - Фаска */
-.tag-TIME { background-color: #6B7285; } /* Серый - Время */
-.tag-UNKNOWN { background-color: #9CA3AF; } /* Серый - Не указано */
+/* Цвета тегов */
+.tag-RASPIL_M2 { background-color: #3B82F6; } 
+.tag-LINEAR_RASPIL { background-color: #10B981; } 
+.tag-SKLEIKA_OB, .tag-SKLEIKA_NO_OB { background-color: #8B5CF6; } 
+.tag-PAZY { background-color: #F59E0B; } 
+.tag-FREZER_FASKA { background-color: #EC4899; } 
+.tag-TIME { background-color: #6B7285; } 
+.tag-UNKNOWN { background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); }
 
+/* Кнопка выбора тега прямо на карточке */
+.photo-tag-selector {
+    position: absolute;
+    bottom: 32px; /* Над панелью действий */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 15;
+    width: 90%;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.photo-card:hover .photo-tag-selector, .photo-card:active .photo-tag-selector { opacity: 1; }
+/* На мобильных всегда показываем селектор или делаем его более заметным */
+@media (max-width: 600px) {
+    .photo-tag-selector { opacity: 1; bottom: 36px; }
+}
+
+.tag-select-mini {
+    width: 100%;
+    font-size: 0.7rem;
+    padding: 4px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.5);
+    background: rgba(59, 66, 86, 0.9);
+    color: white;
+    outline: none;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+}
+.tag-select-mini option { background: var(--card); color: var(--text); }
+
+/* Панель действий (удалить/оформить) */
 .photo-actions { 
     position: absolute; 
     bottom: 0; 
     left: 0; 
     width: 100%; 
-    background: rgba(59, 66, 86, 0.8); 
+    background: rgba(59, 66, 86, 0.95); 
     display: flex; 
     justify-content: space-around; 
-    padding: 4px 0; 
-    opacity: 0; 
-    transition: opacity 0.2s; 
+    padding: 6px 0; 
     z-index: 20;
 }
-.photo-card:hover .photo-actions, .photo-card:active .photo-actions { opacity: 1; }
-.photo-action-btn { background: none; border: none; color: white; font-size: 1rem; cursor: pointer; padding: 4px; }
+.photo-action-btn { background: none; border: none; color: white; font-size: 1.1rem; cursor: pointer; padding: 4px; }
 .photo-action-btn.delete { color: #ff6b6b; }
 .photo-action-btn.edit { color: #4ecdc4; }
+
 .capture-btn-container { display: flex; justify-content: center; margin-bottom: 20px; }
 .capture-btn { width: 60px; height: 60px; border-radius: 50%; background: var(--accent-solid); color: white; border: 4px solid var(--bg); box-shadow: 0 4px 10px rgba(0,0,0,0.2); font-size: 1.5rem; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
 /* Зум фото */
 .zoom-preview-container { position: relative; text-align: center; margin-bottom: 15px; }
 .zoom-preview-img { max-width: 100%; max-height: 150px; border-radius: 8px; border: 1px solid var(--border); }
@@ -173,6 +208,7 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
 #photoZoomModal img { max-width: 100%; max-height: 90vh; object-fit: contain; border-radius: 4px; }
 #photoZoomModal .close-zoom-btn { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 #photoZoomModal .close-zoom-btn:hover { background: rgba(255,255,255,0.4); }
+
 @media (max-width: 480px) {
 .glass-panel { bottom: 16px; height: 56px; width: calc(100% - 32px); padding: 0 5px; }
 .panel-item { font-size: 0.6rem; gap: 1px; }
@@ -298,6 +334,9 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
 <div id="photos" class="content-block">
 <div class="container">
 <h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-camera"></i> Фото заказов</h2>
+<p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px; text-align: center;">
+    <i class="fas fa-info-circle"></i> Выберите тип операции в списке на фото, чтобы появился цветной ярлык.
+</p>
 <div class="capture-btn-container">
 <label for="cameraInput" class="capture-btn" title="Сделать фото"><i class="fas fa-camera"></i></label>
 <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;" />
@@ -394,19 +433,10 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
 <img id="photoPreviewImg" src="" alt="Preview" class="zoom-preview-img">
 <button class="zoom-btn" onclick="openPhotoZoom()" title="Увеличить фото"><i class="fas fa-search-plus"></i></button>
 </div>
-<!-- НОВОЕ ПОЛЕ: Выбор тега -->
+<!-- Отображение выбранного тега -->
 <div class="modal-row">
-    <label>Тип операции (Тэг)</label>
-    <select id="photoTagType" class="neu-select">
-        <option value="">-- Не выбрано --</option>
-        <option value="RASPIL_M2">Распил (м²)</option>
-        <option value="LINEAR_RASPIL">Лин. распил</option>
-        <option value="SKLEIKA_OB">Склейка (+)</option>
-        <option value="SKLEIKA_NO_OB">Склейка (-)</option>
-        <option value="PAZY">Пазы</option>
-        <option value="FREZER_FASKA">Фаска</option>
-        <option value="TIME">Время</option>
-    </select>
+    <label>Тип операции (выбран на фото)</label>
+    <div id="photoTagDisplay" style="font-weight:bold; color:var(--accent-solid); padding: 8px; background:var(--bg); border-radius:6px; text-align:center;">Не выбран</div>
 </div>
 
 <div class="modal-row"><label>№ заказа</label><input type="text" id="photoOrderNum" class="neu-input" placeholder="ORD-001"></div>
@@ -457,8 +487,27 @@ installPrompt.classList.remove('show');
 }
 }
 function closeInstallPrompt() { installPrompt.classList.remove('show'); }
-// === Константы и утилиты ===
+
+// === КОНСТАНТЫ И УТИЛИТЫ ===
 let soundEnabled = true;
+
+// ОПЦИИ ТЕГОВ
+const TAG_OPTIONS = [
+    { val: '', label: '-- Тип --' },
+    { val: 'RASPIL_M2', label: 'Распил' },
+    { val: 'LINEAR_RASPIL', label: 'Лин. распил' },
+    { val: 'SKLEIKA_OB', label: 'Склейка +' },
+    { val: 'SKLEIKA_NO_OB', label: 'Склейка -' },
+    { val: 'PAZY', label: 'Пазы' },
+    { val: 'FREZER_FASKA', label: 'Фаска' },
+    { val: 'TIME', label: 'Время' }
+];
+
+function getTagName(val) {
+    const opt = TAG_OPTIONS.find(o => o.val === val);
+    return opt ? opt.label : 'Не выбрано';
+}
+
 const TARIFFS = {
 RASPIL_M2: { price: 65, unit: 'm2' }, LINEAR_RASPIL: { price: 26, unit: 'linear' },
 SKLEIKA_OB: { price: 210, unit: 'm2' }, SKLEIKA_NO_OB: { price: 165, unit: 'm2' },
@@ -920,7 +969,7 @@ const isHoliday = document.getElementById('dayHoliday').checked;
 const data = loadCalendarData(); data[dateStr] = { hours, isHoliday }; saveCalendarData(data);
 closeDayModal(); renderCalendar(); alert('✅ Сохранено');
 }
-// === ФОТО (ОПТИМИЗИРОВАНО) ===
+// === ФОТО (ОБНОВЛЕНО С ТЕГАМИ) ===
 function loadPhotos() { try { return JSON.parse(localStorage.getItem('operator_photos') || '[]'); } catch (e) { return []; } }
 function savePhotos(photos) {
 try {
@@ -939,8 +988,8 @@ const img = new Image();
 img.src = event.target.result;
 img.onload = () => {
 const canvas = document.createElement('canvas');
-const MAX_WIDTH = 800; // Максимальная ширина
-const MAX_HEIGHT = 800; // Максимальная высота
+const MAX_WIDTH = 800; 
+const MAX_HEIGHT = 800; 
 let width = img.width;
 let height = img.height;
 if (width > height) {
@@ -952,63 +1001,82 @@ canvas.width = width;
 canvas.height = height;
 const ctx = canvas.getContext('2d');
 ctx.drawImage(img, 0, 0, width, height);
-// Сжатие с качеством 0.7 (70%)
 callback(canvas.toDataURL('image/jpeg', 0.7));
 };
 };
 }
 
-// ОБНОВЛЕННАЯ ФУНКЦИЯ ОТРИСОВКИ С ТЕГАМИ
+// ОТРИСОВКА ФОТО С ВЫБОРОМ ТЕГА НА КАРТОЧКЕ
 function renderPhotos() {
     const photos = loadPhotos();
     const container = document.getElementById('photosListContainer');
-    if (photos.length === 0) { container.innerHTML = '<div class="empty-msg">Нет сохраненных фото</div>'; return; }
+    if (photos.length === 0) { 
+        container.innerHTML = '<div class="empty-msg">Нет сохраненных фото</div>'; 
+        return; 
+    }
     
     let html = '';
     photos.forEach(p => {
-        // Определяем класс цвета и текст для тега
-        let tagClass = 'tag-UNKNOWN';
-        let tagName = '';
+        // Определяем класс и имя тега
+        const tagClass = p.tagType ? `tag-${p.tagType}` : 'tag-UNKNOWN';
+        const tagName = p.tagType ? getTagName(p.tagType) : '';
         
-        if (p.tagType) {
-            tagClass = `tag-${p.tagType}`;
-            // Красивое название для отображения
-            const names = {
-                'RASPIL_M2': 'Распил', 'LINEAR_RASPIL': 'Лин. распил',
-                'SKLEIKA_OB': 'Склейка+', 'SKLEIKA_NO_OB': 'Склейка-',
-                'PAZY': 'Пазы', 'FREZER_FASKA': 'Фаска', 'TIME': 'Время'
-            };
-            tagName = names[p.tagType] || p.tagType;
-        }
-
+        // HTML для ярлыка (показываем только если выбран тег)
         const tagHtml = tagName ? `<div class="photo-tag ${tagClass}">${tagName}</div>` : '';
+        
+        // Генерируем опции для выпадающего списка на карточке
+        let optionsHtml = '';
+        TAG_OPTIONS.forEach(opt => {
+            const selected = (opt.val === p.tagType) ? 'selected' : '';
+            optionsHtml += `<option value="${opt.val}" ${selected}>${opt.label}</option>`;
+        });
 
-        html += `<div class="photo-card">
-                    ${tagHtml}
-                    <img src="${p.data}" alt="Photo">
-                    <div class="photo-actions">
-                        <button class="photo-action-btn edit" onclick="openPhotoOrderModal(${p.id})" title="Оформить заказ"><i class="fas fa-file-signature"></i></button>
-                        <button class="photo-action-btn delete" onclick="deletePhoto(${p.id})" title="Удалить"><i class="fas fa-trash"></i></button>
-                    </div>
-                 </div>`;
+        html += `
+        <div class="photo-card">
+            ${tagHtml}
+            <img src="${p.data}" alt="Photo">
+            
+            <!-- Выпадающий список прямо на карточке -->
+            <div class="photo-tag-selector">
+                <select class="tag-select-mini" onchange="updatePhotoTag(${p.id}, this.value)">
+                    ${optionsHtml}
+                </select>
+            </div>
+
+            <div class="photo-actions">
+                <button class="photo-action-btn edit" onclick="openPhotoOrderModal(${p.id})" title="Оформить заказ"><i class="fas fa-file-signature"></i></button>
+                <button class="photo-action-btn delete" onclick="deletePhoto(${p.id})" title="Удалить"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>`;
     });
     container.innerHTML = html;
+}
+
+// Функция обновления тега для конкретного фото
+function updatePhotoTag(photoId, newTag) {
+    const photos = loadPhotos();
+    const idx = photos.findIndex(p => p.id === photoId);
+    if (idx !== -1) {
+        photos[idx].tagType = newTag;
+        savePhotos(photos);
+        renderPhotos(); // Перерисовать, чтобы обновился цветной ярлык
+    }
 }
 
 document.getElementById('cameraInput').addEventListener('change', function(e) {
 const file = e.target.files[0];
 if (!file) return;
-// Показываем индикатор загрузки (опционально можно добавить лоадер)
 compressImage(file, (compressedDataUrl) => {
 const photos = loadPhotos();
-// Сохраняем фото без тега изначально (тег ставится при оформлении)
+// Создаем фото без тега изначально
 const newPhoto = { id: Date.now(), data: compressedDataUrl, timestamp: new Date().toISOString(), tagType: "" };
 photos.unshift(newPhoto);
 savePhotos(photos);
 renderPhotos();
-this.value = ''; // Сброс
+this.value = ''; 
 });
 });
+
 function deletePhoto(photoId) {
 if (!confirm('Удалить фото?')) return;
 let photos = loadPhotos();
@@ -1016,9 +1084,9 @@ photos = photos.filter(p => p.id !== photoId);
 savePhotos(photos);
 renderPhotos();
 }
+
 let currentPhotoIdForOrder = null;
 
-// ОБНОВЛЕННАЯ ФУНКЦИЯ ОТКРЫТИЯ МОДАЛЬНОГО ОКНА
 function openPhotoOrderModal(photoId) {
     const photos = loadPhotos();
     const photo = photos.find(p => p.id === photoId);
@@ -1027,17 +1095,23 @@ function openPhotoOrderModal(photoId) {
     currentPhotoIdForOrder = photoId;
     document.getElementById('photoPreviewImg').src = photo.data;
     
-    // Сброс полей формы
+    // Сброс полей
     document.getElementById('photoOrderNum').value = '';
     document.getElementById('photoDetail').value = '';
     document.getElementById('photoQty').value = '1';
     document.getElementById('photoLength').value = '';
     document.getElementById('photoWidth').value = '';
     document.getElementById('photoHours').value = '';
-    document.getElementById('photoTariff').value = 'RASPIL_M2';
     
-    // Сброс или установка тега (если он уже был сохранен ранее, хотя обычно его ставят при создании)
-    document.getElementById('photoTagType').value = photo.tagType || ""; 
+    // АВТОМАТИЧЕСКИ выбираем тариф равный выбранному тегу на фото
+    const selectedTag = photo.tagType || 'RASPIL_M2';
+    document.getElementById('photoTariff').value = selectedTag;
+    
+    // Отображаем выбранный тег текстом
+    const tagDisplayEl = document.getElementById('photoTagDisplay');
+    const tagName = getTagName(photo.tagType);
+    tagDisplayEl.textContent = tagName === 'Не выбрано' ? 'Не выбран (выберите вручную)' : tagName;
+    tagDisplayEl.style.color = photo.tagType ? 'var(--accent-solid)' : 'var(--text-muted)';
     
     updatePhotoFormFields();
     document.getElementById('photoOrderModal').classList.add('active');
@@ -1051,14 +1125,13 @@ document.getElementById('photoZoomModal').classList.add('active');
 }
 function closePhotoZoom() { document.getElementById('photoZoomModal').classList.remove('active'); }
 
-// ОБНОВЛЕННАЯ ФУНКЦИЯ ПОДТВЕРЖДЕНИЯ ЗАКАЗА
 function confirmPhotoOrder() {
     const num = document.getElementById('photoOrderNum').value.trim();
     if (!num) { alert('Укажите № заказа'); return; }
     
     const tariffKey = document.getElementById('photoTariff').value;
-    // Получаем выбранный тег
-    const tagType = document.getElementById('photoTagType').value;
+    // Тег берется из тарифа (который мы установили из тега фото)
+    const tagType = tariffKey; 
     
     const detail = document.getElementById('photoDetail').value.trim() || '—';
     const qty = parseInt(document.getElementById('photoQty').value) || 1;
@@ -1081,13 +1154,12 @@ function confirmPhotoOrder() {
         date: todayYMD(), 
         timestamp: new Date().toISOString(), 
         hasPhoto: true,
-        photoTag: tagType // Сохраняем тег и в предзаказ (опционально)
+        photoTag: tagType 
     };
     
     const preorders = loadPreorders(); preorders.push(preorder); savePreorders(preorders);
     
     let photos = loadPhotos();
-    // Удаляем фото из галереи после оформления
     photos = photos.filter(p => p.id !== currentPhotoIdForOrder);
     savePhotos(photos);
     
@@ -1096,7 +1168,6 @@ function confirmPhotoOrder() {
     renderPreorders(); 
     renderPhotos();
     
-    // Переключение на вкладку предзаказов
     document.querySelectorAll('.panel-item').forEach(i => i.classList.remove('active'));
     document.querySelectorAll('.content-block').forEach(c => c.classList.remove('active'));
     document.querySelector('.panel-item[data-target="preorders"]').classList.add('active');
@@ -1104,6 +1175,7 @@ function confirmPhotoOrder() {
 }
 
 document.getElementById('photoTariff').addEventListener('change', updatePhotoFormFields);
+
 // === НАВИГАЦИЯ И ИНИЦИАЛИЗАЦИЯ ===
 document.querySelectorAll('.panel-item').forEach(item => {
 item.addEventListener('click', () => {
