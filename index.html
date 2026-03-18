@@ -76,30 +76,10 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
 .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
 .calendar-nav-btn { background: var(--card); border: 1px solid var(--border); color: var(--text); width: 36px; height: 36px; border-radius: 50%; cursor: pointer; box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light); }
 .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
-.calendar-day { 
-    aspect-ratio: 1; 
-    background: var(--card); 
-    border-radius: 8px; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    justify-content: center; 
-    cursor: pointer; 
-    position: relative; 
-    box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light); 
-    transition: all 0.2s; 
-    border: 1px solid var(--border); 
-    padding: 4px;
-}
+.calendar-day { aspect-ratio: 1; background: var(--card); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; position: relative; box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light); transition: all 0.2s; border: 1px solid var(--border); }
 .calendar-day:hover { transform: translateY(-2px); }
 .calendar-day.today { border-color: var(--accent-solid); border-width: 2px; box-shadow: 0 0 10px rgba(59, 66, 86, 0.3); }
-/* День с заказами */
-.calendar-day.worked { 
-    background: var(--accent-green); 
-    color: #fff; 
-    border-color: var(--accent-green);
-    box-shadow: 0 4px 8px rgba(22, 163, 74, 0.3);
-}
+.calendar-day.worked { background: var(--accent-green); color: #fff; border-color: var(--accent-green); }
 .calendar-day.weekend { opacity: 0.8; border-color: var(--accent-red); }
 .calendar-day.holiday { border-color: var(--accent-red); border-width: 2px; box-shadow: 0 0 8px rgba(220, 38, 38, 0.4); }
 .calendar-day .day-num { font-size: 0.9rem; font-weight: 700; margin-bottom: 2px; }
@@ -128,17 +108,97 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
 .install-prompt button { padding: 8px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
 .install-prompt .install-btn { background: #F0F1F3; color: var(--accent-solid); }
 .install-prompt .later-btn { background: transparent; color: #F0F1F3; border: 1px solid #F0F1F3; }
-/* Стили для вкладки Фото */
-.photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; margin-top: 16px; }
-.photo-card { background: var(--card); border-radius: 12px; overflow: hidden; box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light); border: 1px solid var(--border); position: relative; aspect-ratio: 1; }
-.photo-card img { width: 100%; height: 100%; object-fit: cover; }
-.photo-actions { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(59, 66, 86, 0.8); display: flex; justify-content: space-around; padding: 4px 0; opacity: 0; transition: opacity 0.2s; }
-.photo-card:hover .photo-actions, .photo-card:active .photo-actions { opacity: 1; }
-.photo-action-btn { background: none; border: none; color: white; font-size: 1rem; cursor: pointer; padding: 4px; }
+
+/* === СТИЛИ ДЛЯ ФОТО И ТЕГОВ === */
+.photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; margin-top: 16px; }
+.photo-card { 
+    background: var(--card); 
+    border-radius: 12px; 
+    overflow: hidden; 
+    box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light); 
+    border: 1px solid var(--border); 
+    position: relative; 
+    aspect-ratio: 1; 
+    display: flex;
+    flex-direction: column;
+}
+.photo-card img { width: 100%; height: 100%; object-fit: cover; flex: 1; }
+
+/* Ярлык (Тэг) */
+.photo-tag {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    z-index: 10;
+    pointer-events: none;
+}
+/* Цвета тегов */
+.tag-RASPIL_M2 { background-color: #3B82F6; } /* Синий */
+.tag-LINEAR_RASPIL { background-color: #10B981; } /* Зеленый */
+.tag-SKLEIKA_OB { background-color: #8B5CF6; } /* Фиолетовый */
+.tag-SKLEIKA_NO_OB { background-color: #6D28D9; } /* Темно-фиолетовый */
+.tag-PAZY { background-color: #F59E0B; } /* Оранжевый */
+.tag-FREZER_FASKA { background-color: #EC4899; } /* Розовый */
+.tag-TIME { background-color: #6B7285; } /* Серый */
+.tag-UNKNOWN { background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); }
+
+/* Контейнер для селектора тега на карточке */
+.photo-tag-selector {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 15;
+    width: 90%;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.photo-card:hover .photo-tag-selector, .photo-card:active .photo-tag-selector { opacity: 1; }
+@media (max-width: 600px) {
+    .photo-tag-selector { opacity: 1; bottom: 36px; }
+}
+
+.tag-select-mini {
+    width: 100%;
+    font-size: 0.7rem;
+    padding: 4px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.5);
+    background: rgba(59, 66, 86, 0.9);
+    color: white;
+    outline: none;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+}
+.tag-select-mini option { background: var(--card); color: var(--text); }
+
+/* Панель действий */
+.photo-actions { 
+    position: absolute; 
+    bottom: 0; 
+    left: 0; 
+    width: 100%; 
+    background: rgba(59, 66, 86, 0.95); 
+    display: flex; 
+    justify-content: space-around; 
+    padding: 6px 0; 
+    z-index: 20;
+}
+.photo-action-btn { background: none; border: none; color: white; font-size: 1.1rem; cursor: pointer; padding: 4px; }
 .photo-action-btn.delete { color: #ff6b6b; }
 .photo-action-btn.edit { color: #4ecdc4; }
+
 .capture-btn-container { display: flex; justify-content: center; margin-bottom: 20px; }
 .capture-btn { width: 60px; height: 60px; border-radius: 50%; background: var(--accent-solid); color: white; border: 4px solid var(--bg); box-shadow: 0 4px 10px rgba(0,0,0,0.2); font-size: 1.5rem; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
 /* Зум фото */
 .zoom-preview-container { position: relative; text-align: center; margin-bottom: 15px; }
 .zoom-preview-img { max-width: 100%; max-height: 150px; border-radius: 8px; border: 1px solid var(--border); }
@@ -148,6 +208,7 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
 #photoZoomModal img { max-width: 100%; max-height: 90vh; object-fit: contain; border-radius: 4px; }
 #photoZoomModal .close-zoom-btn { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 #photoZoomModal .close-zoom-btn:hover { background: rgba(255,255,255,0.4); }
+
 @media (max-width: 480px) {
 .glass-panel { bottom: 16px; height: 56px; width: calc(100% - 32px); padding: 0 5px; }
 .panel-item { font-size: 0.6rem; gap: 1px; }
@@ -274,11 +335,14 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
 <div id="photos" class="content-block">
 <div class="container">
 <h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-camera"></i> Фото заказов</h2>
+<p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px; text-align: center;">
+    <i class="fas fa-info-circle"></i> Выберите тариф на фото, чтобы появился цветной ярлык. После оформления фото удалится.
+</p>
 <div class="capture-btn-container">
 <label for="cameraInput" class="capture-btn" title="Сделать фото"><i class="fas fa-camera"></i></label>
 <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;" />
 </div>
-<div class="progress-title"><i class="fas fa-images"></i> Галерея</div>
+<div class="progress-title"><i class="fas fa-images"></i> Галерея (Неоформленные)</div>
 <div id="photosListContainer" class="photo-grid"></div>
 </div>
 </div>
@@ -427,6 +491,24 @@ PAZY: { price: 30, unit: 'linear' }, FREZER_FASKA: { price: 16, unit: 'linear' }
 };
 const TARIFF_NAMES = { RASPIL_M2: 'Распил', LINEAR_RASPIL: 'Лин. распил', SKLEIKA_OB: 'Склейка +', SKLEIKA_NO_OB: 'Склейка –', PAZY: 'Пазы', FREZER_FASKA: 'Фаска', TIME: 'Время' };
 const UNIT_LABELS = { m2: 'м²', linear: 'пог. м', time: 'часы' };
+
+// Опции для тегов
+const TAG_OPTIONS = [
+    { val: '', label: '-- Тариф --' },
+    { val: 'RASPIL_M2', label: 'Распил' },
+    { val: 'LINEAR_RASPIL', label: 'Лин. распил' },
+    { val: 'SKLEIKA_OB', label: 'Склейка +' },
+    { val: 'SKLEIKA_NO_OB', label: 'Склейка -' },
+    { val: 'PAZY', label: 'Пазы' },
+    { val: 'FREZER_FASKA', label: 'Фаска' },
+    { val: 'TIME', label: 'Время' }
+];
+
+function getTagName(val) {
+    const opt = TAG_OPTIONS.find(o => o.val === val);
+    return opt ? opt.label : '';
+}
+
 const EARNINGS_MILESTONES = [
 { amount: 500, emoji: '😡', color: '#DC2626', text: 'Разгон...' }, { amount: 1000, emoji: '😢', color: '#3B82F6', text: 'Первая тысяча' },
 { amount: 1500, emoji: '😐', color: '#6B7285', text: 'Половина пути' }, { amount: 2000, emoji: '🙂', color: '#16A34A', text: 'Хороший результат' },
@@ -882,7 +964,7 @@ function renderCalendar() {
         const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6); 
         const isToday = (dateStr === today);
         const hasEarnings = earningsByDate[dateStr] > 0;
-        const dayEarnings = hasEarnings ? earningsByDate[dateStr].toFixed(0) : ''; // Округляем до целых для компактности
+        const dayEarnings = hasEarnings ? earningsByDate[dateStr].toFixed(0) : ''; 
 
         const cell = document.createElement('div'); 
         cell.className = 'calendar-day';
@@ -896,7 +978,6 @@ function renderCalendar() {
         if (hasEarnings) {
             html += `<div class="day-earnings">${dayEarnings} ₽</div>`;
         } else if (dayData.hours > 0) {
-             // Если вручную указаны часы, но нет заказов (редкий случай)
             html += `<div class="day-earnings">${dayData.hours} ч</div>`;
         }
         
@@ -922,7 +1003,7 @@ const isHoliday = document.getElementById('dayHoliday').checked;
 const data = loadCalendarData(); data[dateStr] = { hours, isHoliday }; saveCalendarData(data);
 closeDayModal(); renderCalendar(); alert('✅ Сохранено');
 }
-// === ФОТО (ОПТИМИЗИРОВАНО) ===
+// === ФОТО (ОБНОВЛЕНО С ТЕГАМИ) ===
 function loadPhotos() { try { return JSON.parse(localStorage.getItem('operator_photos') || '[]'); } catch (e) { return []; } }
 function savePhotos(photos) {
 try {
@@ -941,8 +1022,8 @@ const img = new Image();
 img.src = event.target.result;
 img.onload = () => {
 const canvas = document.createElement('canvas');
-const MAX_WIDTH = 800; // Максимальная ширина
-const MAX_HEIGHT = 800; // Максимальная высота
+const MAX_WIDTH = 800; 
+const MAX_HEIGHT = 800; 
 let width = img.width;
 let height = img.height;
 if (width > height) {
@@ -954,37 +1035,82 @@ canvas.width = width;
 canvas.height = height;
 const ctx = canvas.getContext('2d');
 ctx.drawImage(img, 0, 0, width, height);
-// Сжатие с качеством 0.7 (70%)
 callback(canvas.toDataURL('image/jpeg', 0.7));
 };
 };
 }
+
+// ОТРИСОВКА ФОТО С ВЫБОРОМ ТЕГА НА КАРТОЧКЕ
 function renderPhotos() {
-const photos = loadPhotos();
-const container = document.getElementById('photosListContainer');
-if (photos.length === 0) { container.innerHTML = '<div class="empty-msg">Нет сохраненных фото</div>'; return; }
-let html = '';
-photos.forEach(p => {
-html += `<div class="photo-card"><img src="${p.data}" alt="Photo"><div class="photo-actions">
-<button class="photo-action-btn edit" onclick="openPhotoOrderModal(${p.id})" title="Оформить заказ"><i class="fas fa-file-signature"></i></button>
-<button class="photo-action-btn delete" onclick="deletePhoto(${p.id})" title="Удалить"><i class="fas fa-trash"></i></button>
-</div></div>`;
-});
-container.innerHTML = html;
+    const photos = loadPhotos();
+    const container = document.getElementById('photosListContainer');
+    if (photos.length === 0) { 
+        container.innerHTML = '<div class="empty-msg">Нет сохраненных фото</div>'; 
+        return; 
+    }
+    
+    let html = '';
+    photos.forEach(p => {
+        // Определяем класс и имя тега
+        const tagClass = p.tagType ? `tag-${p.tagType}` : 'tag-UNKNOWN';
+        const tagName = p.tagType ? getTagName(p.tagType) : '';
+        
+        // HTML для ярлыка (показываем только если выбран тег)
+        const tagHtml = tagName ? `<div class="photo-tag ${tagClass}">${tagName}</div>` : '';
+        
+        // Генерируем опции для выпадающего списка на карточке
+        let optionsHtml = '';
+        TAG_OPTIONS.forEach(opt => {
+            const selected = (opt.val === p.tagType) ? 'selected' : '';
+            optionsHtml += `<option value="${opt.val}" ${selected}>${opt.label}</option>`;
+        });
+
+        html += `
+        <div class="photo-card">
+            ${tagHtml}
+            <img src="${p.data}" alt="Photo">
+            
+            <!-- Выпадающий список прямо на карточке -->
+            <div class="photo-tag-selector">
+                <select class="tag-select-mini" onchange="updatePhotoTag(${p.id}, this.value)">
+                    ${optionsHtml}
+                </select>
+            </div>
+
+            <div class="photo-actions">
+                <button class="photo-action-btn edit" onclick="openPhotoOrderModal(${p.id})" title="Оформить заказ"><i class="fas fa-file-signature"></i></button>
+                <button class="photo-action-btn delete" onclick="deletePhoto(${p.id})" title="Удалить"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>`;
+    });
+    container.innerHTML = html;
 }
+
+// Функция обновления тега для конкретного фото
+function updatePhotoTag(photoId, newTag) {
+    const photos = loadPhotos();
+    const idx = photos.findIndex(p => p.id === photoId);
+    if (idx !== -1) {
+        photos[idx].tagType = newTag;
+        savePhotos(photos);
+        renderPhotos(); // Перерисовываем, чтобы обновился цветной ярлык
+    }
+}
+
 document.getElementById('cameraInput').addEventListener('change', function(e) {
 const file = e.target.files[0];
 if (!file) return;
-// Показываем индикатор загрузки (опционально можно добавить лоадер)
 compressImage(file, (compressedDataUrl) => {
 const photos = loadPhotos();
-const newPhoto = { id: Date.now(), data: compressedDataUrl, timestamp: new Date().toISOString() };
+// Создаем фото без тега изначально
+const newPhoto = { id: Date.now(), data: compressedDataUrl, timestamp: new Date().toISOString(), tagType: "" };
 photos.unshift(newPhoto);
 savePhotos(photos);
 renderPhotos();
-this.value = ''; // Сброс
+this.value = ''; 
 });
 });
+
 function deletePhoto(photoId) {
 if (!confirm('Удалить фото?')) return;
 let photos = loadPhotos();
@@ -992,23 +1118,33 @@ photos = photos.filter(p => p.id !== photoId);
 savePhotos(photos);
 renderPhotos();
 }
+
 let currentPhotoIdForOrder = null;
+
 function openPhotoOrderModal(photoId) {
-const photos = loadPhotos();
-const photo = photos.find(p => p.id === photoId);
-if (!photo) return;
-currentPhotoIdForOrder = photoId;
-document.getElementById('photoPreviewImg').src = photo.data;
-document.getElementById('photoOrderNum').value = '';
-document.getElementById('photoDetail').value = '';
-document.getElementById('photoQty').value = '1';
-document.getElementById('photoLength').value = '';
-document.getElementById('photoWidth').value = '';
-document.getElementById('photoHours').value = '';
-document.getElementById('photoTariff').value = 'RASPIL_M2';
-updatePhotoFormFields();
-document.getElementById('photoOrderModal').classList.add('active');
+    const photos = loadPhotos();
+    const photo = photos.find(p => p.id === photoId);
+    if (!photo) return;
+    
+    currentPhotoIdForOrder = photoId;
+    document.getElementById('photoPreviewImg').src = photo.data;
+    
+    // Сброс полей
+    document.getElementById('photoOrderNum').value = '';
+    document.getElementById('photoDetail').value = '';
+    document.getElementById('photoQty').value = '1';
+    document.getElementById('photoLength').value = '';
+    document.getElementById('photoWidth').value = '';
+    document.getElementById('photoHours').value = '';
+    
+    // АВТОМАТИЧЕСКИ выбираем тариф равный выбранному тегу на фото
+    const selectedTag = photo.tagType || 'RASPIL_M2';
+    document.getElementById('photoTariff').value = selectedTag;
+    
+    updatePhotoFormFields();
+    document.getElementById('photoOrderModal').classList.add('active');
 }
+
 function closePhotoOrderModal() { document.getElementById('photoOrderModal').classList.remove('active'); currentPhotoIdForOrder = null; }
 function openPhotoZoom() {
 const src = document.getElementById('photoPreviewImg').src;
@@ -1016,29 +1152,57 @@ document.getElementById('zoomedImage').src = src;
 document.getElementById('photoZoomModal').classList.add('active');
 }
 function closePhotoZoom() { document.getElementById('photoZoomModal').classList.remove('active'); }
+
 function confirmPhotoOrder() {
-const num = document.getElementById('photoOrderNum').value.trim();
-if (!num) { alert('Укажите № заказа'); return; }
-const tariffKey = document.getElementById('photoTariff').value;
-const detail = document.getElementById('photoDetail').value.trim() || '—';
-const qty = parseInt(document.getElementById('photoQty').value) || 1;
-const length = parseFloat(document.getElementById('photoLength').value) || 0;
-const width = parseFloat(document.getElementById('photoWidth').value) || 0;
-const hours = parseFloat(document.getElementById('photoHours').value) || 0;
-const amount = calculateAmount(tariffKey, length, width, hours, qty);
-const preorder = { id: Date.now(), orderNumber: num, tariff: tariffKey, detail: detail, qty: qty, length: length || null, width: width || null, hours: hours || null, amount: amount, date: todayYMD(), timestamp: new Date().toISOString(), hasPhoto: true };
-const preorders = loadPreorders(); preorders.push(preorder); savePreorders(preorders);
-let photos = loadPhotos();
-photos = photos.filter(p => p.id !== currentPhotoIdForOrder);
-savePhotos(photos);
-alert('✅ Оформлен в предзаказ! Фото удалено.');
-closePhotoOrderModal(); renderPreorders(); renderPhotos();
-document.querySelectorAll('.panel-item').forEach(i => i.classList.remove('active'));
-document.querySelectorAll('.content-block').forEach(c => c.classList.remove('active'));
-document.querySelector('.panel-item[data-target="preorders"]').classList.add('active');
-document.getElementById('preorders').classList.add('active');
+    const num = document.getElementById('photoOrderNum').value.trim();
+    if (!num) { alert('Укажите № заказа'); return; }
+    
+    const tariffKey = document.getElementById('photoTariff').value;
+    
+    const detail = document.getElementById('photoDetail').value.trim() || '—';
+    const qty = parseInt(document.getElementById('photoQty').value) || 1;
+    const length = parseFloat(document.getElementById('photoLength').value) || 0;
+    const width = parseFloat(document.getElementById('photoWidth').value) || 0;
+    const hours = parseFloat(document.getElementById('photoHours').value) || 0;
+    
+    const amount = calculateAmount(tariffKey, length, width, hours, qty);
+    
+    const preorder = { 
+        id: Date.now(), 
+        orderNumber: num, 
+        tariff: tariffKey, 
+        detail: detail, 
+        qty: qty, 
+        length: length || null, 
+        width: width || null, 
+        hours: hours || null, 
+        amount: amount, 
+        date: todayYMD(), 
+        timestamp: new Date().toISOString(), 
+        hasPhoto: true
+    };
+    
+    const preorders = loadPreorders(); preorders.push(preorder); savePreorders(preorders);
+    
+    // === АВТОМАТИЧЕСКОЕ УДАЛЕНИЕ ФОТО ПОСЛЕ ОФОРМЛЕНИЯ ===
+    let photos = loadPhotos();
+    photos = photos.filter(p => p.id !== currentPhotoIdForOrder);
+    savePhotos(photos);
+    // ======================================================
+    
+    alert('✅ Оформлен в предзаказ! Фото удалено.');
+    closePhotoOrderModal(); 
+    renderPreorders(); 
+    renderPhotos();
+    
+    document.querySelectorAll('.panel-item').forEach(i => i.classList.remove('active'));
+    document.querySelectorAll('.content-block').forEach(c => c.classList.remove('active'));
+    document.querySelector('.panel-item[data-target="preorders"]').classList.add('active');
+    document.getElementById('preorders').classList.add('active');
 }
+
 document.getElementById('photoTariff').addEventListener('change', updatePhotoFormFields);
+
 // === НАВИГАЦИЯ И ИНИЦИАЛИЗАЦИЯ ===
 document.querySelectorAll('.panel-item').forEach(item => {
 item.addEventListener('click', () => {
