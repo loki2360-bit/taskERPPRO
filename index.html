@@ -3,55 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Avito Keyword Collector</title>
+    <title>Avito Keyword Collector (No-DB)</title>
     <style>
-        :root {
-            --primary: #00AAFF;
-            --bg: #f0f2f5;
-            --card: #ffffff;
-            --text: #333;
-        }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; }
+        :root { --primary: #00AAFF; --bg: #f0f2f5; --card: #ffffff; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); padding: 20px; margin: 0; }
         .container { max-width: 800px; margin: 0 auto; }
+        h1 { text-align: center; color: var(--primary); }
         
-        h1 { text-align: center; color: var(--primary); margin-bottom: 30px; }
-
-        /* Форма */
         .search-box { background: var(--card); padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; gap: 10px; margin-bottom: 20px; }
-        input { flex-grow: 1; padding: 15px; border: 2px solid #e1e1e1; border-radius: 8px; font-size: 16px; outline: none; transition: border 0.2s; }
-        input:focus { border-color: var(--primary); }
+        input { flex-grow: 1; padding: 15px; border: 2px solid #e1e1e1; border-radius: 8px; font-size: 16px; }
+        button { padding: 15px 25px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; background: var(--primary); color: white; }
+        button:disabled { background: #ccc; }
         
-        button { padding: 15px 25px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: opacity 0.2s; }
-        .btn-search { background: var(--primary); color: white; }
-        .btn-copy { background: #28a745; color: white; margin-top: 10px; display: none; }
-        .btn-download { background: #17a2b8; color: white; margin-top: 10px; margin-left: 10px; display: none; }
-        
-        button:hover { opacity: 0.9; }
-        button:disabled { background: #ccc; cursor: not-allowed; }
-
-        /* Список запросов */
-        .results-area { background: var(--card); border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); min-height: 200px; }
-        .stats { font-size: 14px; color: #666; margin-bottom: 15px; display: flex; justify-content: space-between; }
-        
-        .keywords-list { list-style: none; padding: 0; margin: 0; }
-        .keyword-item { 
-            padding: 12px 15px; 
-            border-bottom: 1px solid #f0f0f0; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .keyword-item:last-child { border-bottom: none; }
+        .results-area { background: var(--card); border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: none; }
+        .keywords-list { list-style: none; padding: 0; }
+        .keyword-item { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; }
         .keyword-item:hover { background: #f9f9f9; }
-        .keyword-text { font-size: 16px; }
-        .keyword-count { font-size: 12px; color: #999; background: #eee; padding: 2px 6px; border-radius: 4px; }
-
-        .loader { text-align: center; padding: 40px; display: none; color: #666; }
-        .error { color: #dc3545; text-align: center; padding: 20px; background: #ffe6e6; border-radius: 8px; display: none; }
         
-        .actions { display: flex; gap: 10px; }
+        .loader, .error { text-align: center; padding: 20px; display: none; }
+        .error { color: red; background: #ffe6e6; border-radius: 8px; }
+        .actions { margin-top: 15px; display: flex; gap: 10px; }
+        .btn-secondary { background: #28a745; }
+        .btn-info { background: #17a2b8; }
     </style>
 </head>
 <body>
@@ -60,25 +33,19 @@
     <h1>🔑 Сбор ключевых слов Avito</h1>
     
     <div class="search-box">
-        <input type="text" id="query" placeholder="Введите слово (например: ковер)" onkeypress="handleEnter(event)">
-        <button id="searchBtn" class="btn-search" onclick="fetchSuggestions()">Найти запросы</button>
+        <input type="text" id="query" placeholder="Введите слово (например: ковер)" onkeypress="if(event.key==='Enter') fetchSuggestions()">
+        <button id="searchBtn" onclick="fetchSuggestions()">Найти</button>
     </div>
 
-    <div id="loader" class="loader">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#00AAFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="animate-spin">
-            <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
-        </svg>
-        <p>Опрашиваем API Авито...</p>
-    </div>
-
+    <div id="loader" class="loader">Загрузка... (перебор прокси)</div>
     <div id="error" class="error"></div>
 
-    <div class="results-area" id="resultsArea" style="display:none;">
-        <div class="stats">
-            <span id="countInfo">Найдено фраз: 0</span>
+    <div class="results-area" id="resultsArea">
+        <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+            <span id="countInfo">Найдено: 0</span>
             <div class="actions">
-                <button class="btn-copy" id="copyBtn" onclick="copyToClipboard()">Копировать список</button>
-                <button class="btn-download" id="downloadBtn" onclick="downloadCSV()">Скачать CSV</button>
+                <button class="btn-secondary" onclick="copyToClipboard()" style="padding:8px 15px; font-size:14px;">Копировать</button>
+                <button class="btn-info" onclick="downloadCSV()" style="padding:8px 15px; font-size:14px;">CSV</button>
             </div>
         </div>
         <ul class="keywords-list" id="keywordsList"></ul>
@@ -87,125 +54,90 @@
 
 <script>
     let currentKeywords = [];
-
-    function handleEnter(e) {
-        if (e.key === 'Enter') fetchSuggestions();
-    }
+    
+    // Список рабочих прокси. Если один упадет, пробуем следующий.
+    const PROXIES = [
+        'https://api.allorigins.win/get?url=',
+        'https://corsproxy.io/?',
+        'https://api.codetabs.com/v1/proxy?quest='
+    ];
 
     async function fetchSuggestions() {
         const query = document.getElementById('query').value.trim();
-        const resultsArea = document.getElementById('resultsArea');
-        const loader = document.getElementById('loader');
-        const errorDiv = document.getElementById('error');
-        const list = document.getElementById('keywordsList');
-        const copyBtn = document.getElementById('copyBtn');
-        const downloadBtn = document.getElementById('downloadBtn');
-        const countInfo = document.getElementById('countInfo');
-
         if (!query) return;
 
-        // Сброс
-        list.innerHTML = '';
+        const loader = document.getElementById('loader');
+        const errorDiv = document.getElementById('error');
+        const resultsArea = document.getElementById('resultsArea');
+        const list = document.getElementById('keywordsList');
+        
+        loader.style.display = 'block';
         errorDiv.style.display = 'none';
         resultsArea.style.display = 'none';
-        copyBtn.style.display = 'none';
-        downloadBtn.style.display = 'none';
-        loader.style.display = 'block';
+        list.innerHTML = '';
         currentKeywords = [];
 
-        // API подсказок Авито
-        // part - часть слова, limit - лимит выдачи (макс обычно 20-30)
         const apiUrl = `https://www.avito.ru/api/1/suggestions?part=${encodeURIComponent(query)}&limit=30`;
-        
-        // Используем прокси для обхода CORS
-        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`;
+        let success = false;
 
-        try {
-            const response = await fetch(proxyUrl);
-            const data = await response.json();
+        // Пробуем прокси по очереди
+        for (const proxy of PROXIES) {
+            try {
+                const response = await fetch(proxy + encodeURIComponent(apiUrl));
+                if (!response.ok) continue;
+                
+                const data = await response.json();
+                // Разные прокси возвращают данные по-разному, нормализуем
+                const content = data.contents || data.body || data; 
+                const avitoData = typeof content === 'string' ? JSON.parse(content) : content;
 
-            if (!response.ok) throw new Error('Ошибка сети');
-            
-            // Парсим ответ от Авито
-            // Ответ приходит в виде строки внутри data.contents, которую нужно распарсить как JSON
-            const avitoData = JSON.parse(data.contents);
-
-            if (avitoData && avitoData.suggestions) {
-                processSuggestions(avitoData.suggestions);
-                resultsArea.style.display = 'block';
-                copyBtn.style.display = 'block';
-                downloadBtn.style.display = 'block';
-            } else {
-                throw new Error('Авито не вернул подсказок. Возможно, слово слишком редкое.');
+                if (avitoData && avitoData.suggestions) {
+                    processSuggestions(avitoData.suggestions);
+                    success = true;
+                    break; // Успех, выходим из цикла
+                }
+            } catch (e) {
+                console.log(`Proxy ${proxy} failed, trying next...`);
+                continue;
             }
+        }
 
-        } catch (err) {
-            console.error(err);
-            errorDiv.innerText = `Ошибка: ${err.message}. Попробуйте другое слово.`;
+        loader.style.display = 'none';
+        if (success) {
+            resultsArea.style.display = 'block';
+            document.getElementById('countInfo').innerText = `Найдено: ${currentKeywords.length}`;
+        } else {
             errorDiv.style.display = 'block';
-        } finally {
-            loader.style.display = 'none';
+            errorDiv.innerText = 'Не удалось получить данные. Все прокси недоступны или Авито блокирует запросы.';
         }
     }
 
     function processSuggestions(suggestions) {
         const list = document.getElementById('keywordsList');
-        const countInfo = document.getElementById('countInfo');
-
         suggestions.forEach(item => {
-            // item.value - это сам текст запроса
-            // item.popularity - иногда бывает, но не всегда
-            const text = item.value;
-            currentKeywords.push(text);
-
+            currentKeywords.push(item.value);
             const li = document.createElement('li');
             li.className = 'keyword-item';
+            li.innerText = item.value;
             li.onclick = () => {
-                // При клике копируем конкретную фразу
-                navigator.clipboard.writeText(text);
-                alert(`Скопировано: ${text}`);
+                navigator.clipboard.writeText(item.value);
+                alert('Скопировано: ' + item.value);
             };
-            
-            li.innerHTML = `
-                <span class="keyword-text">${highlightMatch(text, document.getElementById('query').value)}</span>
-            `;
             list.appendChild(li);
         });
-
-        countInfo.innerText = `Найдено фраз: ${currentKeywords.length}`;
-    }
-
-    // Подсветка введенного слова в результатах
-    function highlightMatch(text, query) {
-        const regex = new RegExp(`(${query})`, 'gi');
-        return text.replace(regex, '<b>$1</b>');
     }
 
     function copyToClipboard() {
-        if (currentKeywords.length === 0) return;
-        const text = currentKeywords.join('\n');
-        navigator.clipboard.writeText(text).then(() => {
-            alert('Все фразы скопированы в буфер обмена!');
-        });
+        navigator.clipboard.writeText(currentKeywords.join('\n'));
+        alert('Список скопирован!');
     }
 
     function downloadCSV() {
-        if (currentKeywords.length === 0) return;
-        
-        let csvContent = "text/csv;charset=utf-8,\uFEFF";
-        csvContent += "Ключевая фраза\n";
-        
-        currentKeywords.forEach(row => {
-            csvContent += `"${row.replace(/"/g, '""')}"\n`;
-        });
-
-        const encodedUri = encodeURI(csvContent);
+        let csv = "\uFEFFНазвание\n" + currentKeywords.map(k => `"${k}"`).join('\n');
         const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `avito_keywords_${document.getElementById('query').value}.csv`);
-        document.body.appendChild(link);
+        link.href = encodeURI(csv);
+        link.download = "avito_keywords.csv";
         link.click();
-        document.body.removeChild(link);
     }
 </script>
 
