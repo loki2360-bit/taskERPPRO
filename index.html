@@ -325,7 +325,7 @@ text-align: right;
 </div>
 
 <!-- Контейнер для размеров -->
-<div id="mainSizeContainer" class="size-rows-container">
+<div id="mainSizeContainer" class="size-rows-container hidden">
 <div id="mainSizeRows"></div>
 <button type="button" id="mainAddSizeBtn" class="add-size-btn hidden" onclick="addMainSizeRow()" title="Добавить размеры"><i class="fas fa-plus"></i></button>
 <div id="mainSizeTotal" class="size-total-display hidden"></div>
@@ -333,6 +333,7 @@ text-align: right;
 
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 12px 0;" id="mainOtherInputs">
 <div id="mainLengthGroup"><label style="display: block; margin-bottom: 6px;">Длина (м)</label><input type="number" step="0.01" id="length" class="neu-input" placeholder="0.00"></div>
+<div id="mainWidthGroup" class="hidden"><label style="display: block; margin-bottom: 6px;">Ширина (м)</label><input type="number" step="0.01" id="width" class="neu-input" placeholder="0.00"></div>
 <div id="mainHoursGroup" class="hidden"><label style="display: block; margin-bottom: 6px;">Часы</label><input type="number" step="0.1" id="hours" class="neu-input" placeholder="0.0"></div>
 </div>
 
@@ -372,7 +373,7 @@ text-align: right;
 </div>
 
 <!-- Контейнер для размеров предзаказа -->
-<div id="preSizeContainer" class="size-rows-container">
+<div id="preSizeContainer" class="size-rows-container hidden">
 <div id="preSizeRows"></div>
 <button type="button" id="preAddSizeBtn" class="add-size-btn hidden" onclick="addPreSizeRow()" title="Добавить размеры"><i class="fas fa-plus"></i></button>
 <div id="preSizeTotal" class="size-total-display hidden"></div>
@@ -380,6 +381,7 @@ text-align: right;
 
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 12px 0;" id="preOtherInputs">
 <div id="preLengthGroup"><label style="display: block; margin-bottom: 6px;">Длина (м)</label><input type="number" step="0.01" id="preLength" class="neu-input" placeholder="0.00"></div>
+<div id="preWidthGroup" class="hidden"><label style="display: block; margin-bottom: 6px;">Ширина (м)</label><input type="number" step="0.01" id="preWidth" class="neu-input" placeholder="0.00"></div>
 <div id="preHoursGroup" class="hidden"><label style="display: block; margin-bottom: 6px;">Часы</label><input type="number" step="0.1" id="preHours" class="neu-input" placeholder="0.0"></div>
 </div>
 
@@ -483,11 +485,12 @@ text-align: right;
 <option value="PAZY">Пазы — 30 ₽/м</option><option value="FREZER_FASKA">Фаска — 16 ₽/м</option><option value="TIME">Время — 330 ₽/ч</option>
 </select></div>
 <div class="modal-row"><label>Кол-во</label><input type="number" id="editQty" min="1" class="neu-input"></div>
-<div id="editSizeContainer" class="size-rows-container">
+<div id="editSizeContainer" class="size-rows-container hidden">
 <div id="editSizeRows"></div>
 <button type="button" id="editAddSizeBtn" class="add-size-btn hidden" onclick="addEditSizeRow()" title="Добавить размеры"><i class="fas fa-plus"></i></button>
 </div>
 <div class="modal-row hidden" id="editLengthGroup"><label>Длина (м)</label><input type="number" step="0.01" id="editLength" class="neu-input"></div>
+<div class="modal-row hidden" id="editWidthGroup"><label>Ширина (м)</label><input type="number" step="0.01" id="editWidth" class="neu-input"></div>
 <div class="modal-row hidden" id="editHoursGroup"><label>Часы</label><input type="number" step="0.1" id="editHours" class="neu-input"></div>
 <div class="modal-buttons"><button class="neu-btn" onclick="closeEditModal()">Отмена</button><button class="neu-btn neu-btn-accent" onclick="saveEditedOrder()">Сохранить</button></div>
 </div>
@@ -537,13 +540,14 @@ text-align: right;
 <div class="modal-row"><label>Кол-во</label><input type="number" id="photoQty" value="1" min="1" class="neu-input"></div>
 
 <!-- Контейнер для размеров фото -->
-<div id="photoSizeContainer" class="size-rows-container">
+<div id="photoSizeContainer" class="size-rows-container hidden">
 <div id="photoSizeRows"></div>
 <button type="button" id="photoAddSizeBtn" class="add-size-btn hidden" onclick="addPhotoSizeRow()" title="Добавить размеры"><i class="fas fa-plus"></i></button>
 </div>
 
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 12px 0;" id="photoOtherInputs">
 <div id="photoLengthGroup"><label style="display: block; margin-bottom: 6px;">Длина (м)</label><input type="number" step="0.01" id="photoLength" class="neu-input" placeholder="0.00"></div>
+<div id="photoWidthGroup" class="hidden"><label style="display: block; margin-bottom: 6px;">Ширина (м)</label><input type="number" step="0.01" id="photoWidth" class="neu-input" placeholder="0.00"></div>
 <div id="photoHoursGroup" class="hidden"><label style="display: block; margin-bottom: 6px;">Часы</label><input type="number" step="0.1" id="photoHours" class="neu-input" placeholder="0.0"></div>
 </div>
 
@@ -691,10 +695,10 @@ const w = parseFloat(widths[idx]?.value) || 0;
 totalArea += l * w;
 });
 const totalDisplay = document.getElementById('mainSizeTotal');
-if (totalArea > 0) {
+if (totalDisplay && totalArea > 0) {
 totalDisplay.textContent = `Всего: ${totalArea.toFixed(2)} м²`;
 totalDisplay.classList.remove('hidden');
-} else {
+} else if (totalDisplay) {
 totalDisplay.classList.add('hidden');
 }
 }
@@ -739,10 +743,10 @@ const w = parseFloat(widths[idx]?.value) || 0;
 totalArea += l * w;
 });
 const totalDisplay = document.getElementById('preSizeTotal');
-if (totalArea > 0) {
+if (totalDisplay && totalArea > 0) {
 totalDisplay.textContent = `Всего: ${totalArea.toFixed(2)} м²`;
 totalDisplay.classList.remove('hidden');
-} else {
+} else if (totalDisplay) {
 totalDisplay.classList.add('hidden');
 }
 }
@@ -806,6 +810,7 @@ photoSizeRowCount--;
 function resetMainSizeRows() {
 mainSizeRowCount = 1;
 const container = document.getElementById('mainSizeRows');
+if (container) {
 container.innerHTML = `
 <div class="size-row" id="mainSizeRow1">
 <div class="size-input-wrapper">
@@ -819,12 +824,15 @@ container.innerHTML = `
 <div></div>
 </div>
 `;
-document.getElementById('mainSizeTotal').classList.add('hidden');
+}
+const totalDisplay = document.getElementById('mainSizeTotal');
+if (totalDisplay) totalDisplay.classList.add('hidden');
 }
 
 function resetPreSizeRows() {
 preSizeRowCount = 1;
 const container = document.getElementById('preSizeRows');
+if (container) {
 container.innerHTML = `
 <div class="size-row" id="preSizeRow1">
 <div class="size-input-wrapper">
@@ -838,12 +846,15 @@ container.innerHTML = `
 <div></div>
 </div>
 `;
-document.getElementById('preSizeTotal').classList.add('hidden');
+}
+const totalDisplay = document.getElementById('preSizeTotal');
+if (totalDisplay) totalDisplay.classList.add('hidden');
 }
 
 function resetEditSizeRows() {
 editSizeRowCount = 1;
 const container = document.getElementById('editSizeRows');
+if (container) {
 container.innerHTML = `
 <div class="size-row" id="editSizeRow1">
 <div class="size-input-wrapper">
@@ -858,10 +869,12 @@ container.innerHTML = `
 </div>
 `;
 }
+}
 
 function resetPhotoSizeRows() {
 photoSizeRowCount = 1;
 const container = document.getElementById('photoSizeRows');
+if (container) {
 container.innerHTML = `
 <div class="size-row" id="photoSizeRow1">
 <div class="size-input-wrapper">
@@ -875,6 +888,7 @@ container.innerHTML = `
 <div></div>
 </div>
 `;
+}
 }
 
 function getMainSizeDimensions() {
@@ -1006,23 +1020,25 @@ const sizeContainer = document.getElementById('mainSizeContainer');
 const addSizeBtn = document.getElementById('mainAddSizeBtn');
 const otherInputs = document.getElementById('mainOtherInputs');
 const lengthGroup = document.getElementById('mainLengthGroup');
+const widthGroup = document.getElementById('mainWidthGroup');
 const hoursGroup = document.getElementById('mainHoursGroup');
 
 // Для распила показываем контейнер с размерами и кнопку +
 if (tariff === 'RASPIL_M2') {
-sizeContainer.classList.remove('hidden');
-addSizeBtn.classList.remove('hidden');
-otherInputs.classList.add('hidden');
+if (sizeContainer) sizeContainer.classList.remove('hidden');
+if (addSizeBtn) addSizeBtn.classList.remove('hidden');
+if (otherInputs) otherInputs.classList.add('hidden');
 } else {
-sizeContainer.classList.add('hidden');
-addSizeBtn.classList.add('hidden');
-otherInputs.classList.remove('hidden');
-lengthGroup.classList.remove('hidden');
-hoursGroup.classList.add('hidden');
+if (sizeContainer) sizeContainer.classList.add('hidden');
+if (addSizeBtn) addSizeBtn.classList.add('hidden');
+if (otherInputs) otherInputs.classList.remove('hidden');
+if (lengthGroup) lengthGroup.classList.remove('hidden');
+if (widthGroup) widthGroup.classList.add('hidden');
+if (hoursGroup) hoursGroup.classList.add('hidden');
 
 if (tariff === 'TIME') {
-lengthGroup.classList.add('hidden');
-hoursGroup.classList.remove('hidden');
+if (lengthGroup) lengthGroup.classList.add('hidden');
+if (hoursGroup) hoursGroup.classList.remove('hidden');
 }
 }
 }
@@ -1033,22 +1049,24 @@ const sizeContainer = document.getElementById('preSizeContainer');
 const addSizeBtn = document.getElementById('preAddSizeBtn');
 const otherInputs = document.getElementById('preOtherInputs');
 const lengthGroup = document.getElementById('preLengthGroup');
+const widthGroup = document.getElementById('preWidthGroup');
 const hoursGroup = document.getElementById('preHoursGroup');
 
 if (tariff === 'RASPIL_M2') {
-sizeContainer.classList.remove('hidden');
-addSizeBtn.classList.remove('hidden');
-otherInputs.classList.add('hidden');
+if (sizeContainer) sizeContainer.classList.remove('hidden');
+if (addSizeBtn) addSizeBtn.classList.remove('hidden');
+if (otherInputs) otherInputs.classList.add('hidden');
 } else {
-sizeContainer.classList.add('hidden');
-addSizeBtn.classList.add('hidden');
-otherInputs.classList.remove('hidden');
-lengthGroup.classList.remove('hidden');
-hoursGroup.classList.add('hidden');
+if (sizeContainer) sizeContainer.classList.add('hidden');
+if (addSizeBtn) addSizeBtn.classList.add('hidden');
+if (otherInputs) otherInputs.classList.remove('hidden');
+if (lengthGroup) lengthGroup.classList.remove('hidden');
+if (widthGroup) widthGroup.classList.add('hidden');
+if (hoursGroup) hoursGroup.classList.add('hidden');
 
 if (tariff === 'TIME') {
-lengthGroup.classList.add('hidden');
-hoursGroup.classList.remove('hidden');
+if (lengthGroup) lengthGroup.classList.add('hidden');
+if (hoursGroup) hoursGroup.classList.remove('hidden');
 }
 }
 }
@@ -1058,22 +1076,25 @@ const tariff = document.getElementById('editTariff').value;
 const sizeContainer = document.getElementById('editSizeContainer');
 const addSizeBtn = document.getElementById('editAddSizeBtn');
 const lengthGroup = document.getElementById('editLengthGroup');
+const widthGroup = document.getElementById('editWidthGroup');
 const hoursGroup = document.getElementById('editHoursGroup');
 
 if (tariff === 'RASPIL_M2') {
-sizeContainer.classList.remove('hidden');
-addSizeBtn.classList.remove('hidden');
-lengthGroup.classList.add('hidden');
-hoursGroup.classList.add('hidden');
+if (sizeContainer) sizeContainer.classList.remove('hidden');
+if (addSizeBtn) addSizeBtn.classList.remove('hidden');
+if (lengthGroup) lengthGroup.classList.add('hidden');
+if (widthGroup) widthGroup.classList.add('hidden');
+if (hoursGroup) hoursGroup.classList.add('hidden');
 } else {
-sizeContainer.classList.add('hidden');
-addSizeBtn.classList.add('hidden');
-lengthGroup.classList.remove('hidden');
-hoursGroup.classList.add('hidden');
+if (sizeContainer) sizeContainer.classList.add('hidden');
+if (addSizeBtn) addSizeBtn.classList.add('hidden');
+if (lengthGroup) lengthGroup.classList.remove('hidden');
+if (widthGroup) widthGroup.classList.add('hidden');
+if (hoursGroup) hoursGroup.classList.add('hidden');
 
 if (tariff === 'TIME') {
-lengthGroup.classList.add('hidden');
-hoursGroup.classList.remove('hidden');
+if (lengthGroup) lengthGroup.classList.add('hidden');
+if (hoursGroup) hoursGroup.classList.remove('hidden');
 }
 }
 }
@@ -1084,22 +1105,24 @@ const sizeContainer = document.getElementById('photoSizeContainer');
 const addSizeBtn = document.getElementById('photoAddSizeBtn');
 const otherInputs = document.getElementById('photoOtherInputs');
 const lengthGroup = document.getElementById('photoLengthGroup');
+const widthGroup = document.getElementById('photoWidthGroup');
 const hoursGroup = document.getElementById('photoHoursGroup');
 
 if (tariff === 'RASPIL_M2') {
-sizeContainer.classList.remove('hidden');
-addSizeBtn.classList.remove('hidden');
-otherInputs.classList.add('hidden');
+if (sizeContainer) sizeContainer.classList.remove('hidden');
+if (addSizeBtn) addSizeBtn.classList.remove('hidden');
+if (otherInputs) otherInputs.classList.add('hidden');
 } else {
-sizeContainer.classList.add('hidden');
-addSizeBtn.classList.add('hidden');
-otherInputs.classList.remove('hidden');
-lengthGroup.classList.remove('hidden');
-hoursGroup.classList.add('hidden');
+if (sizeContainer) sizeContainer.classList.add('hidden');
+if (addSizeBtn) addSizeBtn.classList.add('hidden');
+if (otherInputs) otherInputs.classList.remove('hidden');
+if (lengthGroup) lengthGroup.classList.remove('hidden');
+if (widthGroup) widthGroup.classList.add('hidden');
+if (hoursGroup) hoursGroup.classList.add('hidden');
 
 if (tariff === 'TIME') {
-lengthGroup.classList.add('hidden');
-hoursGroup.classList.remove('hidden');
+if (lengthGroup) lengthGroup.classList.add('hidden');
+if (hoursGroup) hoursGroup.classList.remove('hidden');
 }
 }
 }
@@ -1182,6 +1205,7 @@ document.getElementById('editHours').value = order.hours || '';
 resetEditSizeRows();
 if (order.dimensions && order.dimensions.length > 0 && order.tariff === 'RASPIL_M2') {
 const container = document.getElementById('editSizeRows');
+if (container) {
 container.innerHTML = '';
 order.dimensions.forEach((dim, idx) => {
 editSizeRowCount = idx + 1;
@@ -1201,6 +1225,7 @@ row.innerHTML = `
 `;
 container.appendChild(row);
 });
+}
 }
 
 updateEditFormFields();
@@ -1246,9 +1271,17 @@ const num = document.getElementById('orderNum').value.trim(); if (!num) { alert(
 const tariffKey = document.getElementById('tariff').value;
 const detail = document.getElementById('detail').value.trim() || '—';
 const qty = parseInt(document.getElementById('qty').value) || 1;
-const length = parseFloat(document.getElementById('length').value) || 0;
-const width = parseFloat(document.getElementById('width').value) || 0;
-const hours = parseFloat(document.getElementById('hours').value) || 0;
+
+// Получаем значения из старых полей (если они существуют)
+const lengthEl = document.getElementById('length');
+const widthEl = document.getElementById('width');
+const hoursEl = document.getElementById('hours');
+
+const length = lengthEl ? parseFloat(lengthEl.value) || 0 : 0;
+const width = widthEl ? parseFloat(widthEl.value) || 0 : 0;
+const hours = hoursEl ? parseFloat(hoursEl.value) || 0 : 0;
+
+// Получаем размеры из динамических полей
 const dimensions = getMainSizeDimensions();
 
 const amount = calculateAmount(tariffKey, length, width, hours, qty, dimensions);
@@ -1273,13 +1306,16 @@ timestamp: new Date().toISOString()
 
 const orders = loadOrders(); orders.push(order); saveOrders(orders); updateUI(); renderCalendar();
 
-// Сброс полей
+// Очищаем поля
 document.getElementById('orderNum').value = '';
 document.getElementById('detail').value = '';
 document.getElementById('qty').value = '1';
-document.getElementById('length').value = '';
-document.getElementById('width').value = '';
-document.getElementById('hours').value = '';
+
+// Очищаем старые поля (если существуют)
+if (lengthEl) lengthEl.value = '';
+if (widthEl) widthEl.value = '';
+if (hoursEl) hoursEl.value = '';
+
 resetMainSizeRows();
 updateMainFormFields();
 }
@@ -1291,9 +1327,15 @@ const num = document.getElementById('preOrderNum').value.trim(); if (!num) { ale
 const tariffKey = document.getElementById('preTariff').value;
 const detail = document.getElementById('preDetail').value.trim() || '—';
 const qty = parseInt(document.getElementById('preQty').value) || 1;
-const length = parseFloat(document.getElementById('preLength').value) || 0;
-const width = parseFloat(document.getElementById('preWidth').value) || 0;
-const hours = parseFloat(document.getElementById('preHours').value) || 0;
+
+const lengthEl = document.getElementById('preLength');
+const widthEl = document.getElementById('preWidth');
+const hoursEl = document.getElementById('preHours');
+
+const length = lengthEl ? parseFloat(lengthEl.value) || 0 : 0;
+const width = widthEl ? parseFloat(widthEl.value) || 0 : 0;
+const hours = hoursEl ? parseFloat(hoursEl.value) || 0 : 0;
+
 const dimensions = getPreSizeDimensions();
 
 const amount = calculateAmount(tariffKey, length, width, hours, qty, dimensions);
@@ -1320,9 +1362,11 @@ alert('✅ Предзаказ сохранён!'); renderPreorders();
 document.getElementById('preOrderNum').value = '';
 document.getElementById('preDetail').value = '';
 document.getElementById('preQty').value = '1';
-document.getElementById('preLength').value = '';
-document.getElementById('preWidth').value = '';
-document.getElementById('preHours').value = '';
+
+if (lengthEl) lengthEl.value = '';
+if (widthEl) widthEl.value = '';
+if (hoursEl) hoursEl.value = '';
+
 resetPreSizeRows();
 updatePreorderFormFields();
 }
@@ -1767,9 +1811,15 @@ if (!num) { alert('Укажите № заказа'); return; }
 const tariffKey = document.getElementById('photoTariff').value;
 const detail = document.getElementById('photoDetail').value.trim() || '—';
 const qty = parseInt(document.getElementById('photoQty').value) || 1;
-const length = parseFloat(document.getElementById('photoLength').value) || 0;
-const width = parseFloat(document.getElementById('photoWidth').value) || 0;
-const hours = parseFloat(document.getElementById('photoHours').value) || 0;
+
+const lengthEl = document.getElementById('photoLength');
+const widthEl = document.getElementById('photoWidth');
+const hoursEl = document.getElementById('photoHours');
+
+const length = lengthEl ? parseFloat(lengthEl.value) || 0 : 0;
+const width = widthEl ? parseFloat(widthEl.value) || 0 : 0;
+const hours = hoursEl ? parseFloat(hoursEl.value) || 0 : 0;
+
 const dimensions = getPhotoSizeDimensions();
 const amount = calculateAmount(tariffKey, length, width, hours, qty, dimensions);
 
@@ -1853,8 +1903,17 @@ else updateEditFormFields();
 });
 
 // Добавляем обработчики для обновления общей площади
-document.getElementById('mainSizeRows')?.addEventListener('input', updateMainSizeTotal);
-document.getElementById('preSizeRows')?.addEventListener('input', updatePreSizeTotal);
+const mainSizeRows = document.getElementById('mainSizeRows');
+if (mainSizeRows) mainSizeRows.addEventListener('input', updateMainSizeTotal);
+
+const preSizeRows = document.getElementById('preSizeRows');
+if (preSizeRows) preSizeRows.addEventListener('input', updatePreSizeTotal);
+
+// Инициализация строк размеров
+resetMainSizeRows();
+resetPreSizeRows();
+resetEditSizeRows();
+resetPhotoSizeRows();
 
 updateUI(); renderPreorders(); loadAvatar(); renderCalendar(); renderPhotos();
 });
