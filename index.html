@@ -13,6 +13,8 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<!-- Библиотека для экспорта в Excel -->
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 <style>
 :root {
 --bg: #F0F1F3;
@@ -435,6 +437,23 @@ text-align: right;
 <div id="stats" class="content-block">
 <div class="container">
 <h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-chart-bar"></i> Общая статистика</h2>
+
+<!-- Экспорт отчета по датам -->
+<div class="progress-title" style="margin-top: 24px;"><i class="fas fa-file-export"></i> Экспорт отчета</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: end; margin: 12px 0;">
+    <div>
+        <label style="display: block; margin-bottom: 6px; font-size: 0.9rem;">С даты</label>
+        <input type="date" id="reportDateFrom" class="neu-input" value="">
+    </div>
+    <div>
+        <label style="display: block; margin-bottom: 6px; font-size: 0.9rem;">По дату</label>
+        <input type="date" id="reportDateTo" class="neu-input" value="">
+    </div>
+    <button class="neu-btn neu-btn-accent" onclick="exportReportToExcel()" style="height: 42px; white-space: nowrap;">
+        <i class="fas fa-file-excel"></i> Скачать
+    </button>
+</div>
+
 <div class="progress-title"><i class="fas fa-ruler-horizontal"></i> Погонные метры</div>
 <div class="progress-container"><div class="progress-fill" id="linearProgress"></div></div>
 <div class="progress-label"><span>Всего</span><span><b id="linearTotal">0.0</b> м</span></div>
@@ -1855,6 +1874,102 @@ document.getElementById('preorders').classList.add('active');
 
 document.getElementById('photoTariff').addEventListener('change', updatePhotoFormFields);
 
+// === ЭКСПОРТ ОТЧЕТА В EXCEL ===
+function exportReportToExcel() {
+    const dateFrom = document.getElementById('reportDateFrom').value;
+    const dateTo = document.getElementById('reportDateTo').value;
+    
+    if (!dateFrom || !dateTo) {
+        alert('⚠️ Выберите диапазон дат');
+        return;
+    }
+    if (dateFrom > dateTo) {
+        alert('⚠️ Дата начала не может быть позже даты окончания');
+        return;
+    }
+    
+    const orders = loadOrders();
+    const filtered = orders.filter(o => {
+        if (!o.date) return false;
+        return o.date >= dateFrom && o.date <= dateTo;
+    });
+    
+    if (filtered.length === 0) {
+        alert('📭 Нет заказов за выбранный период');
+        return;
+    }
+    
+    // Подготовка данных для Excel
+    const data = [
+        ['№ заказа', 'Дата', 'Деталь', 'Тариф', 'Кол-во', 'Длина (м)', 'Ширина (м)', 'Часы', 'Размеры', 'Сумма (₽)']
+    ];
+    
+    filtered.forEach(o => {
+        const tariffName = TARIFF_NAMES[o.tariff] || o.tariff;
+        let sizesStr = '';
+        
+        if (o.dimensions && o.dimensions.length > 0) {
+            sizesStr = o.dimensions.map((d, i) => `${d.length}×${d.width}`).join('; ');
+        }
+        
+        data.push([
+            o.orderNumber,
+            formatDateYMD(o.date),
+            o.detail,
+            tariffName,
+            o.qty || 1,
+            o.length || '',
+            o.width || '',
+            o.hours || '',
+            sizesStr,
+            o.amount?.toFixed(2) || '0.00'
+        ]);
+    });
+    
+    // Итоговая строка
+    const totalAmount = filtered.reduce((sum, o) => sum + (o.amount || 0), 0);
+    data.push([], ['ИТОГО:', '', '', '', '', '', '', '', '', totalAmount.toFixed(2)]);
+    
+    // Создание книги Excel
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    
+    // Настройка ширины колонок
+    ws['!cols'] = [
+        {wch: 12}, {wch: 10}, {wch: 20}, {wch: 15}, 
+        {wch: 8}, {wch: 10}, {wch: 10}, {wch: 8}, 
+        {wch: 25}, {wch: 12}
+    ];
+    
+    // Жирный шрифт для заголовка и итога
+    const range = XLSX.utils.decode_range(ws['!ref']);
+    for (let C = range.s.c; C <= range.e.c; C++) {
+        const cellRef = XLSX.utils.encode_cell({r: 0, c: C});
+        if (!ws[cellRef]) ws[cellRef] = {t: 's', v: ''};
+        ws[cellRef].s = {font: {bold: true}};
+    }
+    // Итоговая строка
+    const lastRow = data.length - 1;
+    for (let C = 0; C <= 9; C++) {
+        const cellRef = XLSX.utils.encode_cell({r: lastRow, c: C});
+        if (ws[cellRef] && C === 9) {
+            ws[cellRef].s = {font: {bold: true}};
+        }
+    }
+    
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Отчет');
+    
+    // Формирование имени файла
+    const fromFmt = formatDateYMD(dateFrom).replace(/\./g, '-');
+    const toFmt = formatDateYMD(dateTo).replace(/\./g, '-');
+    const filename = `Отчет_заказы_${fromFmt}_${toFmt}.xlsx`;
+    
+    // Скачивание
+    XLSX.writeFile(wb, filename);
+    
+    showToast('✅', '#16A34A', 'Отчет готов', `Скачано ${filtered.length} заказов`);
+}
+
 // === НАВИГАЦИЯ И ИНИЦИАЛИЗАЦИЯ ===
 document.querySelectorAll('.panel-item').forEach(item => {
 item.addEventListener('click', () => {
@@ -1893,6 +2008,14 @@ reader.readAsDataURL(file);
 
 document.addEventListener('DOMContentLoaded', () => {
 document.getElementById('viewDate').value = todayYMD();
+
+// Установка дат по умолчанию для отчета (текущий месяц)
+const today = new Date();
+const firstDay = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
+document.getElementById('reportDateFrom').value = firstDay;
+document.getElementById('reportDateTo').value = lastDay;
+
 ['tariff','preTariff','editTariff'].forEach(id => {
 const el = document.getElementById(id);
 if (el) el.addEventListener('change', () => {
