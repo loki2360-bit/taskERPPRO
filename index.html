@@ -1562,36 +1562,41 @@ return orders;
 }
 
 function calculateUnits(tariffKey, length, width, hours, qty, dimensions = null) {
-const tariff = TARIFFS[tariffKey]; if (!tariff) return { value: 0, unit: '' };
+const tariff = TARIFFS[tariffKey]; if (!tariff) return { value: 0, unit: '', linear: 0, area: 0, time: 0 };
 let value = 0; let unit = tariff.unit;
+let linear = 0, area = 0, time = 0;
 
 if (tariffKey === 'RASPIL_M2' && dimensions && dimensions.length > 0) {
-dimensions.forEach(dim => { value += dim.length * dim.width; });
-value *= qty;
+dimensions.forEach(dim => { area += dim.length * dim.width; });
+area *= qty;
+value = area;
 } else if (tariff.unit === 'time') {
-value = hours * qty;
+time = hours * qty;
+value = time;
 } else if (tariff.unit === 'm2') {
-value = length * width * qty;
+area = length * width * qty;
+value = area;
 } else {
-value = length * qty;
+linear = length * qty;
+value = linear;
 }
-return { value: Math.round(value * 100) / 100, unit: UNIT_LABELS[unit] || unit };
+return { 
+    value: Math.round(value * 100) / 100, 
+    unit: UNIT_LABELS[unit] || unit,
+    linear: Math.round(linear * 100) / 100,
+    area: Math.round(area * 100) / 100,
+    time: Math.round(time * 100) / 100
+};
 }
 
 function calculateStats() {
 const orders = loadOrders(); let totalLinear = 0, totalArea = 0, totalTime = 0;
 const operationCount = { RASPIL_M2: 0, LINEAR_RASPIL: 0, SKLEIKA_OB: 0, SKLEIKA_NO_OB: 0, PAZY: 0, FREZER_FASKA: 0, TIME: 0 };
 orders.forEach(o => {
-if (['LINEAR_RASPIL','PAZY','FREZER_FASKA'].includes(o.tariff)) totalLinear += (o.length || 0) * (o.qty || 1);
-else if (['RASPIL_M2','SKLEIKA_OB','SKLEIKA_NO_OB'].includes(o.tariff)) {
-if (o.dimensions && o.dimensions.length > 0) {
-o.dimensions.forEach(dim => { totalArea += dim.length * dim.width; });
-totalArea *= (o.qty || 1);
-} else {
-totalArea += (o.length || 0) * (o.width || 0) * (o.qty || 1);
-}
-}
-else if (o.tariff === 'TIME') totalTime += (o.hours || 0) * (o.qty || 1);
+const units = calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty, o.dimensions);
+totalLinear += units.linear;
+totalArea += units.area;
+totalTime += units.time;
 operationCount[o.tariff] = (operationCount[o.tariff] || 0) + 1;
 });
 return {
@@ -1874,7 +1879,7 @@ document.getElementById('preorders').classList.add('active');
 
 document.getElementById('photoTariff').addEventListener('change', updatePhotoFormFields);
 
-// === ЭКСПОРТ ОТЧЕТА В EXCEL ===
+// === ЭКСПОРТ ОТЧЕТА В EXCEL (расширенный) ===
 function exportReportToExcel() {
     const dateFrom = document.getElementById('reportDateFrom').value;
     const dateTo = document.getElementById('reportDateTo').value;
@@ -1899,13 +1904,14 @@ function exportReportToExcel() {
         return;
     }
     
-    // Подготовка данных для Excel
+    // Подготовка данных для Excel с расширенными колонками
     const data = [
-        ['№ заказа', 'Дата', 'Деталь', 'Тариф', 'Кол-во', 'Длина (м)', 'Ширина (м)', 'Часы', 'Размеры', 'Сумма (₽)']
+        ['№ заказа', 'Дата', 'Деталь', 'Тариф', 'Кол-во', 'Длина (м)', 'Ширина (м)', 'Часы', 'Размеры', 'Пог. м', 'М²', 'Часы (расч.)', 'Сумма (₽)']
     ];
     
     filtered.forEach(o => {
         const tariffName = TARIFF_NAMES[o.tariff] || o.tariff;
+        const units = calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty, o.dimensions);
         let sizesStr = '';
         
         if (o.dimensions && o.dimensions.length > 0) {
@@ -1918,40 +1924,55 @@ function exportReportToExcel() {
             o.detail,
             tariffName,
             o.qty || 1,
-            o.length || '',
-            o.width || '',
-            o.hours || '',
+            o.length !== null && o.length !== undefined ? o.length : '',
+            o.width !== null && o.width !== undefined ? o.width : '',
+            o.hours !== null && o.hours !== undefined ? o.hours : '',
             sizesStr,
+            units.linear > 0 ? units.linear : '',
+            units.area > 0 ? units.area : '',
+            units.time > 0 ? units.time : '',
             o.amount?.toFixed(2) || '0.00'
         ]);
     });
     
     // Итоговая строка
     const totalAmount = filtered.reduce((sum, o) => sum + (o.amount || 0), 0);
-    data.push([], ['ИТОГО:', '', '', '', '', '', '', '', '', totalAmount.toFixed(2)]);
+    const totalLinear = filtered.reduce((sum, o) => sum + calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty, o.dimensions).linear, 0);
+    const totalArea = filtered.reduce((sum, o) => sum + calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty, o.dimensions).area, 0);
+    const totalTime = filtered.reduce((sum, o) => sum + calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty, o.dimensions).time, 0);
+    
+    data.push(
+        [],
+        ['ИТОГО:', '', '', '', '', '', '', '', '', 
+         totalLinear > 0 ? totalLinear.toFixed(2) : '', 
+         totalArea > 0 ? totalArea.toFixed(2) : '', 
+         totalTime > 0 ? totalTime.toFixed(2) : '', 
+         totalAmount.toFixed(2)]
+    );
     
     // Создание книги Excel
     const ws = XLSX.utils.aoa_to_sheet(data);
     
     // Настройка ширины колонок
     ws['!cols'] = [
-        {wch: 12}, {wch: 10}, {wch: 20}, {wch: 15}, 
-        {wch: 8}, {wch: 10}, {wch: 10}, {wch: 8}, 
-        {wch: 25}, {wch: 12}
+        {wch: 12}, {wch: 10}, {wch: 20}, {wch: 15}, {wch: 8},
+        {wch: 10}, {wch: 10}, {wch: 8}, {wch: 25},
+        {wch: 10}, {wch: 8}, {wch: 12}, {wch: 12}
     ];
     
-    // Жирный шрифт для заголовка и итога
+    // Жирный шрифт для заголовка
     const range = XLSX.utils.decode_range(ws['!ref']);
     for (let C = range.s.c; C <= range.e.c; C++) {
         const cellRef = XLSX.utils.encode_cell({r: 0, c: C});
         if (!ws[cellRef]) ws[cellRef] = {t: 's', v: ''};
         ws[cellRef].s = {font: {bold: true}};
     }
-    // Итоговая строка
+    
+    // Жирный шрифт для итоговой строки
     const lastRow = data.length - 1;
-    for (let C = 0; C <= 9; C++) {
+    for (let C = 0; C <= 12; C++) {
         const cellRef = XLSX.utils.encode_cell({r: lastRow, c: C});
-        if (ws[cellRef] && C === 9) {
+        if (ws[cellRef] && (C === 0 || C >= 9)) {
             ws[cellRef].s = {font: {bold: true}};
         }
     }
