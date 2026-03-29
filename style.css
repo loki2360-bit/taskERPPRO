@@ -1,0 +1,178 @@
+:root {
+    --bg-color: #f4f4f9;
+    --text-color: #333;
+    --accent-color: #2c3e50;
+    --card-bg: #fff;
+}
+
+body {
+    font-family: 'Georgia', serif; /* Шрифт с засечками для поэзии */
+    margin: 0;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    user-select: none; /* Запрет выделения текста (защита) */
+    -webkit-user-select: none;
+}
+
+/* Класс для принудительного запрета выделения */
+.lock-selection * {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.screen {
+    display: none;
+    height: 100vh;
+    flex-direction: column;
+}
+
+.screen.active {
+    display: flex;
+}
+
+/* Auth Screen */
+#auth-screen {
+    justify-content: center;
+    align-items: center;
+    background: var(--accent-color);
+    color: white;
+}
+
+.auth-box {
+    text-align: center;
+    background: rgba(255,255,255,0.1);
+    padding: 2rem;
+    border-radius: 10px;
+    backdrop-filter: blur(5px);
+}
+
+input, textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+button {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+/* App Screen */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: var(--accent-color);
+    color: white;
+}
+
+.controls button {
+    background: rgba(255,255,255,0.2);
+    margin-left: 5px;
+}
+
+.search-bar {
+    padding: 10px;
+}
+
+.poems-grid {
+    padding: 15px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+    overflow-y: auto;
+}
+
+.poem-card {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: transform 0.2s;
+    position: relative;
+}
+
+.poem-card:hover {
+    transform: translateY(-3px);
+}
+
+.poem-card h3 {
+    margin-top: 0;
+    color: var(--accent-color);
+}
+
+.poem-card p {
+    font-size: 0.9rem;
+    color: #666;
+    white-space: pre-wrap; /* Сохраняет переносы строк */
+    max-height: 100px;
+    overflow: hidden;
+}
+
+.delete-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #e74c3c;
+    padding: 5px 10px;
+    font-size: 0.8rem;
+}
+
+/* Editor Screen */
+.editor-container {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+#poem-content {
+    flex: 1;
+    resize: none;
+    font-size: 1.2rem;
+    line-height: 1.6;
+    border: none;
+    background: transparent;
+    outline: none;
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 400px;
+    width: 90%;
+}
+
+.btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.btn-group button {
+    width: 100%;
+}
