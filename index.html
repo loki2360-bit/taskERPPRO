@@ -4,75 +4,652 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мой Поэтический Блокнот</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2c3e50">
-    <link rel="apple-touch-icon" href="icon-192.png">
-</head>
-<body class="lock-selection">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    <!-- Экран входа (Пароль) -->
-    <div id="auth-screen" class="screen active">
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Экран входа */
+        .auth-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .auth-box {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .auth-box h1 {
+            color: #1e3c72;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .auth-box p {
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .auth-box input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            transition: border 0.3s;
+        }
+
+        .auth-box input:focus {
+            outline: none;
+            border-color: #1e3c72;
+        }
+
+        .btn {
+            background: #1e3c72;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #2a5298;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            margin-top: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-small {
+            padding: 8px 15px;
+            font-size: 14px;
+            width: auto;
+        }
+
+        .error-msg {
+            color: #dc3545;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* Основной интерфейс */
+        .main-screen {
+            display: none;
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            color: #1e3c72;
+            font-size: 24px;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #1e3c72;
+        }
+
+        .poems-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .poem-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
+
+        .poem-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .poem-card h3 {
+            color: #1e3c72;
+            margin-bottom: 10px;
+            font-size: 22px;
+            padding-right: 80px;
+        }
+
+        .poem-card .preview {
+            color: #666;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            font-size: 15px;
+        }
+
+        .poem-card .date {
+            color: #999;
+            font-size: 13px;
+            margin-top: 15px;
+            font-style: italic;
+        }
+
+        .poem-card .delete-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .poem-card .delete-btn:hover {
+            background: #c82333;
+        }
+
+        /* Редактор */
+        .editor-screen {
+            display: none;
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+
+        .editor-header {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .editor-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .editor-container input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 24px;
+            font-family: 'Georgia', serif;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .editor-container input[type="text"]:focus,
+        .editor-container textarea:focus {
+            outline: none;
+            border-color: #1e3c72;
+        }
+
+        .editor-container textarea {
+            width: 100%;
+            min-height: 400px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 18px;
+            font-family: 'Georgia', serif;
+            line-height: 1.8;
+            resize: vertical;
+        }
+
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h2 {
+            color: #1e3c72;
+            margin-bottom: 15px;
+        }
+
+        .modal-content p {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .modal-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: white;
+            padding: 60px 20px;
+            font-size: 18px;
+        }
+
+        .empty-state h2 {
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        @media (max-width: 600px) {
+            .header, .editor-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .poem-card h3 {
+                padding-right: 0;
+            }
+            
+            .poem-card .delete-btn {
+                position: static;
+                margin-top: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Экран входа -->
+    <div id="authScreen" class="auth-screen">
         <div class="auth-box">
-            <h1>Вход в архив</h1>
-            <p>Введите пароль для доступа к стихам</p>
-            <input type="password" id="password-input" placeholder="Пароль">
-            <button onclick="checkPassword()">Войти</button>
-            <p id="error-msg" style="color: red; display: none;">Неверный пароль</p>
+            <h1>📖 Поэтический Блокнот</h1>
+            <p>Введите пароль для доступа к вашим стихам</p>
+            <input type="password" id="passwordInput" placeholder="Пароль" onkeypress="if(event.key==='Enter')checkPassword()">
+            <button class="btn" onclick="checkPassword()">Войти</button>
+            <p id="errorMsg" class="error-msg">Неверный пароль!</p>
         </div>
     </div>
 
-    <!-- Основной интерфейс -->
-    <div id="app-screen" class="screen hidden">
-        <header>
-            <h2>Мои Стихи</h2>
-            <div class="controls">
-                <button onclick="createNewPoem()" title="Новое стихотворение">+</button>
-                <button onclick="toggleSettings()" title="Настройки и Бэкап">⚙️</button>
+    <!-- Основной экран -->
+    <div id="mainScreen" class="main-screen">
+        <div class="container">
+            <div class="header">
+                <h1>📚 Мои Стихи</h1>
+                <div class="header-buttons">
+                    <button class="btn btn-small" onclick="createNewPoem()">+ Новое стихотворение</button>
+                    <button class="btn btn-small btn-secondary" onclick="showSettings()">⚙️ Настройки</button>
+                    <button class="btn btn-small btn-secondary" onclick="logout()">Выйти</button>
+                </div>
             </div>
-        </header>
 
-        <div class="search-bar">
-            <input type="text" id="search-input" placeholder="Поиск по названию или тексту..." oninput="renderPoems()">
-        </div>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="🔍 Поиск по названию или тексту..." oninput="renderPoems()">
+            </div>
 
-        <div id="poems-list" class="poems-grid">
-            <!-- Сюда будут добавляться карточки стихов -->
+            <div id="poemsList" class="poems-list"></div>
+            
+            <div id="emptyState" class="empty-state" style="display:none;">
+                <h2>Пока нет стихов</h2>
+                <p>Нажмите «+ Новое стихотворение», чтобы начать творить</p>
+            </div>
         </div>
     </div>
 
     <!-- Экран редактора -->
-    <div id="editor-screen" class="screen hidden">
-        <header>
-            <button onclick="closeEditor()" class="back-btn">← Назад</button>
-            <button onclick="saveCurrentPoem()" class="save-btn">Сохранить</button>
-        </header>
-        <div class="editor-container">
-            <input type="text" id="poem-title" placeholder="Название стихотворения">
-            <textarea id="poem-content" placeholder="Начните писать здесь..."></textarea>
-        </div>
-    </div>
-
-    <!-- Настройки / Бэкап -->
-    <div id="settings-modal" class="modal hidden">
-        <div class="modal-content">
-            <h3>Управление данными</h3>
-            <p>Данные хранятся только на этом устройстве. Чтобы не потерять их при очистке браузера, скачайте резервную копию.</p>
-            <div class="btn-group">
-                <button onclick="exportData()">📥 Скачать резервную копию</button>
-                <button onclick="document.getElementById('import-file').click()">📤 Загрузить копию</button>
-                <input type="file" id="import-file" style="display: none" onchange="importData(this)" accept=".json">
+    <div id="editorScreen" class="editor-screen">
+        <div class="container">
+            <div class="editor-header">
+                <button class="btn btn-small btn-secondary" onclick="closeEditor()">← Назад</button>
+                <button class="btn btn-small" onclick="savePoem()">💾 Сохранить</button>
             </div>
-            <button onclick="toggleSettings()" style="margin-top: 20px; background: #ccc;">Закрыть</button>
+            
+            <div class="editor-container">
+                <input type="text" id="poemTitle" placeholder="Название стихотворения">
+                <textarea id="poemContent" placeholder="Начните писать здесь...&#10;&#10;Ваши строки будут сохранены автоматически при нажатии кнопки «Сохранить»"></textarea>
+            </div>
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <!-- Модальное окно настроек -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <h2>⚙️ Управление данными</h2>
+            <p><strong>Важно!</strong> Все стихи хранятся только в вашем браузере. Чтобы не потерять их:</p>
+            <ol style="margin-left: 20px; margin-bottom: 20px; color: #666;">
+                <li>Регулярно скачивайте резервную копию</li>
+                <li>При очистке браузера данные удалятся</li>
+                <li>Вы можете загрузить копию на любом устройстве</li>
+            </ol>
+            
+            <div class="modal-buttons">
+                <button class="btn" onclick="exportData()">📥 Скачать резервную копию</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">📤 Загрузить копию</button>
+                <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(this)">
+                <button class="btn btn-secondary" onclick="hideSettings()">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Регистрация Service Worker для работы оффлайн
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
+        // ==================== НАСТРОЙКИ ====================
+        const PASSWORD = 'poet'; // ИЗМЕНИТЕ ПАРОЛЬ ЗДЕСЬ!
+        const STORAGE_KEY = 'poetry_notebook_data';
+        
+        let poems = [];
+        let currentPoemId = null;
+
+        // ==================== АВТОРИЗАЦИЯ ====================
+        function checkPassword() {
+            const input = document.getElementById('passwordInput').value;
+            if (input === PASSWORD) {
+                document.getElementById('authScreen').style.display = 'none';
+                document.getElementById('mainScreen').style.display = 'block';
+                loadPoems();
+                renderPoems();
+            } else {
+                document.getElementById('errorMsg').style.display = 'block';
+            }
         }
+
+        function logout() {
+            document.getElementById('mainScreen').style.display = 'none';
+            document.getElementById('editorScreen').style.display = 'none';
+            document.getElementById('authScreen').style.display = 'flex';
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('errorMsg').style.display = 'none';
+        }
+
+        // ==================== РАБОТА С ДАННЫМИ ====================
+        function loadPoems() {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) {
+                    poems = JSON.parse(stored);
+                }
+            } catch (e) {
+                alert('Ошибка загрузки данных: ' + e.message);
+            }
+        }
+
+        function savePoemsToStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(poems));
+            } catch (e) {
+                alert('Ошибка сохранения: ' + e.message);
+            }
+        }
+
+        // ==================== РЕДАКТИРОВАНИЕ ====================
+        function createNewPoem() {
+            currentPoemId = Date.now();
+            document.getElementById('poemTitle').value = '';
+            document.getElementById('poemContent').value = '';
+            
+            document.getElementById('mainScreen').style.display = 'none';
+            document.getElementById('editorScreen').style.display = 'block';
+            document.getElementById('poemTitle').focus();
+        }
+
+        function editPoem(id) {
+            const poem = poems.find(p => p.id === id);
+            if (poem) {
+                currentPoemId = poem.id;
+                document.getElementById('poemTitle').value = poem.title;
+                document.getElementById('poemContent').value = poem.content;
+                
+                document.getElementById('mainScreen').style.display = 'none';
+                document.getElementById('editorScreen').style.display = 'block';
+            }
+        }
+
+        function savePoem() {
+            const title = document.getElementById('poemTitle').value.trim() || 'Без названия';
+            const content = document.getElementById('poemContent').value;
+            
+            const existingIndex = poems.findIndex(p => p.id === currentPoemId);
+            const poemData = {
+                id: currentPoemId,
+                title: title,
+                content: content,
+                date: new Date().toLocaleDateString('ru-RU'),
+                modified: new Date().toLocaleString('ru-RU')
+            };
+            
+            if (existingIndex >= 0) {
+                poems[existingIndex] = poemData;
+            } else {
+                poems.push(poemData);
+            }
+            
+            savePoemsToStorage();
+            closeEditor();
+        }
+
+        function closeEditor() {
+            document.getElementById('editorScreen').style.display = 'none';
+            document.getElementById('mainScreen').style.display = 'block';
+            renderPoems();
+        }
+
+        function deletePoem(id, event) {
+            event.stopPropagation();
+            if (confirm('Удалить это стихотворение?')) {
+                poems = poems.filter(p => p.id !== id);
+                savePoemsToStorage();
+                renderPoems();
+            }
+        }
+
+        // ==================== ОТОБРАЖЕНИЕ ====================
+        function renderPoems() {
+            const list = document.getElementById('poemsList');
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            const emptyState = document.getElementById('emptyState');
+            
+            list.innerHTML = '';
+            
+            let filtered = poems;
+            if (searchQuery) {
+                filtered = poems.filter(p => 
+                    p.title.toLowerCase().includes(searchQuery) || 
+                    p.content.toLowerCase().includes(searchQuery)
+                );
+            }
+            
+            // Сортировка: новые сверху
+            filtered.sort((a, b) => b.id - a.id);
+            
+            if (filtered.length === 0) {
+                emptyState.style.display = 'block';
+            } else {
+                emptyState.style.display = 'none';
+                
+                filtered.forEach(poem => {
+                    const card = document.createElement('div');
+                    card.className = 'poem-card';
+                    card.onclick = () => editPoem(poem.id);
+                    
+                    const preview = poem.content.substring(0, 150) + 
+                                   (poem.content.length > 150 ? '...' : '');
+                    
+                    card.innerHTML = `
+                        <h3>${escapeHtml(poem.title)}</h3>
+                        <div class="preview">${escapeHtml(preview)}</div>
+                        <div class="date">📅 ${poem.date} ${poem.modified !== poem.date ? '(изменено: ' + poem.modified + ')' : ''}</div>
+                        <button class="delete-btn" onclick="deletePoem(${poem.id}, event)">Удалить</button>
+                    `;
+                    
+                    list.appendChild(card);
+                });
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ==================== НАСТРОЙКИ И БЭКАП ====================
+        function showSettings() {
+            document.getElementById('settingsModal').style.display = 'flex';
+        }
+
+        function hideSettings() {
+            document.getElementById('settingsModal').style.display = 'none';
+        }
+
+        function exportData() {
+            const dataStr = JSON.stringify(poems, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `poetry_backup_${new Date().toISOString().slice(0,10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            alert('Резервная копия скачана! Сохраните файл в безопасном месте.');
+        }
+
+        function importData(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported)) {
+                        if (confirm(`Найдено стихотворений: ${imported.length}\n\nЭто ЗАМЕНИТ все текущие данные. Продолжить?`)) {
+                            poems = imported;
+                            savePoemsToStorage();
+                            renderPoems();
+                            hideSettings();
+                            alert('Данные успешно восстановлены!');
+                        }
+                    } else {
+                        alert('Неверный формат файла!');
+                    }
+                } catch (err) {
+                    alert('Ошибка при чтении файла: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+            input.value = '';
+        }
+
+        // Закрытие модального окна при клике вне его
+        document.getElementById('settingsModal').onclick = function(e) {
+            if (e.target === this) hideSettings();
+        };
+
+        // Инициализация
+        window.onload = function() {
+            // Проверка поддержки localStorage
+            try {
+                localStorage.setItem('test', 'test');
+                localStorage.removeItem('test');
+            } catch (e) {
+                alert('Внимание! localStorage не доступен. Включите cookies в настройках браузера.');
+            }
+        };
     </script>
 </body>
 </html>
