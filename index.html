@@ -308,52 +308,7 @@ text-align: right;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* === БЫСТРАЯ СМЕНА ТАРИФОВ === */
-.tariff-switcher {
-    display: flex;
-    gap: 8px;
-    margin: 16px 0;
-    flex-wrap: wrap;
-    padding: 12px;
-    background: var(--card);
-    border-radius: 12px;
-    border: 1px solid var(--border);
-}
-.tariff-preset-btn {
-    flex: 1;
-    min-width: 100px;
-    padding: 10px 12px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--bg);
-    color: var(--text);
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-}
-.tariff-preset-btn:hover {
-    background: var(--accent-solid);
-    color: #F0F1F3;
-    border-color: var(--accent-solid);
-}
-.tariff-preset-btn.active {
-    background: var(--accent-solid);
-    color: #F0F1F3;
-    border-color: var(--accent-solid);
-    box-shadow: 0 0 0 2px rgba(59, 66, 86, 0.3);
-}
-.tariff-preset-btn i {
-    font-size: 1rem;
-}
-.tariff-preset-btn span {
-    font-size: 0.7rem;
-    opacity: 0.9;
-}
+/* === КНОПКА НАСТРОЕК ТАРИФОВ === */
 .tariff-settings-btn {
     position: fixed;
     bottom: 80px;
@@ -408,6 +363,15 @@ text-align: right;
     align-items: center;
     justify-content: center;
 }
+.preset-info {
+    background: var(--bg);
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+.preset-info b { color: var(--text); }
 @media (max-width: 480px) {
 .glass-panel { bottom: 16px; height: 56px; width: calc(100% - 32px); padding: 0 5px; }
 .panel-item { font-size: 0.6rem; gap: 1px; }
@@ -416,8 +380,6 @@ text-align: right;
 .modal-content { padding: 16px; }
 .toast-container { right: 10px; top: 70px; }
 .toast { min-width: 200px; padding: 10px 12px; }
-.tariff-switcher { flex-wrap: wrap; }
-.tariff-preset-btn { min-width: 80px; padding: 8px 6px; }
 .tariff-edit-row { grid-template-columns: 1fr 70px 70px auto; }
 }
 .lazy-render {
@@ -453,27 +415,6 @@ text-align: right;
 <div style="margin: 24px 0;">
 <button class="neu-btn neu-btn-accent" onclick="startShift()"><i class="fas fa-play"></i> Начать смену</button>
 <button class="neu-btn neu-btn-accent" onclick="endShift()" style="margin-left: 12px;"><i class="fas fa-stop"></i> Завершить смену</button>
-</div>
-
-<!-- === БЫСТРАЯ СМЕНА ТАРИФОВ === -->
-<div class="progress-title" style="margin-top: 24px;"><i class="fas fa-sliders-h"></i> Быстрые тарифы</div>
-<div class="tariff-switcher" id="tariffSwitcher">
-    <button class="tariff-preset-btn active" onclick="switchTariffPreset('standard')" data-preset="standard">
-        <i class="fas fa-cut"></i>
-        <span>Стандарт</span>
-    </button>
-    <button class="tariff-preset-btn" onclick="switchTariffPreset('shpon')" data-preset="shpon">
-        <i class="fas fa-layer-group"></i>
-        <span>Шпон</span>
-    </button>
-    <button class="tariff-preset-btn" onclick="switchTariffPreset('press')" data-preset="press">
-        <i class="fas fa-compress-arrows-alt"></i>
-        <span>Запрессовка</span>
-    </button>
-    <button class="tariff-preset-btn" onclick="switchTariffPreset('custom')" data-preset="custom">
-        <i class="fas fa-cog"></i>
-        <span>Свои</span>
-    </button>
 </div>
 
 <div class="progress-title"><i class="fas fa-plus"></i> Новый заказ</div>
@@ -751,15 +692,24 @@ text-align: right;
 <div id="tariffSettingsModal" class="modal">
 <div class="modal-content" style="max-width: 500px;">
 <div class="modal-title"><i class="fas fa-cog"></i> Настройки тарифов</div>
-<div class="modal-row">
-    <label>Пресет тарифов</label>
-    <select id="tariffPresetSelect" class="neu-select" onchange="loadTariffPreset(this.value)">
-        <option value="standard">Стандарт (Распил/Кромка)</option>
-        <option value="shpon">Шпонирование</option>
-        <option value="press">Запрессовка</option>
-        <option value="custom">Пользовательский</option>
-    </select>
+
+<div class="preset-info">
+    <b>Текущий режим:</b> <span id="currentPresetName">Стандарт</span><br>
+    <small>Переключите режим для загрузки другого набора тарифов</small>
 </div>
+
+<div class="modal-row">
+    <label>Режим тарифов</label>
+    <div style="display: flex; gap: 8px;">
+        <button class="neu-btn" id="presetStandardBtn" onclick="switchToPreset('standard')" style="flex: 1;">
+            <i class="fas fa-check-circle"></i> Стандарт
+        </button>
+        <button class="neu-btn" id="presetCustomBtn" onclick="switchToPreset('custom')" style="flex: 1;">
+            <i class="fas fa-edit"></i> Свои
+        </button>
+    </div>
+</div>
+
 <div class="progress-title"><i class="fas fa-list"></i> Редактирование тарифов</div>
 <div id="tariffEditContainer"></div>
 <button class="neu-btn" onclick="addNewTariffRow()" style="margin-top: 12px; width: 100%;">
@@ -817,7 +767,7 @@ function closeInstallPrompt() { installPrompt.classList.remove('show'); }
 
 // === === СИСТЕМА ТАРИФОВ === ===
 
-// Пресеты тарифов
+// Пресеты тарифов (только Стандарт и Свои)
 const TARIFF_PRESETS = {
     standard: [
         { key: 'RASPIL_M2', name: 'Распил', price: 65, unit: 'm2' },
@@ -826,20 +776,6 @@ const TARIFF_PRESETS = {
         { key: 'SKLEIKA_NO_OB', name: 'Склейка –', price: 165, unit: 'm2' },
         { key: 'PAZY', name: 'Пазы', price: 30, unit: 'linear' },
         { key: 'FREZER_FASKA', name: 'Фаска', price: 16, unit: 'linear' },
-        { key: 'TIME', name: 'Время', price: 330, unit: 'time' }
-    ],
-    shpon: [
-        { key: 'SHPON_NABOR', name: 'Набор шпона', price: 450, unit: 'm2' },
-        { key: 'SHPON_PODBOR', name: 'Подбор шпона', price: 280, unit: 'm2' },
-        { key: 'SHPON_STROG', name: 'Строганый шпон', price: 380, unit: 'm2' },
-        { key: 'SHPON_KROMKA', name: 'Кромка шпон', price: 85, unit: 'linear' },
-        { key: 'TIME', name: 'Время', price: 330, unit: 'time' }
-    ],
-    press: [
-        { key: 'PRESS_VAKUUM', name: 'Вакуумная запрессовка', price: 520, unit: 'm2' },
-        { key: 'PRESS_GIDRO', name: 'Гидропресс', price: 680, unit: 'm2' },
-        { key: 'PRESS_TERMO', name: 'Термопресс', price: 450, unit: 'm2' },
-        { key: 'PRESS_KROMKA', name: 'Припрессовка кромки', price: 95, unit: 'linear' },
         { key: 'TIME', name: 'Время', price: 330, unit: 'time' }
     ],
     custom: [] // Загружается из localStorage
@@ -862,13 +798,14 @@ function loadTariffs() {
             CURRENT_TARIFFS = JSON.parse(customTariffs);
         } catch (e) {
             CURRENT_TARIFFS = [...TARIFF_PRESETS.standard];
+            CURRENT_PRESET = 'standard';
         }
     } else {
-        CURRENT_TARIFFS = [...(TARIFF_PRESETS[savedPreset] || TARIFF_PRESETS.standard)];
+        CURRENT_TARIFFS = [...TARIFF_PRESETS.standard];
     }
     
-    updateTariffSwitcherUI();
     populateTariffSelects();
+    updatePresetButtons();
 }
 
 // Сохранение тарифов в localStorage
@@ -880,7 +817,7 @@ function saveTariffs() {
 }
 
 // Переключение пресета
-function switchTariffPreset(preset) {
+function switchToPreset(preset) {
     CURRENT_PRESET = preset;
     
     if (preset === 'custom') {
@@ -895,26 +832,25 @@ function switchTariffPreset(preset) {
             CURRENT_TARIFFS = [...TARIFF_PRESETS.standard];
         }
     } else {
-        CURRENT_TARIFFS = [...(TARIFF_PRESETS[preset] || TARIFF_PRESETS.standard)];
+        CURRENT_TARIFFS = [...TARIFF_PRESETS.standard];
     }
     
-    saveTariffs();
-    updateTariffSwitcherUI();
-    populateTariffSelects();
-    showToast('✅', '#16A34A', 'Тарифы изменены', `Пресет: ${getPresetName(preset)}`);
+    updatePresetButtons();
+    openTariffSettings(); // Обновить отображение
+    showToast('✅', '#16A34A', 'Режим изменён', preset === 'standard' ? 'Стандартные тарифы' : 'Пользовательские тарифы');
 }
 
-// Получение названия пресета
-function getPresetName(preset) {
-    const names = { standard: 'Стандарт', shpon: 'Шпон', press: 'Запрессовка', custom: 'Пользовательский' };
-    return names[preset] || preset;
-}
-
-// Обновление UI переключателя тарифов
-function updateTariffSwitcherUI() {
-    document.querySelectorAll('.tariff-preset-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.preset === CURRENT_PRESET);
-    });
+// Обновление кнопок пресетов
+function updatePresetButtons() {
+    const standardBtn = document.getElementById('presetStandardBtn');
+    const customBtn = document.getElementById('presetCustomBtn');
+    const presetName = document.getElementById('currentPresetName');
+    
+    if (standardBtn && customBtn && presetName) {
+        standardBtn.classList.toggle('neu-btn-accent', CURRENT_PRESET === 'standard');
+        customBtn.classList.toggle('neu-btn-accent', CURRENT_PRESET === 'custom');
+        presetName.textContent = CURRENT_PRESET === 'standard' ? 'Стандарт' : 'Свои';
+    }
 }
 
 // Заполнение всех select тарифами
@@ -952,7 +888,7 @@ function openTariffSettings() {
         container.appendChild(row);
     });
     
-    document.getElementById('tariffPresetSelect').value = CURRENT_PRESET;
+    updatePresetButtons();
     document.getElementById('tariffSettingsModal').classList.add('active');
 }
 
@@ -972,29 +908,15 @@ function removeTariffRow(idx) {
     openTariffSettings();
 }
 
-// Загрузка пресета из select
-function loadTariffPreset(preset) {
-    if (preset === 'custom') {
-        const customTariffs = localStorage.getItem('tariffs_custom');
-        if (customTariffs) {
-            try {
-                CURRENT_TARIFFS = JSON.parse(customTariffs);
-            } catch (e) {
-                CURRENT_TARIFFS = [...TARIFF_PRESETS.standard];
-            }
-        }
-    } else {
-        CURRENT_TARIFFS = [...(TARIFF_PRESETS[preset] || TARIFF_PRESETS.standard)];
-    }
-    openTariffSettings();
-}
-
 // Сброс тарифов к стандартным
 function resetTariffsToDefault() {
     if (confirm('Сбросить все тарифы к стандартным?')) {
         CURRENT_TARIFFS = [...TARIFF_PRESETS.standard];
         CURRENT_PRESET = 'standard';
+        saveTariffs();
         openTariffSettings();
+        populateTariffSelects();
+        showToast('✅', '#16A34A', 'Сброшено', 'Тарифы восстановлены');
     }
 }
 
@@ -1027,7 +949,7 @@ function saveTariffSettings() {
     CURRENT_PRESET = 'custom';
     saveTariffs();
     populateTariffSelects();
-    updateTariffSwitcherUI();
+    updatePresetButtons();
     document.getElementById('tariffSettingsModal').classList.remove('active');
     showToast('✅', '#16A34A', 'Сохранено', 'Тарифы обновлены');
 }
