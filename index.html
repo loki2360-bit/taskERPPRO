@@ -372,6 +372,37 @@ text-align: right;
     color: var(--text-muted);
 }
 .preset-info b { color: var(--text); }
+
+/* === СТИЛИ ДЛЯ ЗАРАБОТКА === */
+.earnings-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 16px 0;
+}
+.earnings-card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light);
+    border: 1px solid var(--border);
+}
+.earnings-card .label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+.earnings-card .value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--accent-solid);
+}
+.earnings-card .icon {
+    font-size: 0.9rem;
+    margin-right: 4px;
+    color: var(--accent-green);
+}
+
 @media (max-width: 480px) {
 .glass-panel { bottom: 16px; height: 56px; width: calc(100% - 32px); padding: 0 5px; }
 .panel-item { font-size: 0.6rem; gap: 1px; }
@@ -381,6 +412,7 @@ text-align: right;
 .toast-container { right: 10px; top: 70px; }
 .toast { min-width: 200px; padding: 10px 12px; }
 .tariff-edit-row { grid-template-columns: 1fr 70px 70px auto; }
+.earnings-summary { grid-template-columns: 1fr; }
 }
 .lazy-render {
     content-visibility: auto;
@@ -402,7 +434,20 @@ text-align: right;
 <div class="main-content" id="mainContent">
 <!-- Основной блок -->
 <div id="main" class="content-block active">
-<div><h2>Александр<span id="opId"></span></h2><p>Всего: <b><span id="totalAll">0.00</span> ₽</b></p></div>
+<div><h2>Александр<span id="opId"></span></h2>
+
+<!-- === ЗАРАБОТОК: ВСЕГО И ЗА МЕСЯЦ === -->
+<div class="earnings-summary">
+    <div class="earnings-card">
+        <div class="label"><i class="fas fa-wallet icon"></i>Всего за всё время</div>
+        <div class="value"><span id="totalAll">0.00</span> ₽</div>
+    </div>
+    <div class="earnings-card">
+        <div class="label"><i class="fas fa-calendar-alt icon"></i>За текущий месяц</div>
+        <div class="value"><span id="monthEarnings">0.00</span> ₽</div>
+    </div>
+</div>
+
 <div class="progress-title"><i class="fas fa-bullseye"></i> План: <b>3000 ₽</b></div>
 <div class="status-bar" id="planStatusBar">
 <div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div>
@@ -987,6 +1032,14 @@ function formatDateYMD(dateStr) {
 
 function todayYMD() { return new Date().toISOString().split('T')[0]; }
 
+// === Получение текущего месяца в формате YYYY-MM ===
+function getCurrentMonth() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    return `${year}-${month}`;
+}
+
 // === ОПТИМИЗИРОВАННЫЕ функции хранилища с кэшированием ===
 function loadOrders() { 
     const now = Date.now();
@@ -1489,9 +1542,17 @@ function checkMilestones(amount) {
     });
 }
 
+// === ОБНОВЛЁННАЯ функция updateUI с заработком за месяц ===
 function updateUI() {
     const orders = loadOrders();
     const totalAll = orders.reduce((sum, o) => sum + (parseFloat(o.amount) || 0), 0);
+    
+    // === Расчёт заработка за текущий месяц ===
+    const currentMonth = getCurrentMonth();
+    const monthEarnings = orders
+        .filter(o => o.date && o.date.startsWith(currentMonth))
+        .reduce((sum, o) => sum + (parseFloat(o.amount) || 0), 0);
+    
     const shift = getCurrentShift();
     let currentShiftAmount = 0; let statusText = 'Смена не начата';
     if (shift && shift.active) {
@@ -1500,9 +1561,13 @@ function updateUI() {
     } else if (shift && !shift.active) {
         currentShiftAmount = shift.finalAmount || 0; statusText = 'Смена завершена';
     }
+    
+    // Обновление всех значений
     document.getElementById('totalAll').textContent = totalAll.toFixed(2);
+    document.getElementById('monthEarnings').textContent = monthEarnings.toFixed(2);
     document.getElementById('todayEarned').textContent = currentShiftAmount.toFixed(2);
     document.getElementById('shiftStatus').textContent = statusText;
+    
     const steps = document.querySelectorAll('#planStatusBar .step');
     const targetStep = Math.min(19, Math.floor((currentShiftAmount / 3000) * 20));
     steps.forEach((step, i) => {
