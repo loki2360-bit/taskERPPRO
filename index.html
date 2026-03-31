@@ -307,7 +307,107 @@ text-align: right;
     animation: spin 0.8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-/* === ОПТИМИЗАЦИЯ ДЛЯ МОБИЛЬНЫХ === */
+
+/* === БЫСТРАЯ СМЕНА ТАРИФОВ === */
+.tariff-switcher {
+    display: flex;
+    gap: 8px;
+    margin: 16px 0;
+    flex-wrap: wrap;
+    padding: 12px;
+    background: var(--card);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+}
+.tariff-preset-btn {
+    flex: 1;
+    min-width: 100px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+.tariff-preset-btn:hover {
+    background: var(--accent-solid);
+    color: #F0F1F3;
+    border-color: var(--accent-solid);
+}
+.tariff-preset-btn.active {
+    background: var(--accent-solid);
+    color: #F0F1F3;
+    border-color: var(--accent-solid);
+    box-shadow: 0 0 0 2px rgba(59, 66, 86, 0.3);
+}
+.tariff-preset-btn i {
+    font-size: 1rem;
+}
+.tariff-preset-btn span {
+    font-size: 0.7rem;
+    opacity: 0.9;
+}
+.tariff-settings-btn {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--accent-solid);
+    color: #F0F1F3;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(59, 66, 86, 0.3);
+    z-index: 150;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+.tariff-settings-btn:hover {
+    background: var(--accent-blue-dark);
+    transform: scale(1.1);
+}
+/* === СТИЛИ ДЛЯ РЕДАКТИРОВАНИЯ ТАРИФОВ === */
+.tariff-edit-row {
+    display: grid;
+    grid-template-columns: 1fr 80px 80px auto;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 8px;
+    background: var(--bg);
+    border-radius: 8px;
+}
+.tariff-edit-row input, .tariff-edit-row select {
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card);
+    color: var(--text);
+    font-size: 0.85rem;
+}
+.tariff-edit-row .remove-tariff-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    background: var(--accent-red);
+    color: #F0F1F3;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 @media (max-width: 480px) {
 .glass-panel { bottom: 16px; height: 56px; width: calc(100% - 32px); padding: 0 5px; }
 .panel-item { font-size: 0.6rem; gap: 1px; }
@@ -316,8 +416,10 @@ text-align: right;
 .modal-content { padding: 16px; }
 .toast-container { right: 10px; top: 70px; }
 .toast { min-width: 200px; padding: 10px 12px; }
+.tariff-switcher { flex-wrap: wrap; }
+.tariff-preset-btn { min-width: 80px; padding: 8px 6px; }
+.tariff-edit-row { grid-template-columns: 1fr 70px 70px auto; }
 }
-/* === ЛЕНИВАЯ ОТРИСОВКА === */
 .lazy-render {
     content-visibility: auto;
     contain-intrinsic-size: 0 500px;
@@ -352,18 +454,34 @@ text-align: right;
 <button class="neu-btn neu-btn-accent" onclick="startShift()"><i class="fas fa-play"></i> Начать смену</button>
 <button class="neu-btn neu-btn-accent" onclick="endShift()" style="margin-left: 12px;"><i class="fas fa-stop"></i> Завершить смену</button>
 </div>
-<div class="progress-title" style="margin-top: 24px;"><i class="fas fa-plus"></i> Новый заказ</div>
+
+<!-- === БЫСТРАЯ СМЕНА ТАРИФОВ === -->
+<div class="progress-title" style="margin-top: 24px;"><i class="fas fa-sliders-h"></i> Быстрые тарифы</div>
+<div class="tariff-switcher" id="tariffSwitcher">
+    <button class="tariff-preset-btn active" onclick="switchTariffPreset('standard')" data-preset="standard">
+        <i class="fas fa-cut"></i>
+        <span>Стандарт</span>
+    </button>
+    <button class="tariff-preset-btn" onclick="switchTariffPreset('shpon')" data-preset="shpon">
+        <i class="fas fa-layer-group"></i>
+        <span>Шпон</span>
+    </button>
+    <button class="tariff-preset-btn" onclick="switchTariffPreset('press')" data-preset="press">
+        <i class="fas fa-compress-arrows-alt"></i>
+        <span>Запрессовка</span>
+    </button>
+    <button class="tariff-preset-btn" onclick="switchTariffPreset('custom')" data-preset="custom">
+        <i class="fas fa-cog"></i>
+        <span>Свои</span>
+    </button>
+</div>
+
+<div class="progress-title"><i class="fas fa-plus"></i> Новый заказ</div>
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0;">
 <div><label style="display: block; margin-bottom: 6px;">№ заказа</label><input type="text" id="orderNum" class="neu-input" placeholder="ORD-001" autocomplete="off"></div>
 <div><label style="display: block; margin-bottom: 6px;">Тариф</label>
 <select id="tariff" class="neu-select">
-<option value="RASPIL_M2">Распил — 65 ₽/м²</option>
-<option value="LINEAR_RASPIL">Лин. распил — 26 ₽/м</option>
-<option value="SKLEIKA_OB">Склейка + — 210 ₽/м²</option>
-<option value="SKLEIKA_NO_OB">Склейка – — 165 ₽/м²</option>
-<option value="PAZY">Пазы — 30 ₽/м</option>
-<option value="FREZER_FASKA">Фаска — 16 ₽/м</option>
-<option value="TIME">Время — 330 ₽/ч</option>
+<!-- Заполняется динамически -->
 </select></div>
 </div>
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 12px 0;">
@@ -405,13 +523,7 @@ text-align: right;
 <div><label style="display: block; margin-bottom: 6px;">№ заказа</label><input type="text" id="preOrderNum" class="neu-input" placeholder="PRE-001" autocomplete="off"></div>
 <div><label style="display: block; margin-bottom: 6px;">Тариф</label>
 <select id="preTariff" class="neu-select">
-<option value="RASPIL_M2">Распил — 65 ₽/м²</option>
-<option value="LINEAR_RASPIL">Лин. распил — 26 ₽/м</option>
-<option value="SKLEIKA_OB">Склейка + — 210 ₽/м²</option>
-<option value="SKLEIKA_NO_OB">Склейка – — 165 ₽/м²</option>
-<option value="PAZY">Пазы — 30 ₽/м</option>
-<option value="FREZER_FASKA">Фаска — 16 ₽/м</option>
-<option value="TIME">Время — 330 ₽/ч</option>
+<!-- Заполняется динамически -->
 </select></div>
 </div>
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
@@ -529,6 +641,11 @@ text-align: right;
 <div class="panel-item" data-target="stats"><i class="fas fa-chart-bar"></i><span>Статистика</span></div>
 </div>
 
+<!-- Кнопка настроек тарифов -->
+<button class="tariff-settings-btn" onclick="openTariffSettings()" title="Настройки тарифов">
+    <i class="fas fa-cog"></i>
+</button>
+
 <input type="file" id="avatarUpload" accept="image/jpeg,image/png,image/webp" style="display: none;" />
 <div id="toastContainer" class="toast-container"></div>
 <div id="importModeIndicator">
@@ -552,9 +669,7 @@ text-align: right;
 <div class="modal-row"><label>№ заказа</label><input type="text" id="editOrderNum" class="neu-input" autocomplete="off"></div>
 <div class="modal-row"><label>Деталь</label><input type="text" id="editDetail" class="neu-input" autocomplete="off"></div>
 <div class="modal-row"><label>Тариф</label><select id="editTariff" class="neu-select">
-<option value="RASPIL_M2">Распил — 65 ₽/м²</option><option value="LINEAR_RASPIL">Лин. распил — 26 ₽/м</option>
-<option value="SKLEIKA_OB">Склейка + — 210 ₽/м²</option><option value="SKLEIKA_NO_OB">Склейка – — 165 ₽/м²</option>
-<option value="PAZY">Пазы — 30 ₽/м</option><option value="FREZER_FASKA">Фаска — 16 ₽/м</option><option value="TIME">Время — 330 ₽/ч</option>
+<!-- Заполняется динамически -->
 </select></div>
 <div class="modal-row"><label>Кол-во</label><input type="number" id="editQty" min="1" class="neu-input"></div>
 <div id="editSizeContainer" class="size-rows-container hidden">
@@ -604,9 +719,7 @@ text-align: right;
 </div>
 <div class="modal-row"><label>№ заказа</label><input type="text" id="photoOrderNum" class="neu-input" placeholder="ORD-001" autocomplete="off"></div>
 <div class="modal-row"><label>Тариф</label><select id="photoTariff" class="neu-select">
-<option value="RASPIL_M2">Распил — 65 ₽/м²</option><option value="LINEAR_RASPIL">Лин. распил — 26 ₽/м</option>
-<option value="SKLEIKA_OB">Склейка + — 210 ₽/м²</option><option value="SKLEIKA_NO_OB">Склейка – — 165 ₽/м²</option>
-<option value="PAZY">Пазы — 30 ₽/м</option><option value="FREZER_FASKA">Фаска — 16 ₽/м</option><option value="TIME">Время — 330 ₽/ч</option>
+<!-- Заполняется динамически -->
 </select></div>
 <div class="modal-row"><label>Деталь</label><input type="text" id="photoDetail" class="neu-input" placeholder="Название" autocomplete="off"></div>
 <div class="modal-row"><label>Кол-во</label><input type="number" id="photoQty" value="1" min="1" class="neu-input"></div>
@@ -631,6 +744,31 @@ text-align: right;
 <div class="modal-content">
 <button class="close-zoom-btn" onclick="closePhotoZoom()"><i class="fas fa-times"></i></button>
 <img id="zoomedImage" src="" alt="Zoomed Photo">
+</div>
+</div>
+
+<!-- === МОДАЛЬНОЕ ОКНО НАСТРОЕК ТАРИФОВ === -->
+<div id="tariffSettingsModal" class="modal">
+<div class="modal-content" style="max-width: 500px;">
+<div class="modal-title"><i class="fas fa-cog"></i> Настройки тарифов</div>
+<div class="modal-row">
+    <label>Пресет тарифов</label>
+    <select id="tariffPresetSelect" class="neu-select" onchange="loadTariffPreset(this.value)">
+        <option value="standard">Стандарт (Распил/Кромка)</option>
+        <option value="shpon">Шпонирование</option>
+        <option value="press">Запрессовка</option>
+        <option value="custom">Пользовательский</option>
+    </select>
+</div>
+<div class="progress-title"><i class="fas fa-list"></i> Редактирование тарифов</div>
+<div id="tariffEditContainer"></div>
+<button class="neu-btn" onclick="addNewTariffRow()" style="margin-top: 12px; width: 100%;">
+    <i class="fas fa-plus"></i> Добавить тариф
+</button>
+<div class="modal-buttons">
+    <button class="neu-btn" onclick="resetTariffsToDefault()">Сбросить</button>
+    <button class="neu-btn neu-btn-accent" onclick="saveTariffSettings()">Сохранить</button>
+</div>
 </div>
 </div>
 
@@ -677,6 +815,230 @@ function installApp() {
 
 function closeInstallPrompt() { installPrompt.classList.remove('show'); }
 
+// === === СИСТЕМА ТАРИФОВ === ===
+
+// Пресеты тарифов
+const TARIFF_PRESETS = {
+    standard: [
+        { key: 'RASPIL_M2', name: 'Распил', price: 65, unit: 'm2' },
+        { key: 'LINEAR_RASPIL', name: 'Лин. распил', price: 26, unit: 'linear' },
+        { key: 'SKLEIKA_OB', name: 'Склейка +', price: 210, unit: 'm2' },
+        { key: 'SKLEIKA_NO_OB', name: 'Склейка –', price: 165, unit: 'm2' },
+        { key: 'PAZY', name: 'Пазы', price: 30, unit: 'linear' },
+        { key: 'FREZER_FASKA', name: 'Фаска', price: 16, unit: 'linear' },
+        { key: 'TIME', name: 'Время', price: 330, unit: 'time' }
+    ],
+    shpon: [
+        { key: 'SHPON_NABOR', name: 'Набор шпона', price: 450, unit: 'm2' },
+        { key: 'SHPON_PODBOR', name: 'Подбор шпона', price: 280, unit: 'm2' },
+        { key: 'SHPON_STROG', name: 'Строганый шпон', price: 380, unit: 'm2' },
+        { key: 'SHPON_KROMKA', name: 'Кромка шпон', price: 85, unit: 'linear' },
+        { key: 'TIME', name: 'Время', price: 330, unit: 'time' }
+    ],
+    press: [
+        { key: 'PRESS_VAKUUM', name: 'Вакуумная запрессовка', price: 520, unit: 'm2' },
+        { key: 'PRESS_GIDRO', name: 'Гидропресс', price: 680, unit: 'm2' },
+        { key: 'PRESS_TERMO', name: 'Термопресс', price: 450, unit: 'm2' },
+        { key: 'PRESS_KROMKA', name: 'Припрессовка кромки', price: 95, unit: 'linear' },
+        { key: 'TIME', name: 'Время', price: 330, unit: 'time' }
+    ],
+    custom: [] // Загружается из localStorage
+};
+
+// Текущие тарифы (загружаются из localStorage или пресет)
+let CURRENT_TARIFFS = [];
+let CURRENT_PRESET = 'standard';
+const UNIT_LABELS = { m2: 'м²', linear: 'пог. м', time: 'часы' };
+
+// Загрузка тарифов из localStorage
+function loadTariffs() {
+    const savedPreset = localStorage.getItem('tariff_preset') || 'standard';
+    const customTariffs = localStorage.getItem('tariffs_custom');
+    
+    CURRENT_PRESET = savedPreset;
+    
+    if (savedPreset === 'custom' && customTariffs) {
+        try {
+            CURRENT_TARIFFS = JSON.parse(customTariffs);
+        } catch (e) {
+            CURRENT_TARIFFS = [...TARIFF_PRESETS.standard];
+        }
+    } else {
+        CURRENT_TARIFFS = [...(TARIFF_PRESETS[savedPreset] || TARIFF_PRESETS.standard)];
+    }
+    
+    updateTariffSwitcherUI();
+    populateTariffSelects();
+}
+
+// Сохранение тарифов в localStorage
+function saveTariffs() {
+    localStorage.setItem('tariff_preset', CURRENT_PRESET);
+    if (CURRENT_PRESET === 'custom') {
+        localStorage.setItem('tariffs_custom', JSON.stringify(CURRENT_TARIFFS));
+    }
+}
+
+// Переключение пресета
+function switchTariffPreset(preset) {
+    CURRENT_PRESET = preset;
+    
+    if (preset === 'custom') {
+        const customTariffs = localStorage.getItem('tariffs_custom');
+        if (customTariffs) {
+            try {
+                CURRENT_TARIFFS = JSON.parse(customTariffs);
+            } catch (e) {
+                CURRENT_TARIFFS = [...TARIFF_PRESETS.standard];
+            }
+        } else {
+            CURRENT_TARIFFS = [...TARIFF_PRESETS.standard];
+        }
+    } else {
+        CURRENT_TARIFFS = [...(TARIFF_PRESETS[preset] || TARIFF_PRESETS.standard)];
+    }
+    
+    saveTariffs();
+    updateTariffSwitcherUI();
+    populateTariffSelects();
+    showToast('✅', '#16A34A', 'Тарифы изменены', `Пресет: ${getPresetName(preset)}`);
+}
+
+// Получение названия пресета
+function getPresetName(preset) {
+    const names = { standard: 'Стандарт', shpon: 'Шпон', press: 'Запрессовка', custom: 'Пользовательский' };
+    return names[preset] || preset;
+}
+
+// Обновление UI переключателя тарифов
+function updateTariffSwitcherUI() {
+    document.querySelectorAll('.tariff-preset-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.preset === CURRENT_PRESET);
+    });
+}
+
+// Заполнение всех select тарифами
+function populateTariffSelects() {
+    const selects = ['tariff', 'preTariff', 'editTariff', 'photoTariff'];
+    
+    selects.forEach(id => {
+        const select = document.getElementById(id);
+        if (select) {
+            select.innerHTML = CURRENT_TARIFFS.map(t => 
+                `<option value="${t.key}">${t.name} — ${t.price} ₽/${UNIT_LABELS[t.unit]}</option>`
+            ).join('');
+        }
+    });
+}
+
+// Открытие настроек тарифов
+function openTariffSettings() {
+    const container = document.getElementById('tariffEditContainer');
+    container.innerHTML = '';
+    
+    CURRENT_TARIFFS.forEach((tariff, idx) => {
+        const row = document.createElement('div');
+        row.className = 'tariff-edit-row';
+        row.innerHTML = `
+            <input type="text" value="${tariff.name}" data-idx="${idx}" data-field="name" placeholder="Название">
+            <input type="number" value="${tariff.price}" data-idx="${idx}" data-field="price" placeholder="Цена" step="1">
+            <select data-idx="${idx}" data-field="unit">
+                <option value="m2" ${tariff.unit === 'm2' ? 'selected' : ''}>м²</option>
+                <option value="linear" ${tariff.unit === 'linear' ? 'selected' : ''}>пог. м</option>
+                <option value="time" ${tariff.unit === 'time' ? 'selected' : ''}>часы</option>
+            </select>
+            <button class="remove-tariff-btn" onclick="removeTariffRow(${idx})"><i class="fas fa-trash"></i></button>
+        `;
+        container.appendChild(row);
+    });
+    
+    document.getElementById('tariffPresetSelect').value = CURRENT_PRESET;
+    document.getElementById('tariffSettingsModal').classList.add('active');
+}
+
+// Добавление нового тарифа
+function addNewTariffRow() {
+    CURRENT_TARIFFS.push({ key: `CUSTOM_${Date.now()}`, name: 'Новый тариф', price: 100, unit: 'm2' });
+    openTariffSettings();
+}
+
+// Удаление тарифа
+function removeTariffRow(idx) {
+    if (CURRENT_TARIFFS.length <= 1) {
+        showToast('⚠️', '#DC2626', 'Ошибка', 'Должен быть хотя бы один тариф');
+        return;
+    }
+    CURRENT_TARIFFS.splice(idx, 1);
+    openTariffSettings();
+}
+
+// Загрузка пресета из select
+function loadTariffPreset(preset) {
+    if (preset === 'custom') {
+        const customTariffs = localStorage.getItem('tariffs_custom');
+        if (customTariffs) {
+            try {
+                CURRENT_TARIFFS = JSON.parse(customTariffs);
+            } catch (e) {
+                CURRENT_TARIFFS = [...TARIFF_PRESETS.standard];
+            }
+        }
+    } else {
+        CURRENT_TARIFFS = [...(TARIFF_PRESETS[preset] || TARIFF_PRESETS.standard)];
+    }
+    openTariffSettings();
+}
+
+// Сброс тарифов к стандартным
+function resetTariffsToDefault() {
+    if (confirm('Сбросить все тарифы к стандартным?')) {
+        CURRENT_TARIFFS = [...TARIFF_PRESETS.standard];
+        CURRENT_PRESET = 'standard';
+        openTariffSettings();
+    }
+}
+
+// Сохранение настроек тарифов
+function saveTariffSettings() {
+    const rows = document.querySelectorAll('.tariff-edit-row');
+    const newTariffs = [];
+    
+    rows.forEach((row, idx) => {
+        const name = row.querySelector('[data-field="name"]').value.trim();
+        const price = parseFloat(row.querySelector('[data-field="price"]').value) || 0;
+        const unit = row.querySelector('[data-field="unit"]').value;
+        
+        if (name && price > 0) {
+            newTariffs.push({
+                key: CURRENT_TARIFFS[idx]?.key || `CUSTOM_${Date.now()}_${idx}`,
+                name,
+                price,
+                unit
+            });
+        }
+    });
+    
+    if (newTariffs.length === 0) {
+        showToast('⚠️', '#DC2626', 'Ошибка', 'Должен быть хотя бы один тариф');
+        return;
+    }
+    
+    CURRENT_TARIFFS = newTariffs;
+    CURRENT_PRESET = 'custom';
+    saveTariffs();
+    populateTariffSelects();
+    updateTariffSwitcherUI();
+    document.getElementById('tariffSettingsModal').classList.remove('active');
+    showToast('✅', '#16A34A', 'Сохранено', 'Тарифы обновлены');
+}
+
+// Поиск тарифа по ключу
+function findTariffByKey(key) {
+    return CURRENT_TARIFFS.find(t => t.key === key);
+}
+
+// === КОНЕЦ СИСТЕМЫ ТАРИФОВ === ===
+
 // === Константы и утилиты ===
 let soundEnabled = true;
 let autoAcceptMode = false;
@@ -687,31 +1049,6 @@ let cachedPreorders = null;
 let cachedPhotos = null;
 let cacheTimestamp = 0;
 const CACHE_TTL = 5000; // 5 секунд
-
-const TARIFFS = {
-    RASPIL_M2: { price: 65, unit: 'm2' }, LINEAR_RASPIL: { price: 26, unit: 'linear' },
-    SKLEIKA_OB: { price: 210, unit: 'm2' }, SKLEIKA_NO_OB: { price: 165, unit: 'm2' },
-    PAZY: { price: 30, unit: 'linear' }, FREZER_FASKA: { price: 16, unit: 'linear' }, TIME: { price: 330, unit: 'time' }
-};
-
-const TARIFF_NAMES = { RASPIL_M2: 'Распил', LINEAR_RASPIL: 'Лин. распил', SKLEIKA_OB: 'Склейка +', SKLEIKA_NO_OB: 'Склейка –', PAZY: 'Пазы', FREZER_FASKA: 'Фаска', TIME: 'Время' };
-const UNIT_LABELS = { m2: 'м²', linear: 'пог. м', time: 'часы' };
-
-const TAG_OPTIONS = [
-    { val: '', label: '-- Тариф --' },
-    { val: 'RASPIL_M2', label: 'Распил' },
-    { val: 'LINEAR_RASPIL', label: 'Лин. распил' },
-    { val: 'SKLEIKA_OB', label: 'Склейка +' },
-    { val: 'SKLEIKA_NO_OB', label: 'Склейка -' },
-    { val: 'PAZY', label: 'Пазы' },
-    { val: 'FREZER_FASKA', label: 'Фаска' },
-    { val: 'TIME', label: 'Время' }
-];
-
-function getTagName(val) {
-    const opt = TAG_OPTIONS.find(o => o.val === val);
-    return opt ? opt.label : '';
-}
 
 const EARNINGS_MILESTONES = [
     { amount: 500, emoji: '😡', color: '#DC2626', text: 'Разгон...' }, { amount: 1000, emoji: '😢', color: '#3B82F6', text: 'Первая тысяча' },
@@ -1185,21 +1522,25 @@ function getPhotoSizeDimensions() {
     return dimensions;
 }
 
+// === ОБНОВЛЁННАЯ функция расчёта с динамическими тарифами ===
 function calculateAmount(tariffKey, length, width, hours, qty, dimensions = null) {
-    const tariff = TARIFFS[tariffKey]; if (!tariff) return 0;
+    const tariff = findTariffByKey(tariffKey);
+    if (!tariff) return 0;
     let amount = 0;
 
-    if (tariffKey === 'RASPIL_M2' && dimensions && dimensions.length > 0) {
-        let totalArea = 0;
-        dimensions.forEach(dim => {
-            totalArea += dim.length * dim.width;
-        });
-        amount = tariff.price * totalArea * qty;
+    if (tariff.unit === 'm2') {
+        if (dimensions && dimensions.length > 0) {
+            let totalArea = 0;
+            dimensions.forEach(dim => {
+                totalArea += dim.length * dim.width;
+            });
+            amount = tariff.price * totalArea * qty;
+        } else {
+            amount = tariff.price * length * width * qty;
+        }
     } else if (tariff.unit === 'time') {
         amount = tariff.price * hours * qty;
-    } else if (tariff.unit === 'm2') {
-        amount = tariff.price * length * width * qty;
-    } else {
+    } else { // linear
         amount = tariff.price * length * qty;
     }
     return Math.round(amount * 100) / 100;
@@ -1252,7 +1593,10 @@ function updateUI() {
 }
 
 function updateMainFormFields() {
-    const tariff = document.getElementById('tariff').value;
+    const tariffKey = document.getElementById('tariff').value;
+    const tariff = findTariffByKey(tariffKey);
+    if (!tariff) return;
+    
     const sizeContainer = document.getElementById('mainSizeContainer');
     const addSizeBtn = document.getElementById('mainAddSizeBtn');
     const otherInputs = document.getElementById('mainOtherInputs');
@@ -1260,7 +1604,7 @@ function updateMainFormFields() {
     const widthGroup = document.getElementById('mainWidthGroup');
     const hoursGroup = document.getElementById('mainHoursGroup');
 
-    if (tariff === 'RASPIL_M2') {
+    if (tariff.unit === 'm2') {
         if (sizeContainer) sizeContainer.classList.remove('hidden');
         if (addSizeBtn) addSizeBtn.classList.remove('hidden');
         if (otherInputs) otherInputs.classList.add('hidden');
@@ -1272,7 +1616,7 @@ function updateMainFormFields() {
         if (widthGroup) widthGroup.classList.add('hidden');
         if (hoursGroup) hoursGroup.classList.add('hidden');
 
-        if (tariff === 'TIME') {
+        if (tariff.unit === 'time') {
             if (lengthGroup) lengthGroup.classList.add('hidden');
             if (hoursGroup) hoursGroup.classList.remove('hidden');
         }
@@ -1280,7 +1624,10 @@ function updateMainFormFields() {
 }
 
 function updatePreorderFormFields() {
-    const tariff = document.getElementById('preTariff').value;
+    const tariffKey = document.getElementById('preTariff').value;
+    const tariff = findTariffByKey(tariffKey);
+    if (!tariff) return;
+    
     const sizeContainer = document.getElementById('preSizeContainer');
     const addSizeBtn = document.getElementById('preAddSizeBtn');
     const otherInputs = document.getElementById('preOtherInputs');
@@ -1288,7 +1635,7 @@ function updatePreorderFormFields() {
     const widthGroup = document.getElementById('preWidthGroup');
     const hoursGroup = document.getElementById('preHoursGroup');
 
-    if (tariff === 'RASPIL_M2') {
+    if (tariff.unit === 'm2') {
         if (sizeContainer) sizeContainer.classList.remove('hidden');
         if (addSizeBtn) addSizeBtn.classList.remove('hidden');
         if (otherInputs) otherInputs.classList.add('hidden');
@@ -1300,7 +1647,7 @@ function updatePreorderFormFields() {
         if (widthGroup) widthGroup.classList.add('hidden');
         if (hoursGroup) hoursGroup.classList.add('hidden');
 
-        if (tariff === 'TIME') {
+        if (tariff.unit === 'time') {
             if (lengthGroup) lengthGroup.classList.add('hidden');
             if (hoursGroup) hoursGroup.classList.remove('hidden');
         }
@@ -1308,14 +1655,17 @@ function updatePreorderFormFields() {
 }
 
 function updateEditFormFields() {
-    const tariff = document.getElementById('editTariff').value;
+    const tariffKey = document.getElementById('editTariff').value;
+    const tariff = findTariffByKey(tariffKey);
+    if (!tariff) return;
+    
     const sizeContainer = document.getElementById('editSizeContainer');
     const addSizeBtn = document.getElementById('editAddSizeBtn');
     const lengthGroup = document.getElementById('editLengthGroup');
     const widthGroup = document.getElementById('editWidthGroup');
     const hoursGroup = document.getElementById('editHoursGroup');
 
-    if (tariff === 'RASPIL_M2') {
+    if (tariff.unit === 'm2') {
         if (sizeContainer) sizeContainer.classList.remove('hidden');
         if (addSizeBtn) addSizeBtn.classList.remove('hidden');
         if (lengthGroup) lengthGroup.classList.add('hidden');
@@ -1328,7 +1678,7 @@ function updateEditFormFields() {
         if (widthGroup) widthGroup.classList.add('hidden');
         if (hoursGroup) hoursGroup.classList.add('hidden');
 
-        if (tariff === 'TIME') {
+        if (tariff.unit === 'time') {
             if (lengthGroup) lengthGroup.classList.add('hidden');
             if (hoursGroup) hoursGroup.classList.remove('hidden');
         }
@@ -1336,7 +1686,10 @@ function updateEditFormFields() {
 }
 
 function updatePhotoFormFields() {
-    const tariff = document.getElementById('photoTariff').value;
+    const tariffKey = document.getElementById('photoTariff').value;
+    const tariff = findTariffByKey(tariffKey);
+    if (!tariff) return;
+    
     const sizeContainer = document.getElementById('photoSizeContainer');
     const addSizeBtn = document.getElementById('photoAddSizeBtn');
     const otherInputs = document.getElementById('photoOtherInputs');
@@ -1344,7 +1697,7 @@ function updatePhotoFormFields() {
     const widthGroup = document.getElementById('photoWidthGroup');
     const hoursGroup = document.getElementById('photoHoursGroup');
 
-    if (tariff === 'RASPIL_M2') {
+    if (tariff.unit === 'm2') {
         if (sizeContainer) sizeContainer.classList.remove('hidden');
         if (addSizeBtn) addSizeBtn.classList.remove('hidden');
         if (otherInputs) otherInputs.classList.add('hidden');
@@ -1356,7 +1709,7 @@ function updatePhotoFormFields() {
         if (widthGroup) widthGroup.classList.add('hidden');
         if (hoursGroup) hoursGroup.classList.add('hidden');
 
-        if (tariff === 'TIME') {
+        if (tariff.unit === 'time') {
             if (lengthGroup) lengthGroup.classList.add('hidden');
             if (hoursGroup) hoursGroup.classList.remove('hidden');
         }
@@ -1400,8 +1753,10 @@ function confirmDateSelection() {
 
 function viewOrderDetails(orderId) {
     const orders = loadOrders(); const order = orders.find(o => o.id === orderId); if (!order) return;
-    const units = calculateUnits(order.tariff, order.length, order.width, order.hours, order.qty, order.dimensions);
-    const tariffName = TARIFF_NAMES[order.tariff] || order.tariff;
+    const tariff = findTariffByKey(order.tariff);
+    const tariffName = tariff ? tariff.name : order.tariff;
+    const unitLabel = tariff ? UNIT_LABELS[tariff.unit] : '';
+    
     let html = `<div class="details-item"><span class="details-label">№ заказа:</span><span class="details-value">${order.orderNumber}</span></div>`;
     html += `<div class="details-item"><span class="details-label">Деталь:</span><span class="details-value">${order.detail}</span></div>`;
     html += `<div class="details-item"><span class="details-label">Тариф:</span><span class="details-value">${tariffName}</span></div>`;
@@ -1411,12 +1766,12 @@ function viewOrderDetails(orderId) {
         order.dimensions.forEach((dim, idx) => {
             html += `<div class="details-item"><span class="details-label">Размер ${idx + 1}:</span><span class="details-value">${dim.length} × ${dim.width} м</span></div>`;
         });
-        html += `<div class="details-item"><span class="details-label">Общая площадь:</span><span class="details-value">${units.value} ${units.unit}</span></div>`;
+        let totalArea = order.dimensions.reduce((sum, d) => sum + d.length * d.width, 0) * order.qty;
+        html += `<div class="details-item"><span class="details-label">Общая площадь:</span><span class="details-value">${totalArea.toFixed(2)} ${unitLabel}</span></div>`;
     } else {
         if (order.length !== null) html += `<div class="details-item"><span class="details-label">Длина:</span><span class="details-value">${order.length} м</span></div>`;
         if (order.width !== null) html += `<div class="details-item"><span class="details-label">Ширина:</span><span class="details-value">${order.width} м</span></div>`;
         if (order.hours !== null) html += `<div class="details-item"><span class="details-label">Часы:</span><span class="details-value">${order.hours} ч</span></div>`;
-        html += `<div class="details-item"><span class="details-label">Объем работ:</span><span class="details-value">${units.value} ${units.unit}</span></div>`;
     }
     html += `<div class="details-item"><span class="details-label">Сумма:</span><span class="details-value">${order.amount.toFixed(2)} ₽</span></div>`;
     document.getElementById('detailsContent').innerHTML = html; document.getElementById('detailsModal').classList.add('active');
@@ -1438,28 +1793,31 @@ function openEditModal(orderId) {
     document.getElementById('editHours').value = order.hours || '';
 
     resetEditSizeRows();
-    if (order.dimensions && order.dimensions.length > 0 && order.tariff === 'RASPIL_M2') {
-        const container = document.getElementById('editSizeRows');
-        if (container) {
-            container.innerHTML = '';
-            order.dimensions.forEach((dim, idx) => {
-                editSizeRowCount = idx + 1;
-                const row = document.createElement('div');
-                row.className = 'size-row';
-                row.id = `editSizeRow${editSizeRowCount}`;
-                row.innerHTML = `
-                <div class="size-input-wrapper">
-                <label>Длина ${editSizeRowCount} (м)</label>
-                <input type="number" step="0.01" class="neu-input size-length" placeholder="0.00" value="${dim.length}" data-row="${editSizeRowCount}">
-                </div>
-                <div class="size-input-wrapper">
-                <label>Ширина ${editSizeRowCount} (м)</label>
-                <input type="number" step="0.01" class="neu-input size-width" placeholder="0.00" value="${dim.width}" data-row="${editSizeRowCount}">
-                </div>
-                <button type="button" class="remove-size-btn" onclick="removeEditSizeRow(${editSizeRowCount})"><i class="fas fa-minus"></i></button>
-                `;
-                container.appendChild(row);
-            });
+    if (order.dimensions && order.dimensions.length > 0 && order.tariff) {
+        const tariff = findTariffByKey(order.tariff);
+        if (tariff && tariff.unit === 'm2') {
+            const container = document.getElementById('editSizeRows');
+            if (container) {
+                container.innerHTML = '';
+                order.dimensions.forEach((dim, idx) => {
+                    editSizeRowCount = idx + 1;
+                    const row = document.createElement('div');
+                    row.className = 'size-row';
+                    row.id = `editSizeRow${editSizeRowCount}`;
+                    row.innerHTML = `
+                    <div class="size-input-wrapper">
+                    <label>Длина ${editSizeRowCount} (м)</label>
+                    <input type="number" step="0.01" class="neu-input size-length" placeholder="0.00" value="${dim.length}" data-row="${editSizeRowCount}">
+                    </div>
+                    <div class="size-input-wrapper">
+                    <label>Ширина ${editSizeRowCount} (м)</label>
+                    <input type="number" step="0.01" class="neu-input size-width" placeholder="0.00" value="${dim.width}" data-row="${editSizeRowCount}">
+                    </div>
+                    <button type="button" class="remove-size-btn" onclick="removeEditSizeRow(${editSizeRowCount})"><i class="fas fa-minus"></i></button>
+                    `;
+                    container.appendChild(row);
+                });
+            }
         }
     }
 
@@ -1617,7 +1975,9 @@ function renderPreorders() {
     if (preorders.length === 0) { container.innerHTML = '<div class="empty-msg">Нет предзаказов</div>'; return; }
     let html = `<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>`;
     preorders.forEach(p => {
-        html += `<tr><td>${p.orderNumber}</td><td>${p.detail}</td><td class="amount">${p.amount.toFixed(2)} ₽</td><td>
+        const tariff = findTariffByKey(p.tariff);
+        const tariffName = tariff ? tariff.name : p.tariff;
+        html += `<tr><td>${p.orderNumber}</td><td>${p.detail}<br><small style="color:var(--text-muted)">${tariffName}</small></td><td class="amount">${p.amount.toFixed(2)} ₽</td><td>
         <button class="action-btn" onclick="acceptPreorder(${p.id})"><i class="fas fa-check"></i></button>
         <button class="action-btn" onclick="deletePreorder(${p.id})"><i class="fas fa-trash"></i></button></td></tr>`;
     });
@@ -1633,7 +1993,9 @@ function showOrdersByDate() {
     else {
         html += `<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>`;
         filtered.forEach(o => {
-            html += `<tr><td>${o.orderNumber}</td><td>${o.detail}</td><td class="amount">${o.amount.toFixed(2)} ₽</td><td>
+            const tariff = findTariffByKey(o.tariff);
+            const tariffName = tariff ? tariff.name : o.tariff;
+            html += `<tr><td>${o.orderNumber}</td><td>${o.detail}<br><small style="color:var(--text-muted)">${tariffName}</small></td><td class="amount">${o.amount.toFixed(2)} ₽</td><td>
             <button class="action-btn" onclick="viewOrderDetails(${o.id})"><i class="fas fa-eye"></i></button>
             <button class="action-btn" onclick="openEditModal(${o.id})"><i class="fas fa-edit"></i></button>
             <button class="action-btn" onclick="deleteOrder(${o.id})"><i class="fas fa-trash"></i></button></td></tr>`;
@@ -1653,7 +2015,9 @@ document.getElementById('orderSearch').addEventListener('keypress', function(e) 
             html += `<table class="orders-table"><thead><tr><th>Дата</th><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>`;
             matched.forEach(o => {
                 const displayDate = o.date ? formatDateYMD(o.date) : '—';
-                html += `<tr><td style="font-size:0.85rem; color:var(--text-muted);">${displayDate}</td><td>${o.orderNumber}</td><td>${o.detail}</td><td class="amount">${o.amount.toFixed(2)} ₽</td><td>
+                const tariff = findTariffByKey(o.tariff);
+                const tariffName = tariff ? tariff.name : o.tariff;
+                html += `<tr><td style="font-size:0.85rem; color:var(--text-muted);">${displayDate}</td><td>${o.orderNumber}</td><td>${o.detail}<br><small style="color:var(--text-muted)">${tariffName}</small></td><td class="amount">${o.amount.toFixed(2)} ₽</td><td>
                 <button class="action-btn" onclick="viewOrderDetails(${o.id})"><i class="fas fa-eye"></i></button>
                 <button class="action-btn" onclick="openEditModal(${o.id})"><i class="fas fa-edit"></i></button>
                 <button class="action-btn" onclick="deleteOrder(${o.id})"><i class="fas fa-trash"></i></button></td></tr>`;
@@ -1678,19 +2042,17 @@ function saveOrdersToFile() {
     let content = `ЗАКАЗЫ ЗА ${formattedDate}\n========================\n`;
     let totalSum = 0;
     filtered.forEach((o, idx) => {
-        const tariffName = TARIFF_NAMES[o.tariff] || o.tariff;
-        const units = calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty, o.dimensions);
+        const tariff = findTariffByKey(o.tariff);
+        const tariffName = tariff ? tariff.name : o.tariff;
         content += `№${idx + 1}. ${o.orderNumber}\n${o.detail} (${tariffName})\n`;
         if (o.dimensions && o.dimensions.length > 0) {
             o.dimensions.forEach((dim, i) => {
                 content += `   Размер ${i + 1}: ${dim.length} × ${dim.width} м\n`;
             });
-            content += `   Общая площадь: ${units.value} ${units.unit}\n`;
         } else {
             if (o.length) content += `   Длина: ${o.length} м\n`;
             if (o.width) content += `   Ширина: ${o.width} м\n`;
             if (o.hours) content += `   Часы: ${o.hours} ч\n`;
-            content += `   Объем: ${units.value} ${units.unit}\n`;
         }
         content += `   Кол-во: ${o.qty}\nСумма: ${o.amount.toFixed(2)} ₽\n---\n`;
         totalSum += o.amount;
@@ -1738,8 +2100,9 @@ function parseTxtOrders(txtContent) {
         }
         if (dimensions.length > 0) order.dimensions = dimensions;
         if (currentTariff) {
-            const tariffMap = { 'Распил': 'RASPIL_M2', 'Лин. распил': 'LINEAR_RASPIL', 'Склейка +': 'SKLEIKA_OB', 'Склейка –': 'SKLEIKA_NO_OB', 'Пазы': 'PAZY', 'Фаска': 'FREZER_FASKA', 'Время': 'TIME' };
-            order.tariff = tariffMap[currentTariff] || 'RASPIL_M2';
+            // Поиск тарифа по названию в текущих тарифах
+            const foundTariff = CURRENT_TARIFFS.find(t => t.name === currentTariff);
+            order.tariff = foundTariff ? foundTariff.key : CURRENT_TARIFFS[0]?.key || 'CUSTOM_1';
         }
         order.detail = currentDetail || '—'; if (order.orderNumber) orders.push(order);
     }
@@ -1747,20 +2110,22 @@ function parseTxtOrders(txtContent) {
 }
 
 function calculateUnits(tariffKey, length, width, hours, qty, dimensions = null) {
-    const tariff = TARIFFS[tariffKey]; if (!tariff) return { value: 0, unit: '', linear: 0, area: 0, time: 0 };
+    const tariff = findTariffByKey(tariffKey);
+    if (!tariff) return { value: 0, unit: '', linear: 0, area: 0, time: 0 };
     let value = 0; let unit = tariff.unit;
     let linear = 0, area = 0, time = 0;
 
-    if (tariffKey === 'RASPIL_M2' && dimensions && dimensions.length > 0) {
-        dimensions.forEach(dim => { area += dim.length * dim.width; });
-        area *= qty;
+    if (tariff.unit === 'm2') {
+        if (dimensions && dimensions.length > 0) {
+            dimensions.forEach(dim => { area += dim.length * dim.width; });
+            area *= qty;
+        } else {
+            area = length * width * qty;
+        }
         value = area;
     } else if (tariff.unit === 'time') {
         time = hours * qty;
         value = time;
-    } else if (tariff.unit === 'm2') {
-        area = length * width * qty;
-        value = area;
     } else {
         linear = length * qty;
         value = linear;
@@ -1776,7 +2141,9 @@ function calculateUnits(tariffKey, length, width, hours, qty, dimensions = null)
 
 function calculateStats() {
     const orders = loadOrders(); let totalLinear = 0, totalArea = 0, totalTime = 0;
-    const operationCount = { RASPIL_M2: 0, LINEAR_RASPIL: 0, SKLEIKA_OB: 0, SKLEIKA_NO_OB: 0, PAZY: 0, FREZER_FASKA: 0, TIME: 0 };
+    const operationCount = {};
+    CURRENT_TARIFFS.forEach(t => operationCount[t.key] = 0);
+    
     orders.forEach(o => {
         const units = calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty, o.dimensions);
         totalLinear += units.linear;
@@ -1802,13 +2169,15 @@ function renderStats() {
         document.getElementById('areaProgress').style.width = `${stats.area.percent}%`;
         document.getElementById('timeProgress').style.width = `${stats.time.percent}%`;
     }, 300);
-    const opNames = { RASPIL_M2: 'Распил', LINEAR_RASPIL: 'Лин. распил', SKLEIKA_OB: 'Склейка +', SKLEIKA_NO_OB: 'Склейка –', PAZY: 'Пазы', FREZER_FASKA: 'Фаска', TIME: 'Время' };
-    let maxCount = Math.max(...Object.values(stats.operations)) || 1;
+    
     let chartHtml = '';
+    let maxCount = Math.max(...Object.values(stats.operations)) || 1;
     for (const [key, count] of Object.entries(stats.operations)) {
         if (count === 0) continue;
+        const tariff = findTariffByKey(key);
+        const tariffName = tariff ? tariff.name : key;
         const percent = (count / maxCount) * 100;
-        chartHtml += `<div class="bar-item"><div class="bar-label"><span>${opNames[key]}</span><span>${count}</span></div><div class="bar-container"><div class="bar-fill" style="width: ${percent}%;"></div></div></div>`;
+        chartHtml += `<div class="bar-item"><div class="bar-label"><span>${tariffName}</span><span>${count}</span></div><div class="bar-container"><div class="bar-fill" style="width: ${percent}%;"></div></div></div>`;
     }
     document.getElementById('operationsChart').innerHTML = chartHtml || '<p style="color:var(--text-muted); text-align:center;">Нет данных</p>';
 }
@@ -1917,13 +2286,14 @@ function renderPhotos() {
     }
     let html = '';
     photos.forEach(p => {
+        const tariff = findTariffByKey(p.tagType);
+        const tagName = tariff ? tariff.name : 'Без тарифа';
         const tagClass = p.tagType ? `tag-${p.tagType}` : 'tag-UNKNOWN';
-        const tagName = p.tagType ? getTagName(p.tagType) : '';
         const tagHtml = tagName ? `<div class="photo-tag ${tagClass}">${tagName}</div>` : '';
         let optionsHtml = '';
-        TAG_OPTIONS.forEach(opt => {
-            const selected = (opt.val === p.tagType) ? 'selected' : '';
-            optionsHtml += `<option value="${opt.val}" ${selected}>${opt.label}</option>`;
+        CURRENT_TARIFFS.forEach(t => {
+            const selected = (t.key === p.tagType) ? 'selected' : '';
+            optionsHtml += `<option value="${t.key}" ${selected}>${t.name}</option>`;
         });
         html += `
         <div class="photo-card">
@@ -1958,7 +2328,7 @@ document.getElementById('cameraInput').addEventListener('change', function(e) {
     if (!file) return;
     compressImage(file, (compressedDataUrl) => {
         const photos = loadPhotos();
-        const newPhoto = { id: Date.now(), data: compressedDataUrl, timestamp: new Date().toISOString(), tagType: "" };
+        const newPhoto = { id: Date.now(),  compressedDataUrl, timestamp: new Date().toISOString(), tagType: "" };
         photos.unshift(newPhoto);
         savePhotos(photos);
         renderPhotos();
@@ -1988,7 +2358,7 @@ function openPhotoOrderModal(photoId) {
     document.getElementById('photoWidth').value = '';
     document.getElementById('photoHours').value = '';
     resetPhotoSizeRows();
-    const selectedTag = photo.tagType || 'RASPIL_M2';
+    const selectedTag = photo.tagType || CURRENT_TARIFFS[0]?.key;
     document.getElementById('photoTariff').value = selectedTag;
     updatePhotoFormFields();
     document.getElementById('photoOrderModal').classList.add('active');
@@ -2064,7 +2434,6 @@ async function exportReportToExcel() {
     
     showToast('⏳', '#3B82F6', 'Подготовка...', 'Загрузка модуля Excel');
 
-    // Динамическая загрузка библиотеки только при необходимости
     if (typeof XLSX === 'undefined') {
         try {
             const script = document.createElement('script');
@@ -2093,7 +2462,8 @@ async function exportReportToExcel() {
     ];
     
     filtered.forEach(o => {
-        const tariffName = TARIFF_NAMES[o.tariff] || o.tariff;
+        const tariff = findTariffByKey(o.tariff);
+        const tariffName = tariff ? tariff.name : o.tariff;
         const units = calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty, o.dimensions);
         let sizesStr = '';
         if (o.dimensions && o.dimensions.length > 0) {
@@ -2174,7 +2544,7 @@ document.getElementById('jsonImportInput').addEventListener('change', async func
                 const newOrder = {
                     id: Date.now() + Math.random(),
                     orderNumber: item.orderNumber || 'ИМП-' + (totalImported + 1),
-                    tariff: item.tariff || 'RASPIL_M2',
+                    tariff: item.tariff || CURRENT_TARIFFS[0]?.key,
                     detail: item.detail || '—',
                     qty: item.qty || 1,
                     length: item.length || null,
@@ -2182,7 +2552,7 @@ document.getElementById('jsonImportInput').addEventListener('change', async func
                     hours: item.hours || null,
                     dimensions: item.dimensions || null,
                     amount: typeof item.amount === 'number' ? item.amount : 
-                           calculateAmount(item.tariff || 'RASPIL_M2', item.length || 0, item.width || 0, item.hours || 0, item.qty || 1, item.dimensions),
+                           calculateAmount(item.tariff || CURRENT_TARIFFS[0]?.key, item.length || 0, item.width || 0, item.hours || 0, item.qty || 1, item.dimensions),
                     date: orderDate,
                     timestamp: new Date().toISOString()
                 };
@@ -2258,6 +2628,10 @@ document.getElementById('avatarUpload').addEventListener('change', function(e) {
 document.addEventListener('DOMContentLoaded', () => {
     markPerformance('DOM Ready');
     
+    // === ЗАГРУЗКА ТАРИФОВ ===
+    loadTariffs();
+    // =======================
+    
     document.getElementById('viewDate').value = todayYMD();
 
     const today = new Date();
@@ -2266,12 +2640,13 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('reportDateFrom').value = firstDay;
     document.getElementById('reportDateTo').value = lastDay;
 
-    ['tariff','preTariff','editTariff'].forEach(id => {
+    ['tariff','preTariff','editTariff','photoTariff'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('change', () => {
             if (id === 'tariff') updateMainFormFields();
             else if (id === 'preTariff') updatePreorderFormFields();
-            else updateEditFormFields();
+            else if (id === 'editTariff') updateEditFormFields();
+            else if (id === 'photoTariff') updatePhotoFormFields();
         });
     });
 
