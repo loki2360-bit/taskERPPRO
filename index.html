@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <title>Кабинет оператора</title>
 <!-- PWA Meta Tags -->
 <meta name="theme-color" content="#3B4256">
@@ -10,11 +10,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Кабинет оператора">
 <meta name="description" content="Система учёта заказов для оператора">
+<meta name="format-detection" content="telephone=no">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<!-- Библиотека для экспорта в Excel -->
-<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 <style>
 :root {
 --bg: #F0F1F3;
@@ -31,37 +30,37 @@
 --shadow-light: #FFFFFF;
 --shadow-dark: #9CA1B4;
 }
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
-body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh; line-height: 1.4; }
-.header-bar { position: fixed; top: 0; left: 0; width: 100%; background: var(--card); padding: 12px 16px; display: flex; align-items: center; gap: 12px; z-index: 200; box-shadow: 0 4px 12px rgba(59, 66, 86, 0.15); }
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
+body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh; line-height: 1.4; overflow-x: hidden; }
+.header-bar { position: fixed; top: 0; left: 0; width: 100%; background: var(--card); padding: 12px 16px; display: flex; align-items: center; gap: 12px; z-index: 200; box-shadow: 0 4px 12px rgba(59, 66, 86, 0.15); will-change: transform; }
 .avatar-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--accent-solid); display: flex; align-items: center; justify-content: center; color: #F0F1F3; font-weight: bold; font-size: 18px; cursor: pointer; overflow: hidden; position: relative; }
 .avatar-btn img { width: 100%; height: 100%; object-fit: cover; }
 .avatar-btn i { pointer-events: none; }
 .search-container { flex: 1; position: relative; }
-.search-input { width: 100%; padding: 8px 12px 8px 36px; background: var(--bg); border: 1px solid var(--border); border-radius: 20px; color: var(--text); font-size: 0.95rem; }
+.search-input { width: 100%; padding: 8px 12px 8px 36px; background: var(--bg); border: 1px solid var(--border); border-radius: 20px; color: var(--text); font-size: 0.95rem; -webkit-appearance: none; }
 .search-input::placeholder { color: var(--text-muted); }
 .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
 .main-content { padding: 72px 16px 80px; max-width: 768px; margin: 0 auto; }
-.glass-panel { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; justify-content: space-around; height: 52px; width: calc(100% - 40px); max-width: 500px; border-radius: 30px; padding: 0 5px; background: rgba(205, 208, 217, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 6px 24px rgba(59, 66, 86, 0.15); border: 1px solid var(--border); z-index: 200; }
-.panel-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--text-muted); font-size: 0.65rem; text-align: center; cursor: pointer; padding: 4px 2px; user-select: none; position: relative; flex: 1; }
+.glass-panel { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; justify-content: space-around; height: 52px; width: calc(100% - 40px); max-width: 500px; border-radius: 30px; padding: 0 5px; background: rgba(205, 208, 217, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 6px 24px rgba(59, 66, 86, 0.15); border: 1px solid var(--border); z-index: 200; will-change: transform; }
+.panel-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--text-muted); font-size: 0.65rem; text-align: center; cursor: pointer; padding: 4px 2px; user-select: none; position: relative; flex: 1; transition: color 0.2s; }
 .panel-item i { font-size: 1.1rem; margin-bottom: 2px; }
 .panel-item.active { color: var(--accent-solid); }
 .neu-btn { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; font-weight: 600; color: var(--text); cursor: pointer; box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light); transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
-.neu-btn:active { box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light); }
+.neu-btn:active { box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light); transform: scale(0.98); }
 .neu-btn-accent { background: var(--accent-solid); color: #F0F1F3; border-color: var(--accent-solid); box-shadow: 4px 4px 8px rgba(59, 66, 86, 0.3), -2px -2px 6px rgba(255, 255, 255, 0.5); }
 .neu-btn-accent:hover { background: var(--accent-blue-dark); border-color: var(--accent-blue-dark); }
-.neu-input, .neu-select { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; color: var(--text); box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light); width: 100%; }
+.neu-input, .neu-select { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; color: var(--text); box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light); width: 100%; -webkit-appearance: none; }
 .progress-container { height: 24px; background: var(--card); border-radius: 12px; overflow: hidden; margin: 12px 0; box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light); border: 1px solid var(--border); position: relative; }
 .progress-fill { height: 100%; border-radius: 12px; background: var(--accent-solid); width: 0; transition: width 1.2s cubic-bezier(0.22, 0.61, 0.36, 1); position: relative; }
 .bar-container { height: 28px; background: var(--card); border-radius: 14px; overflow: hidden; box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light); border: 1px solid var(--border); }
 .bar-fill { height: 100%; background: var(--accent-solid); border-radius: 14px; width: 0; transition: width 1.4s cubic-bezier(0.22, 0.61, 0.36, 1); }
 .status-bar { display: flex; align-items: center; gap: 6px; padding: 8px 0; margin: 8px 0; }
-.step { width: 10px; height: 10px; border-radius: 50%; background: var(--border); box-shadow: 0 0 0 1px rgba(59, 66, 86, 0.1); }
+.step { width: 10px; height: 10px; border-radius: 50%; background: var(--border); box-shadow: 0 0 0 1px rgba(59, 66, 86, 0.1); transition: all 0.3s; }
 .step.active { background: var(--accent-solid); box-shadow: 0 0 8px rgba(59, 66, 86, 0.4); }
 .step.current { background: var(--accent-blue-dark); box-shadow: 0 0 0 2px rgba(59, 66, 86, 0.3); }
 .step.completed { background: var(--accent-green); box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.4); }
 .content-block { display: none; }
-.content-block.active { display: block; animation: fadeIn 0.5s ease-out; }
+.content-block.active { display: block; animation: fadeIn 0.3s ease-out; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(59, 66, 86, 0.7); z-index:1000; justify-content:center; align-items:center; }
 .modal.active { display: flex; }
@@ -72,8 +71,9 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
 .orders-table th { color: var(--accent-solid); font-weight: 600; }
 .orders-table .amount { color: var(--accent-solid); font-weight: 600; }
 .empty-msg { text-align: center; color: var(--text-muted); padding: 20px; font-style: italic; }
-.action-btn { width: 32px; height: 32px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light); }
+.action-btn { width: 32px; height: 32px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light); transition: all 0.2s; }
 .action-btn:hover { background: var(--accent-solid); color: #F0F1F3; border-color: var(--accent-solid); }
+.action-btn:active { transform: scale(0.95); }
 .hidden { display: none !important; }
 .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
 .calendar-nav-btn { background: var(--card); border: 1px solid var(--border); color: var(--text); width: 36px; height: 36px; border-radius: 50%; cursor: pointer; box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light); }
@@ -110,7 +110,6 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
 .install-prompt button { padding: 8px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
 .install-prompt .install-btn { background: #F0F1F3; color: var(--accent-solid); }
 .install-prompt .later-btn { background: transparent; color: #F0F1F3; border: 1px solid #F0F1F3; }
-/* === СТИЛИ ДЛЯ ФОТО И ТЕГОВ === */
 .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; margin-top: 16px; }
 .photo-card {
 background: var(--card);
@@ -124,7 +123,6 @@ display: flex;
 flex-direction: column;
 }
 .photo-card img { width: 100%; height: 100%; object-fit: cover; flex: 1; }
-/* Ярлык (Тэг) */
 .photo-tag {
 position: absolute;
 top: 6px;
@@ -139,7 +137,6 @@ box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 z-index: 10;
 pointer-events: none;
 }
-/* Цвета тегов */
 .tag-RASPIL_M2 { background-color: #3B82F6; }
 .tag-LINEAR_RASPIL { background-color: #10B981; }
 .tag-SKLEIKA_OB { background-color: #8B5CF6; }
@@ -148,7 +145,6 @@ pointer-events: none;
 .tag-FREZER_FASKA { background-color: #EC4899; }
 .tag-TIME { background-color: #6B7285; }
 .tag-UNKNOWN { background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); }
-/* Контейнер для селектора тега на карточке */
 .photo-tag-selector {
 position: absolute;
 bottom: 32px;
@@ -177,7 +173,6 @@ cursor: pointer;
 backdrop-filter: blur(4px);
 }
 .tag-select-mini option { background: var(--card); color: var(--text); }
-/* Панель действий */
 .photo-actions {
 position: absolute;
 bottom: 0;
@@ -194,7 +189,6 @@ z-index: 20;
 .photo-action-btn.edit { color: #4ecdc4; }
 .capture-btn-container { display: flex; justify-content: center; margin-bottom: 20px; }
 .capture-btn { width: 60px; height: 60px; border-radius: 50%; background: var(--accent-solid); color: white; border: 4px solid var(--bg); box-shadow: 0 4px 10px rgba(0,0,0,0.2); font-size: 1.5rem; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-/* Зум фото */
 .zoom-preview-container { position: relative; text-align: center; margin-bottom: 15px; }
 .zoom-preview-img { max-width: 100%; max-height: 150px; border-radius: 8px; border: 1px solid var(--border); }
 .zoom-btn { position: absolute; bottom: 8px; right: 8px; background: rgba(59, 66, 86, 0.8); color: white; border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
@@ -203,7 +197,6 @@ z-index: 20;
 #photoZoomModal img { max-width: 100%; max-height: 90vh; object-fit: contain; border-radius: 4px; }
 #photoZoomModal .close-zoom-btn { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 #photoZoomModal .close-zoom-btn:hover { background: rgba(255,255,255,0.4); }
-/* === СТИЛИ ДЛЯ РАЗМЕРОВ === */
 .size-row {
 display: grid;
 grid-template-columns: 1fr 1fr auto;
@@ -274,7 +267,6 @@ color: var(--text-muted);
 margin-top: 8px;
 text-align: right;
 }
-/* Индикатор режима авто-импорта */
 #importModeIndicator {
     position: fixed;
     top: 70px;
@@ -296,20 +288,51 @@ text-align: right;
     0%, 100% { opacity: 1; }
     50% { opacity: 0.85; }
 }
+/* === ИНДИКАТОР ЗАГРУЗКИ === */
+#appLoader {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--bg); z-index: 9999;
+    display: flex; justify-content: center; align-items: center;
+    transition: opacity 0.3s ease-out;
+}
+#appLoader.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+.spinner {
+    width: 50px; height: 50px;
+    border: 4px solid var(--border);
+    border-top-color: var(--accent-solid);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+/* === ОПТИМИЗАЦИЯ ДЛЯ МОБИЛЬНЫХ === */
 @media (max-width: 480px) {
 .glass-panel { bottom: 16px; height: 56px; width: calc(100% - 32px); padding: 0 5px; }
 .panel-item { font-size: 0.6rem; gap: 1px; }
 .panel-item i { font-size: 1.1rem; }
 .search-input { font-size: 0.9rem; padding: 7px 10px 7px 32px; }
+.modal-content { padding: 16px; }
+.toast-container { right: 10px; top: 70px; }
+.toast { min-width: 200px; padding: 10px 12px; }
+}
+/* === ЛЕНИВАЯ ОТРИСОВКА === */
+.lazy-render {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 500px;
 }
 </style>
 </head>
 <body>
+<!-- Индикатор загрузки -->
+<div id="appLoader"><div class="spinner"></div></div>
+
 <div class="header-bar">
 <div class="avatar-btn" id="avatarBtn" title="Загрузить аватар"><i class="fas fa-user"></i></div>
 <div class="search-container">
 <i class="fas fa-search search-icon"></i>
-<input type="text" class="search-input" id="orderSearch" placeholder="Поиск по № заказа...">
+<input type="text" class="search-input" id="orderSearch" placeholder="Поиск по № заказа..." autocomplete="off">
 </div>
 </div>
 <div class="main-content" id="mainContent">
@@ -331,7 +354,7 @@ text-align: right;
 </div>
 <div class="progress-title" style="margin-top: 24px;"><i class="fas fa-plus"></i> Новый заказ</div>
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0;">
-<div><label style="display: block; margin-bottom: 6px;">№ заказа</label><input type="text" id="orderNum" class="neu-input" placeholder="ORD-001"></div>
+<div><label style="display: block; margin-bottom: 6px;">№ заказа</label><input type="text" id="orderNum" class="neu-input" placeholder="ORD-001" autocomplete="off"></div>
 <div><label style="display: block; margin-bottom: 6px;">Тариф</label>
 <select id="tariff" class="neu-select">
 <option value="RASPIL_M2">Распил — 65 ₽/м²</option>
@@ -344,7 +367,7 @@ text-align: right;
 </select></div>
 </div>
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 12px 0;">
-<div><label style="display: block; margin-bottom: 6px;">Деталь</label><input type="text" id="detail" class="neu-input" placeholder="Название"></div>
+<div><label style="display: block; margin-bottom: 6px;">Деталь</label><input type="text" id="detail" class="neu-input" placeholder="Название" autocomplete="off"></div>
 <div><label style="display: block; margin-bottom: 6px;">Кол-во</label><input type="number" id="qty" value="1" min="1" class="neu-input"></div>
 </div>
 
@@ -366,7 +389,7 @@ text-align: right;
 <div style="display: grid; grid-template-columns: 1fr; gap: 16px; margin: 16px 0;">
 <div><label style="display: block; margin-bottom: 6px;">Дата</label><input type="date" id="viewDate" class="neu-input" value=""></div>
 </div>
-<div style="display: flex; gap: 12px; margin-top: 12px;">
+<div style="display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap;">
 <button class="neu-btn neu-btn-accent" onclick="showOrdersByDate()"><i class="fas fa-eye"></i> Показать</button>
 <button class="neu-btn" onclick="saveOrdersToFile()"><i class="fas fa-download"></i> В TXT</button>
 <button class="neu-btn" onclick="saveOrdersToJSON()"><i class="fas fa-file-code"></i> В JSON</button>
@@ -379,7 +402,7 @@ text-align: right;
 <div class="container">
 <h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-clock"></i> Предзаказы</h2>
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
-<div><label style="display: block; margin-bottom: 6px;">№ заказа</label><input type="text" id="preOrderNum" class="neu-input" placeholder="PRE-001"></div>
+<div><label style="display: block; margin-bottom: 6px;">№ заказа</label><input type="text" id="preOrderNum" class="neu-input" placeholder="PRE-001" autocomplete="off"></div>
 <div><label style="display: block; margin-bottom: 6px;">Тариф</label>
 <select id="preTariff" class="neu-select">
 <option value="RASPIL_M2">Распил — 65 ₽/м²</option>
@@ -392,7 +415,7 @@ text-align: right;
 </select></div>
 </div>
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
-<div><label style="display: block; margin-bottom: 6px;">Деталь</label><input type="text" id="preDetail" class="neu-input" placeholder="Название"></div>
+<div><label style="display: block; margin-bottom: 6px;">Деталь</label><input type="text" id="preDetail" class="neu-input" placeholder="Название" autocomplete="off"></div>
 <div><label style="display: block; margin-bottom: 6px;">Кол-во</label><input type="number" id="preQty" value="1" min="1" class="neu-input"></div>
 </div>
 
@@ -526,8 +549,8 @@ text-align: right;
 <div class="modal-content">
 <div class="modal-title">Редактировать заказ</div>
 <input type="hidden" id="editOrderId">
-<div class="modal-row"><label>№ заказа</label><input type="text" id="editOrderNum" class="neu-input"></div>
-<div class="modal-row"><label>Деталь</label><input type="text" id="editDetail" class="neu-input"></div>
+<div class="modal-row"><label>№ заказа</label><input type="text" id="editOrderNum" class="neu-input" autocomplete="off"></div>
+<div class="modal-row"><label>Деталь</label><input type="text" id="editDetail" class="neu-input" autocomplete="off"></div>
 <div class="modal-row"><label>Тариф</label><select id="editTariff" class="neu-select">
 <option value="RASPIL_M2">Распил — 65 ₽/м²</option><option value="LINEAR_RASPIL">Лин. распил — 26 ₽/м</option>
 <option value="SKLEIKA_OB">Склейка + — 210 ₽/м²</option><option value="SKLEIKA_NO_OB">Склейка – — 165 ₽/м²</option>
@@ -579,13 +602,13 @@ text-align: right;
 <img id="photoPreviewImg" src="" alt="Preview" class="zoom-preview-img">
 <button class="zoom-btn" onclick="openPhotoZoom()" title="Увеличить фото"><i class="fas fa-search-plus"></i></button>
 </div>
-<div class="modal-row"><label>№ заказа</label><input type="text" id="photoOrderNum" class="neu-input" placeholder="ORD-001"></div>
+<div class="modal-row"><label>№ заказа</label><input type="text" id="photoOrderNum" class="neu-input" placeholder="ORD-001" autocomplete="off"></div>
 <div class="modal-row"><label>Тариф</label><select id="photoTariff" class="neu-select">
 <option value="RASPIL_M2">Распил — 65 ₽/м²</option><option value="LINEAR_RASPIL">Лин. распил — 26 ₽/м</option>
 <option value="SKLEIKA_OB">Склейка + — 210 ₽/м²</option><option value="SKLEIKA_NO_OB">Склейка – — 165 ₽/м²</option>
 <option value="PAZY">Пазы — 30 ₽/м</option><option value="FREZER_FASKA">Фаска — 16 ₽/м</option><option value="TIME">Время — 330 ₽/ч</option>
 </select></div>
-<div class="modal-row"><label>Деталь</label><input type="text" id="photoDetail" class="neu-input" placeholder="Название"></div>
+<div class="modal-row"><label>Деталь</label><input type="text" id="photoDetail" class="neu-input" placeholder="Название" autocomplete="off"></div>
 <div class="modal-row"><label>Кол-во</label><input type="number" id="photoQty" value="1" min="1" class="neu-input"></div>
 
 <!-- Контейнер для размеров фото -->
@@ -612,67 +635,88 @@ text-align: right;
 </div>
 
 <script>
-// === PWA Service Worker ===
-if ('serviceWorker' in navigator) {
-window.addEventListener('load', () => {
-navigator.serviceWorker.register('sw.js').then(reg => console.log('SW registered')).catch(err => console.log('SW failed'));
-});
+// === МОНИТОРИНГ ПРОИЗВОДИТЕЛЬНОСТИ ===
+const perfStart = performance.now();
+const perfMarks = {};
+
+function markPerformance(label) {
+    perfMarks[label] = performance.now();
+    console.log(`⏱ ${label}: ${(perfMarks[label] - perfStart).toFixed(2)} мс`);
+}
+
+// === PWA Service Worker (отложенная регистрация) ===
+function registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('✅ SW registered'))
+                .catch(err => console.log('⚠️ SW failed:', err));
+        });
+    }
 }
 
 // === PWA Install Prompt ===
 let deferredPrompt;
 const installPrompt = document.getElementById('installPrompt');
 window.addEventListener('beforeinstallprompt', e => {
-e.preventDefault();
-deferredPrompt = e;
-installPrompt.classList.add('show');
+    e.preventDefault();
+    deferredPrompt = e;
+    installPrompt.classList.add('show');
 });
 
 function installApp() {
-if (deferredPrompt) {
-deferredPrompt.prompt();
-deferredPrompt.userChoice.then(choiceResult => {
-if (choiceResult.outcome === 'accepted') console.log('User accepted');
-deferredPrompt = null;
-installPrompt.classList.remove('show');
-});
-}
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(choiceResult => {
+            if (choiceResult.outcome === 'accepted') console.log('✅ User accepted');
+            deferredPrompt = null;
+            installPrompt.classList.remove('show');
+        });
+    }
 }
 
 function closeInstallPrompt() { installPrompt.classList.remove('show'); }
 
 // === Константы и утилиты ===
 let soundEnabled = true;
+let autoAcceptMode = false;
+
+// Кэширование данных для ускорения
+let cachedOrders = null;
+let cachedPreorders = null;
+let cachedPhotos = null;
+let cacheTimestamp = 0;
+const CACHE_TTL = 5000; // 5 секунд
+
 const TARIFFS = {
-RASPIL_M2: { price: 65, unit: 'm2' }, LINEAR_RASPIL: { price: 26, unit: 'linear' },
-SKLEIKA_OB: { price: 210, unit: 'm2' }, SKLEIKA_NO_OB: { price: 165, unit: 'm2' },
-PAZY: { price: 30, unit: 'linear' }, FREZER_FASKA: { price: 16, unit: 'linear' }, TIME: { price: 330, unit: 'time' }
+    RASPIL_M2: { price: 65, unit: 'm2' }, LINEAR_RASPIL: { price: 26, unit: 'linear' },
+    SKLEIKA_OB: { price: 210, unit: 'm2' }, SKLEIKA_NO_OB: { price: 165, unit: 'm2' },
+    PAZY: { price: 30, unit: 'linear' }, FREZER_FASKA: { price: 16, unit: 'linear' }, TIME: { price: 330, unit: 'time' }
 };
 
 const TARIFF_NAMES = { RASPIL_M2: 'Распил', LINEAR_RASPIL: 'Лин. распил', SKLEIKA_OB: 'Склейка +', SKLEIKA_NO_OB: 'Склейка –', PAZY: 'Пазы', FREZER_FASKA: 'Фаска', TIME: 'Время' };
 const UNIT_LABELS = { m2: 'м²', linear: 'пог. м', time: 'часы' };
 
-// Опции для тегов
 const TAG_OPTIONS = [
-{ val: '', label: '-- Тариф --' },
-{ val: 'RASPIL_M2', label: 'Распил' },
-{ val: 'LINEAR_RASPIL', label: 'Лин. распил' },
-{ val: 'SKLEIKA_OB', label: 'Склейка +' },
-{ val: 'SKLEIKA_NO_OB', label: 'Склейка -' },
-{ val: 'PAZY', label: 'Пазы' },
-{ val: 'FREZER_FASKA', label: 'Фаска' },
-{ val: 'TIME', label: 'Время' }
+    { val: '', label: '-- Тариф --' },
+    { val: 'RASPIL_M2', label: 'Распил' },
+    { val: 'LINEAR_RASPIL', label: 'Лин. распил' },
+    { val: 'SKLEIKA_OB', label: 'Склейка +' },
+    { val: 'SKLEIKA_NO_OB', label: 'Склейка -' },
+    { val: 'PAZY', label: 'Пазы' },
+    { val: 'FREZER_FASKA', label: 'Фаска' },
+    { val: 'TIME', label: 'Время' }
 ];
 
 function getTagName(val) {
-const opt = TAG_OPTIONS.find(o => o.val === val);
-return opt ? opt.label : '';
+    const opt = TAG_OPTIONS.find(o => o.val === val);
+    return opt ? opt.label : '';
 }
 
 const EARNINGS_MILESTONES = [
-{ amount: 500, emoji: '😡', color: '#DC2626', text: 'Разгон...' }, { amount: 1000, emoji: '😢', color: '#3B82F6', text: 'Первая тысяча' },
-{ amount: 1500, emoji: '😐', color: '#6B7285', text: 'Половина пути' }, { amount: 2000, emoji: '🙂', color: '#16A34A', text: 'Хороший результат' },
-{ amount: 2500, emoji: '😄', color: '#F59E0B', text: 'Почти план!' }
+    { amount: 500, emoji: '😡', color: '#DC2626', text: 'Разгон...' }, { amount: 1000, emoji: '😢', color: '#3B82F6', text: 'Первая тысяча' },
+    { amount: 1500, emoji: '😐', color: '#6B7285', text: 'Половина пути' }, { amount: 2000, emoji: '🙂', color: '#16A34A', text: 'Хороший результат' },
+    { amount: 2500, emoji: '😄', color: '#F59E0B', text: 'Почти план!' }
 ];
 
 function formatDateYMD(dateStr) { 
@@ -684,39 +728,105 @@ function formatDateYMD(dateStr) {
 
 function todayYMD() { return new Date().toISOString().split('T')[0]; }
 
-function loadOrders() { try { return JSON.parse(localStorage.getItem('operator_orders') || '[]'); } catch (e) { return []; } }
-function saveOrders(orders) { localStorage.setItem('operator_orders', JSON.stringify(orders)); }
-function loadPreorders() { try { return JSON.parse(localStorage.getItem('operator_preorders') || '[]'); } catch (e) { return []; } }
-function savePreorders(preorders) { localStorage.setItem('operator_preorders', JSON.stringify(preorders)); }
+// === ОПТИМИЗИРОВАННЫЕ функции хранилища с кэшированием ===
+function loadOrders() { 
+    const now = Date.now();
+    if (cachedOrders && (now - cacheTimestamp) < CACHE_TTL) return cachedOrders;
+    try { 
+        cachedOrders = JSON.parse(localStorage.getItem('operator_orders') || '[]'); 
+        cacheTimestamp = now;
+        return cachedOrders;
+    } catch (e) { 
+        return []; 
+    } 
+}
+
+function saveOrders(orders) { 
+    localStorage.setItem('operator_orders', JSON.stringify(orders));
+    cachedOrders = orders;
+    cacheTimestamp = Date.now();
+}
+
+function loadPreorders() { 
+    const now = Date.now();
+    if (cachedPreorders && (now - cacheTimestamp) < CACHE_TTL) return cachedPreorders;
+    try { 
+        cachedPreorders = JSON.parse(localStorage.getItem('operator_preorders') || '[]'); 
+        cacheTimestamp = now;
+        return cachedPreorders;
+    } catch (e) { 
+        return []; 
+    } 
+}
+
+function savePreorders(preorders) { 
+    localStorage.setItem('operator_preorders', JSON.stringify(preorders));
+    cachedPreorders = preorders;
+    cacheTimestamp = Date.now();
+}
+
+function loadPhotos() { 
+    const now = Date.now();
+    if (cachedPhotos && (now - cacheTimestamp) < CACHE_TTL) return cachedPhotos;
+    try { 
+        cachedPhotos = JSON.parse(localStorage.getItem('operator_photos') || '[]'); 
+        cacheTimestamp = now;
+        return cachedPhotos;
+    } catch (e) { 
+        return []; 
+    } 
+}
+
+function savePhotos(photos) {
+    try {
+        localStorage.setItem('operator_photos', JSON.stringify(photos));
+        cachedPhotos = photos;
+        cacheTimestamp = Date.now();
+    } catch (e) {
+        console.error("Storage full", e);
+        showToast('⚠️', '#DC2626', 'Память переполнена', 'Удалите старые фото или очистите кэш браузера.');
+    }
+}
+
 function getCurrentShift() { try { return JSON.parse(localStorage.getItem('current_shift') || 'null'); } catch (e) { return null; } }
 function setCurrentShift(shift) { if (shift === null) localStorage.removeItem('current_shift'); else localStorage.setItem('current_shift', JSON.stringify(shift)); }
 
-function playSuccessSound() {
-if (!soundEnabled) return;
-try {
-const ctx = new (window.AudioContext || window.webkitAudioContext)();
-const oscillator = ctx.createOscillator();
-const gainNode = ctx.createGain();
-oscillator.connect(gainNode); gainNode.connect(ctx.destination);
-oscillator.type = 'sine'; oscillator.frequency.value = 800;
-gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
-gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-oscillator.start(ctx.currentTime); oscillator.stop(ctx.currentTime + 0.3);
-} catch (e) { console.warn("Audio error", e); }
+// === ОЧИСТКА СТАРЫХ ФОТО (ОПТИМИЗАЦИЯ) ===
+function cleanupOldPhotos(maxPhotos = 20) {
+    try {
+        const photos = loadPhotos();
+        if (photos.length > maxPhotos) {
+            const newPhotos = photos.slice(0, maxPhotos);
+            savePhotos(newPhotos);
+            console.log(`🗑️ Удалено ${photos.length - maxPhotos} старых фото`);
+            return true;
+        }
+        return false;
+    } catch (e) { 
+        console.error(e); 
+        return false;
+    }
 }
 
-// === Глобальные переменные для импорта ===
-let autoAcceptMode = false;
+function playSuccessSound() {
+    if (!soundEnabled) return;
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+        oscillator.connect(gainNode); gainNode.connect(ctx.destination);
+        oscillator.type = 'sine'; oscillator.frequency.value = 800;
+        gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+        oscillator.start(ctx.currentTime); oscillator.stop(ctx.currentTime + 0.3);
+    } catch (e) { console.warn("Audio error", e); }
+}
 
 // === УЛУЧШЕННЫЕ функции работы с датами ===
-
-// Извлечение даты из имени файла (поддержка нескольких форматов)
 function extractDateFromFilename(filename) {
-    // ISO формат: 2024-03-15
     let match = filename.match(/(\d{4})-(\d{2})-(\d{2})/);
     if (match) return `${match[1]}-${match[2]}-${match[3]}`;
     
-    // Русский формат: 15.03.2024 или 15/03/2024 или 15-03-2024
     match = filename.match(/(\d{1,2})[.\-/](\d{1,2})[.\-/](\d{4})/);
     if (match) {
         let [, d, m, y] = match;
@@ -727,35 +837,23 @@ function extractDateFromFilename(filename) {
     return null;
 }
 
-// Нормализация даты в формат YYYY-MM-DD
 function normalizeDate(dateStr) {
     if (!dateStr) return todayYMD();
-    
-    // Уже в правильном формате
     if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
-    
-    // Формат ДД.ММ.ГГГГ
     if (/^\d{1,2}\.\d{1,2}\.\d{4}$/.test(dateStr)) {
         const [d, m, y] = dateStr.split('.');
         return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
     }
-    
-    // Формат ДД/ММ/ГГГГ
     if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dateStr)) {
         const [d, m, y] = dateStr.split('/');
         return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
     }
-    
-    // Формат ГГГГ/ММ/ДД
     if (/^\d{4}\/\d{2}\/\d{2}$/.test(dateStr)) {
         return dateStr.replace(/\//g, '-');
     }
-    
-    // fallback
     return todayYMD();
 }
 
-// Валидация даты (проверка на корректность)
 function isValidDate(dateStr) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return false;
     const [y, m, d] = dateStr.split('-').map(Number);
@@ -796,825 +894,1250 @@ let editSizeRowCount = 1;
 let photoSizeRowCount = 1;
 
 function addMainSizeRow() {
-mainSizeRowCount++;
-const container = document.getElementById('mainSizeRows');
-const row = document.createElement('div');
-row.className = 'size-row';
-row.id = `mainSizeRow${mainSizeRowCount}`;
-row.innerHTML = `
-<div class="size-input-wrapper">
-<label>Длина ${mainSizeRowCount} (м)</label>
-<input type="number" step="0.01" class="neu-input size-length" placeholder="0.00" data-row="${mainSizeRowCount}">
-</div>
-<div class="size-input-wrapper">
-<label>Ширина ${mainSizeRowCount} (м)</label>
-<input type="number" step="0.01" class="neu-input size-width" placeholder="0.00" data-row="${mainSizeRowCount}">
-</div>
-<button type="button" class="remove-size-btn" onclick="removeMainSizeRow(${mainSizeRowCount})"><i class="fas fa-minus"></i></button>
-`;
-container.appendChild(row);
-updateMainSizeTotal();
+    mainSizeRowCount++;
+    const container = document.getElementById('mainSizeRows');
+    const row = document.createElement('div');
+    row.className = 'size-row';
+    row.id = `mainSizeRow${mainSizeRowCount}`;
+    row.innerHTML = `
+    <div class="size-input-wrapper">
+    <label>Длина ${mainSizeRowCount} (м)</label>
+    <input type="number" step="0.01" class="neu-input size-length" placeholder="0.00" data-row="${mainSizeRowCount}">
+    </div>
+    <div class="size-input-wrapper">
+    <label>Ширина ${mainSizeRowCount} (м)</label>
+    <input type="number" step="0.01" class="neu-input size-width" placeholder="0.00" data-row="${mainSizeRowCount}">
+    </div>
+    <button type="button" class="remove-size-btn" onclick="removeMainSizeRow(${mainSizeRowCount})"><i class="fas fa-minus"></i></button>
+    `;
+    container.appendChild(row);
+    updateMainSizeTotal();
 }
 
 function removeMainSizeRow(rowNum) {
-const row = document.getElementById(`mainSizeRow${rowNum}`);
-if (row && mainSizeRowCount > 1) {
-row.remove();
-mainSizeRowCount--;
-updateMainSizeTotal();
-}
+    const row = document.getElementById(`mainSizeRow${rowNum}`);
+    if (row && mainSizeRowCount > 1) {
+        row.remove();
+        mainSizeRowCount--;
+        updateMainSizeTotal();
+    }
 }
 
 function updateMainSizeTotal() {
-const lengths = document.querySelectorAll('#mainSizeRows .size-length');
-const widths = document.querySelectorAll('#mainSizeRows .size-width');
-let totalArea = 0;
-lengths.forEach((input, idx) => {
-const l = parseFloat(input.value) || 0;
-const w = parseFloat(widths[idx]?.value) || 0;
-totalArea += l * w;
-});
-const totalDisplay = document.getElementById('mainSizeTotal');
-if (totalDisplay && totalArea > 0) {
-totalDisplay.textContent = `Всего: ${totalArea.toFixed(2)} м²`;
-totalDisplay.classList.remove('hidden');
-} else if (totalDisplay) {
-totalDisplay.classList.add('hidden');
-}
+    const lengths = document.querySelectorAll('#mainSizeRows .size-length');
+    const widths = document.querySelectorAll('#mainSizeRows .size-width');
+    let totalArea = 0;
+    lengths.forEach((input, idx) => {
+        const l = parseFloat(input.value) || 0;
+        const w = parseFloat(widths[idx]?.value) || 0;
+        totalArea += l * w;
+    });
+    const totalDisplay = document.getElementById('mainSizeTotal');
+    if (totalDisplay && totalArea > 0) {
+        totalDisplay.textContent = `Всего: ${totalArea.toFixed(2)} м²`;
+        totalDisplay.classList.remove('hidden');
+    } else if (totalDisplay) {
+        totalDisplay.classList.add('hidden');
+    }
 }
 
 function addPreSizeRow() {
-preSizeRowCount++;
-const container = document.getElementById('preSizeRows');
-const row = document.createElement('div');
-row.className = 'size-row';
-row.id = `preSizeRow${preSizeRowCount}`;
-row.innerHTML = `
-<div class="size-input-wrapper">
-<label>Длина ${preSizeRowCount} (м)</label>
-<input type="number" step="0.01" class="neu-input size-length" placeholder="0.00" data-row="${preSizeRowCount}">
-</div>
-<div class="size-input-wrapper">
-<label>Ширина ${preSizeRowCount} (м)</label>
-<input type="number" step="0.01" class="neu-input size-width" placeholder="0.00" data-row="${preSizeRowCount}">
-</div>
-<button type="button" class="remove-size-btn" onclick="removePreSizeRow(${preSizeRowCount})"><i class="fas fa-minus"></i></button>
-`;
-container.appendChild(row);
-updatePreSizeTotal();
+    preSizeRowCount++;
+    const container = document.getElementById('preSizeRows');
+    const row = document.createElement('div');
+    row.className = 'size-row';
+    row.id = `preSizeRow${preSizeRowCount}`;
+    row.innerHTML = `
+    <div class="size-input-wrapper">
+    <label>Длина ${preSizeRowCount} (м)</label>
+    <input type="number" step="0.01" class="neu-input size-length" placeholder="0.00" data-row="${preSizeRowCount}">
+    </div>
+    <div class="size-input-wrapper">
+    <label>Ширина ${preSizeRowCount} (м)</label>
+    <input type="number" step="0.01" class="neu-input size-width" placeholder="0.00" data-row="${preSizeRowCount}">
+    </div>
+    <button type="button" class="remove-size-btn" onclick="removePreSizeRow(${preSizeRowCount})"><i class="fas fa-minus"></i></button>
+    `;
+    container.appendChild(row);
+    updatePreSizeTotal();
 }
 
 function removePreSizeRow(rowNum) {
-const row = document.getElementById(`preSizeRow${rowNum}`);
-if (row && preSizeRowCount > 1) {
-row.remove();
-preSizeRowCount--;
-updatePreSizeTotal();
-}
+    const row = document.getElementById(`preSizeRow${rowNum}`);
+    if (row && preSizeRowCount > 1) {
+        row.remove();
+        preSizeRowCount--;
+        updatePreSizeTotal();
+    }
 }
 
 function updatePreSizeTotal() {
-const lengths = document.querySelectorAll('#preSizeRows .size-length');
-const widths = document.querySelectorAll('#preSizeRows .size-width');
-let totalArea = 0;
-lengths.forEach((input, idx) => {
-const l = parseFloat(input.value) || 0;
-const w = parseFloat(widths[idx]?.value) || 0;
-totalArea += l * w;
-});
-const totalDisplay = document.getElementById('preSizeTotal');
-if (totalDisplay && totalArea > 0) {
-totalDisplay.textContent = `Всего: ${totalArea.toFixed(2)} м²`;
-totalDisplay.classList.remove('hidden');
-} else if (totalDisplay) {
-totalDisplay.classList.add('hidden');
-}
+    const lengths = document.querySelectorAll('#preSizeRows .size-length');
+    const widths = document.querySelectorAll('#preSizeRows .size-width');
+    let totalArea = 0;
+    lengths.forEach((input, idx) => {
+        const l = parseFloat(input.value) || 0;
+        const w = parseFloat(widths[idx]?.value) || 0;
+        totalArea += l * w;
+    });
+    const totalDisplay = document.getElementById('preSizeTotal');
+    if (totalDisplay && totalArea > 0) {
+        totalDisplay.textContent = `Всего: ${totalArea.toFixed(2)} м²`;
+        totalDisplay.classList.remove('hidden');
+    } else if (totalDisplay) {
+        totalDisplay.classList.add('hidden');
+    }
 }
 
 function addEditSizeRow() {
-editSizeRowCount++;
-const container = document.getElementById('editSizeRows');
-const row = document.createElement('div');
-row.className = 'size-row';
-row.id = `editSizeRow${editSizeRowCount}`;
-row.innerHTML = `
-<div class="size-input-wrapper">
-<label>Длина ${editSizeRowCount} (м)</label>
-<input type="number" step="0.01" class="neu-input size-length" placeholder="0.00" data-row="${editSizeRowCount}">
-</div>
-<div class="size-input-wrapper">
-<label>Ширина ${editSizeRowCount} (м)</label>
-<input type="number" step="0.01" class="neu-input size-width" placeholder="0.00" data-row="${editSizeRowCount}">
-</div>
-<button type="button" class="remove-size-btn" onclick="removeEditSizeRow(${editSizeRowCount})"><i class="fas fa-minus"></i></button>
-`;
-container.appendChild(row);
+    editSizeRowCount++;
+    const container = document.getElementById('editSizeRows');
+    const row = document.createElement('div');
+    row.className = 'size-row';
+    row.id = `editSizeRow${editSizeRowCount}`;
+    row.innerHTML = `
+    <div class="size-input-wrapper">
+    <label>Длина ${editSizeRowCount} (м)</label>
+    <input type="number" step="0.01" class="neu-input size-length" placeholder="0.00" data-row="${editSizeRowCount}">
+    </div>
+    <div class="size-input-wrapper">
+    <label>Ширина ${editSizeRowCount} (м)</label>
+    <input type="number" step="0.01" class="neu-input size-width" placeholder="0.00" data-row="${editSizeRowCount}">
+    </div>
+    <button type="button" class="remove-size-btn" onclick="removeEditSizeRow(${editSizeRowCount})"><i class="fas fa-minus"></i></button>
+    `;
+    container.appendChild(row);
 }
 
 function removeEditSizeRow(rowNum) {
-const row = document.getElementById(`editSizeRow${rowNum}`);
-if (row && editSizeRowCount > 1) {
-row.remove();
-editSizeRowCount--;
-}
+    const row = document.getElementById(`editSizeRow${rowNum}`);
+    if (row && editSizeRowCount > 1) {
+        row.remove();
+        editSizeRowCount--;
+    }
 }
 
 function addPhotoSizeRow() {
-photoSizeRowCount++;
-const container = document.getElementById('photoSizeRows');
-const row = document.createElement('div');
-row.className = 'size-row';
-row.id = `photoSizeRow${photoSizeRowCount}`;
-row.innerHTML = `
-<div class="size-input-wrapper">
-<label>Длина ${photoSizeRowCount} (м)</label>
-<input type="number" step="0.01" class="neu-input size-length" placeholder="0.00" data-row="${photoSizeRowCount}">
-</div>
-<div class="size-input-wrapper">
-<label>Ширина ${photoSizeRowCount} (м)</label>
-<input type="number" step="0.01" class="neu-input size-width" placeholder="0.00" data-row="${photoSizeRowCount}">
-</div>
-<button type="button" class="remove-size-btn" onclick="removePhotoSizeRow(${photoSizeRowCount})"><i class="fas fa-minus"></i></button>
-`;
-container.appendChild(row);
+    photoSizeRowCount++;
+    const container = document.getElementById('photoSizeRows');
+    const row = document.createElement('div');
+    row.className = 'size-row';
+    row.id = `photoSizeRow${photoSizeRowCount}`;
+    row.innerHTML = `
+    <div class="size-input-wrapper">
+    <label>Длина ${photoSizeRowCount} (м)</label>
+    <input type="number" step="0.01" class="neu-input size-length" placeholder="0.00" data-row="${photoSizeRowCount}">
+    </div>
+    <div class="size-input-wrapper">
+    <label>Ширина ${photoSizeRowCount} (м)</label>
+    <input type="number" step="0.01" class="neu-input size-width" placeholder="0.00" data-row="${photoSizeRowCount}">
+    </div>
+    <button type="button" class="remove-size-btn" onclick="removePhotoSizeRow(${photoSizeRowCount})"><i class="fas fa-minus"></i></button>
+    `;
+    container.appendChild(row);
 }
 
 function removePhotoSizeRow(rowNum) {
-const row = document.getElementById(`photoSizeRow${rowNum}`);
-if (row && photoSizeRowCount > 1) {
-row.remove();
-photoSizeRowCount--;
-}
+    const row = document.getElementById(`photoSizeRow${rowNum}`);
+    if (row && photoSizeRowCount > 1) {
+        row.remove();
+        photoSizeRowCount--;
+    }
 }
 
 function resetMainSizeRows() {
-mainSizeRowCount = 1;
-const container = document.getElementById('mainSizeRows');
-if (container) {
-container.innerHTML = `
-<div class="size-row" id="mainSizeRow1">
-<div class="size-input-wrapper">
-<label>Длина 1 (м)</label>
-<input type="number" step="0.01" class="neu-input size-length" placeholder="0.00" data-row="1">
-</div>
-<div class="size-input-wrapper">
-<label>Ширина 1 (м)</label>
-<input type="number" step="0.01" class="neu-input size-width" placeholder="0.00" data-row="1">
-</div>
-<div></div>
-</div>
-`;
-}
-const totalDisplay = document.getElementById('mainSizeTotal');
-if (totalDisplay) totalDisplay.classList.add('hidden');
+    mainSizeRowCount = 1;
+    const container = document.getElementById('mainSizeRows');
+    if (container) {
+        container.innerHTML = `
+        <div class="size-row" id="mainSizeRow1">
+        <div class="size-input-wrapper">
+        <label>Длина 1 (м)</label>
+        <input type="number" step="0.01" class="neu-input size-length" placeholder="0.00" data-row="1">
+        </div>
+        <div class="size-input-wrapper">
+        <label>Ширина 1 (м)</label>
+        <input type="number" step="0.01" class="neu-input size-width" placeholder="0.00" data-row="1">
+        </div>
+        <div></div>
+        </div>
+        `;
+    }
+    const totalDisplay = document.getElementById('mainSizeTotal');
+    if (totalDisplay) totalDisplay.classList.add('hidden');
 }
 
 function resetPreSizeRows() {
-preSizeRowCount = 1;
-const container = document.getElementById('preSizeRows');
-if (container) {
-container.innerHTML = `
-<div class="size-row" id="preSizeRow1">
-<div class="size-input-wrapper">
-<label>Длина 1 (м)</label>
-<input type="number" step="0.01" class="neu-input size-length" placeholder="0.00" data-row="1">
-</div>
-<div class="size-input-wrapper">
-<label>Ширина 1 (м)</label>
-<input type="number" step="0.01" class="neu-input size-width" placeholder="0.00" data-row="1">
-</div>
-<div></div>
-</div>
-`;
-}
-const totalDisplay = document.getElementById('preSizeTotal');
-if (totalDisplay) totalDisplay.classList.add('hidden');
+    preSizeRowCount = 1;
+    const container = document.getElementById('preSizeRows');
+    if (container) {
+        container.innerHTML = `
+        <div class="size-row" id="preSizeRow1">
+        <div class="size-input-wrapper">
+        <label>Длина 1 (м)</label>
+        <input type="number" step="0.01" class="neu-input size-length" placeholder="0.00" data-row="1">
+        </div>
+        <div class="size-input-wrapper">
+        <label>Ширина 1 (м)</label>
+        <input type="number" step="0.01" class="neu-input size-width" placeholder="0.00" data-row="1">
+        </div>
+        <div></div>
+        </div>
+        `;
+    }
+    const totalDisplay = document.getElementById('preSizeTotal');
+    if (totalDisplay) totalDisplay.classList.add('hidden');
 }
 
 function resetEditSizeRows() {
-editSizeRowCount = 1;
-const container = document.getElementById('editSizeRows');
-if (container) {
-container.innerHTML = `
-<div class="size-row" id="editSizeRow1">
-<div class="size-input-wrapper">
-<label>Длина 1 (м)</label>
-<input type="number" step="0.01" class="neu-input size-length" placeholder="0.00" data-row="1">
-</div>
-<div class="size-input-wrapper">
-<label>Ширина 1 (м)</label>
-<input type="number" step="0.01" class="neu-input size-width" placeholder="0.00" data-row="1">
-</div>
-<div></div>
-</div>
-`;
-}
+    editSizeRowCount = 1;
+    const container = document.getElementById('editSizeRows');
+    if (container) {
+        container.innerHTML = `
+        <div class="size-row" id="editSizeRow1">
+        <div class="size-input-wrapper">
+        <label>Длина 1 (м)</label>
+        <input type="number" step="0.01" class="neu-input size-length" placeholder="0.00" data-row="1">
+        </div>
+        <div class="size-input-wrapper">
+        <label>Ширина 1 (м)</label>
+        <input type="number" step="0.01" class="neu-input size-width" placeholder="0.00" data-row="1">
+        </div>
+        <div></div>
+        </div>
+        `;
+    }
 }
 
 function resetPhotoSizeRows() {
-photoSizeRowCount = 1;
-const container = document.getElementById('photoSizeRows');
-if (container) {
-container.innerHTML = `
-<div class="size-row" id="photoSizeRow1">
-<div class="size-input-wrapper">
-<label>Длина 1 (м)</label>
-<input type="number" step="0.01" class="neu-input size-length" placeholder="0.00" data-row="1">
-</div>
-<div class="size-input-wrapper">
-<label>Ширина 1 (м)</label>
-<input type="number" step="0.01" class="neu-input size-width" placeholder="0.00" data-row="1">
-</div>
-<div></div>
-</div>
-`;
-}
+    photoSizeRowCount = 1;
+    const container = document.getElementById('photoSizeRows');
+    if (container) {
+        container.innerHTML = `
+        <div class="size-row" id="photoSizeRow1">
+        <div class="size-input-wrapper">
+        <label>Длина 1 (м)</label>
+        <input type="number" step="0.01" class="neu-input size-length" placeholder="0.00" data-row="1">
+        </div>
+        <div class="size-input-wrapper">
+        <label>Ширина 1 (м)</label>
+        <input type="number" step="0.01" class="neu-input size-width" placeholder="0.00" data-row="1">
+        </div>
+        <div></div>
+        </div>
+        `;
+    }
 }
 
 function getMainSizeDimensions() {
-const lengths = document.querySelectorAll('#mainSizeRows .size-length');
-const widths = document.querySelectorAll('#mainSizeRows .size-width');
-const dimensions = [];
-lengths.forEach((input, idx) => {
-const l = parseFloat(input.value) || 0;
-const w = parseFloat(widths[idx]?.value) || 0;
-if (l > 0 && w > 0) {
-dimensions.push({ length: l, width: w });
-}
-});
-return dimensions;
+    const lengths = document.querySelectorAll('#mainSizeRows .size-length');
+    const widths = document.querySelectorAll('#mainSizeRows .size-width');
+    const dimensions = [];
+    lengths.forEach((input, idx) => {
+        const l = parseFloat(input.value) || 0;
+        const w = parseFloat(widths[idx]?.value) || 0;
+        if (l > 0 && w > 0) {
+            dimensions.push({ length: l, width: w });
+        }
+    });
+    return dimensions;
 }
 
 function getPreSizeDimensions() {
-const lengths = document.querySelectorAll('#preSizeRows .size-length');
-const widths = document.querySelectorAll('#preSizeRows .size-width');
-const dimensions = [];
-lengths.forEach((input, idx) => {
-const l = parseFloat(input.value) || 0;
-const w = parseFloat(widths[idx]?.value) || 0;
-if (l > 0 && w > 0) {
-dimensions.push({ length: l, width: w });
-}
-});
-return dimensions;
+    const lengths = document.querySelectorAll('#preSizeRows .size-length');
+    const widths = document.querySelectorAll('#preSizeRows .size-width');
+    const dimensions = [];
+    lengths.forEach((input, idx) => {
+        const l = parseFloat(input.value) || 0;
+        const w = parseFloat(widths[idx]?.value) || 0;
+        if (l > 0 && w > 0) {
+            dimensions.push({ length: l, width: w });
+        }
+    });
+    return dimensions;
 }
 
 function getEditSizeDimensions() {
-const lengths = document.querySelectorAll('#editSizeRows .size-length');
-const widths = document.querySelectorAll('#editSizeRows .size-width');
-const dimensions = [];
-lengths.forEach((input, idx) => {
-const l = parseFloat(input.value) || 0;
-const w = parseFloat(widths[idx]?.value) || 0;
-if (l > 0 && w > 0) {
-dimensions.push({ length: l, width: w });
-}
-});
-return dimensions;
+    const lengths = document.querySelectorAll('#editSizeRows .size-length');
+    const widths = document.querySelectorAll('#editSizeRows .size-width');
+    const dimensions = [];
+    lengths.forEach((input, idx) => {
+        const l = parseFloat(input.value) || 0;
+        const w = parseFloat(widths[idx]?.value) || 0;
+        if (l > 0 && w > 0) {
+            dimensions.push({ length: l, width: w });
+        }
+    });
+    return dimensions;
 }
 
 function getPhotoSizeDimensions() {
-const lengths = document.querySelectorAll('#photoSizeRows .size-length');
-const widths = document.querySelectorAll('#photoSizeRows .size-width');
-const dimensions = [];
-lengths.forEach((input, idx) => {
-const l = parseFloat(input.value) || 0;
-const w = parseFloat(widths[idx]?.value) || 0;
-if (l > 0 && w > 0) {
-dimensions.push({ length: l, width: w });
-}
-});
-return dimensions;
+    const lengths = document.querySelectorAll('#photoSizeRows .size-length');
+    const widths = document.querySelectorAll('#photoSizeRows .size-width');
+    const dimensions = [];
+    lengths.forEach((input, idx) => {
+        const l = parseFloat(input.value) || 0;
+        const w = parseFloat(widths[idx]?.value) || 0;
+        if (l > 0 && w > 0) {
+            dimensions.push({ length: l, width: w });
+        }
+    });
+    return dimensions;
 }
 
 function calculateAmount(tariffKey, length, width, hours, qty, dimensions = null) {
-const tariff = TARIFFS[tariffKey]; if (!tariff) return 0;
-let amount = 0;
+    const tariff = TARIFFS[tariffKey]; if (!tariff) return 0;
+    let amount = 0;
 
-if (tariffKey === 'RASPIL_M2' && dimensions && dimensions.length > 0) {
-let totalArea = 0;
-dimensions.forEach(dim => {
-totalArea += dim.length * dim.width;
-});
-amount = tariff.price * totalArea * qty;
-} else if (tariff.unit === 'time') {
-amount = tariff.price * hours * qty;
-} else if (tariff.unit === 'm2') {
-amount = tariff.price * length * width * qty;
-} else {
-amount = tariff.price * length * qty;
-}
-return Math.round(amount * 100) / 100;
+    if (tariffKey === 'RASPIL_M2' && dimensions && dimensions.length > 0) {
+        let totalArea = 0;
+        dimensions.forEach(dim => {
+            totalArea += dim.length * dim.width;
+        });
+        amount = tariff.price * totalArea * qty;
+    } else if (tariff.unit === 'time') {
+        amount = tariff.price * hours * qty;
+    } else if (tariff.unit === 'm2') {
+        amount = tariff.price * length * width * qty;
+    } else {
+        amount = tariff.price * length * qty;
+    }
+    return Math.round(amount * 100) / 100;
 }
 
 function showToast(emoji, color, title, message) {
-const container = document.getElementById('toastContainer');
-const toast = document.createElement('div');
-toast.className = 'toast'; toast.style.borderLeftColor = color;
-toast.innerHTML = `<div class="toast-icon">${emoji}</div><div class="toast-content"><div class="toast-title" style="color:${color}">${title}</div><div class="toast-msg">${message}</div></div>`;
-container.appendChild(toast);
-setTimeout(() => { toast.style.animation = 'fadeOut 0.3s ease-in forwards'; setTimeout(() => toast.remove(), 300); }, 4000);
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = 'toast'; toast.style.borderLeftColor = color;
+    toast.innerHTML = `<div class="toast-icon">${emoji}</div><div class="toast-content"><div class="toast-title" style="color:${color}">${title}</div><div class="toast-msg">${message}</div></div>`;
+    container.appendChild(toast);
+    setTimeout(() => { toast.style.animation = 'fadeOut 0.3s ease-in forwards'; setTimeout(() => toast.remove(), 300); }, 4000);
 }
 
 function checkMilestones(amount) {
-const shift = getCurrentShift(); if (!shift || !shift.active) return;
-const storageKey = `notified_milestones_${shift.id}`;
-let notified = JSON.parse(localStorage.getItem(storageKey) || '[]');
-EARNINGS_MILESTONES.forEach(m => {
-if (amount >= m.amount && !notified.includes(m.amount)) {
-showToast(m.emoji, m.color, `Заработано ${m.amount} ₽`, m.text);
-notified.push(m.amount); localStorage.setItem(storageKey, JSON.stringify(notified));
-}
-});
+    const shift = getCurrentShift(); if (!shift || !shift.active) return;
+    const storageKey = `notified_milestones_${shift.id}`;
+    let notified = JSON.parse(localStorage.getItem(storageKey) || '[]');
+    EARNINGS_MILESTONES.forEach(m => {
+        if (amount >= m.amount && !notified.includes(m.amount)) {
+            showToast(m.emoji, m.color, `Заработано ${m.amount} ₽`, m.text);
+            notified.push(m.amount); localStorage.setItem(storageKey, JSON.stringify(notified));
+        }
+    });
 }
 
 function updateUI() {
-const orders = loadOrders();
-const totalAll = orders.reduce((sum, o) => sum + (parseFloat(o.amount) || 0), 0);
-const shift = getCurrentShift();
-let currentShiftAmount = 0; let statusText = 'Смена не начата';
-if (shift && shift.active) {
-currentShiftAmount = orders.filter(o => o.shiftId === shift.id).reduce((sum, o) => sum + (parseFloat(o.amount) || 0), 0);
-statusText = 'Смена активна';
-} else if (shift && !shift.active) {
-currentShiftAmount = shift.finalAmount || 0; statusText = 'Смена завершена';
-}
-document.getElementById('totalAll').textContent = totalAll.toFixed(2);
-document.getElementById('todayEarned').textContent = currentShiftAmount.toFixed(2);
-document.getElementById('shiftStatus').textContent = statusText;
-const steps = document.querySelectorAll('#planStatusBar .step');
-const targetStep = Math.min(19, Math.floor((currentShiftAmount / 3000) * 20));
-steps.forEach((step, i) => {
-step.classList.remove('active', 'current', 'completed');
-if (i < targetStep) step.classList.add('active');
-else if (i === targetStep) step.classList.add('current');
-if (currentShiftAmount >= 3000 && i === 19) { step.classList.remove('current'); step.classList.add('completed'); }
-});
-checkMilestones(currentShiftAmount);
+    const orders = loadOrders();
+    const totalAll = orders.reduce((sum, o) => sum + (parseFloat(o.amount) || 0), 0);
+    const shift = getCurrentShift();
+    let currentShiftAmount = 0; let statusText = 'Смена не начата';
+    if (shift && shift.active) {
+        currentShiftAmount = orders.filter(o => o.shiftId === shift.id).reduce((sum, o) => sum + (parseFloat(o.amount) || 0), 0);
+        statusText = 'Смена активна';
+    } else if (shift && !shift.active) {
+        currentShiftAmount = shift.finalAmount || 0; statusText = 'Смена завершена';
+    }
+    document.getElementById('totalAll').textContent = totalAll.toFixed(2);
+    document.getElementById('todayEarned').textContent = currentShiftAmount.toFixed(2);
+    document.getElementById('shiftStatus').textContent = statusText;
+    const steps = document.querySelectorAll('#planStatusBar .step');
+    const targetStep = Math.min(19, Math.floor((currentShiftAmount / 3000) * 20));
+    steps.forEach((step, i) => {
+        step.classList.remove('active', 'current', 'completed');
+        if (i < targetStep) step.classList.add('active');
+        else if (i === targetStep) step.classList.add('current');
+        if (currentShiftAmount >= 3000 && i === 19) { step.classList.remove('current'); step.classList.add('completed'); }
+    });
+    checkMilestones(currentShiftAmount);
 }
 
 function updateMainFormFields() {
-const tariff = document.getElementById('tariff').value;
-const sizeContainer = document.getElementById('mainSizeContainer');
-const addSizeBtn = document.getElementById('mainAddSizeBtn');
-const otherInputs = document.getElementById('mainOtherInputs');
-const lengthGroup = document.getElementById('mainLengthGroup');
-const widthGroup = document.getElementById('mainWidthGroup');
-const hoursGroup = document.getElementById('mainHoursGroup');
+    const tariff = document.getElementById('tariff').value;
+    const sizeContainer = document.getElementById('mainSizeContainer');
+    const addSizeBtn = document.getElementById('mainAddSizeBtn');
+    const otherInputs = document.getElementById('mainOtherInputs');
+    const lengthGroup = document.getElementById('mainLengthGroup');
+    const widthGroup = document.getElementById('mainWidthGroup');
+    const hoursGroup = document.getElementById('mainHoursGroup');
 
-if (tariff === 'RASPIL_M2') {
-if (sizeContainer) sizeContainer.classList.remove('hidden');
-if (addSizeBtn) addSizeBtn.classList.remove('hidden');
-if (otherInputs) otherInputs.classList.add('hidden');
-} else {
-if (sizeContainer) sizeContainer.classList.add('hidden');
-if (addSizeBtn) addSizeBtn.classList.add('hidden');
-if (otherInputs) otherInputs.classList.remove('hidden');
-if (lengthGroup) lengthGroup.classList.remove('hidden');
-if (widthGroup) widthGroup.classList.add('hidden');
-if (hoursGroup) hoursGroup.classList.add('hidden');
+    if (tariff === 'RASPIL_M2') {
+        if (sizeContainer) sizeContainer.classList.remove('hidden');
+        if (addSizeBtn) addSizeBtn.classList.remove('hidden');
+        if (otherInputs) otherInputs.classList.add('hidden');
+    } else {
+        if (sizeContainer) sizeContainer.classList.add('hidden');
+        if (addSizeBtn) addSizeBtn.classList.add('hidden');
+        if (otherInputs) otherInputs.classList.remove('hidden');
+        if (lengthGroup) lengthGroup.classList.remove('hidden');
+        if (widthGroup) widthGroup.classList.add('hidden');
+        if (hoursGroup) hoursGroup.classList.add('hidden');
 
-if (tariff === 'TIME') {
-if (lengthGroup) lengthGroup.classList.add('hidden');
-if (hoursGroup) hoursGroup.classList.remove('hidden');
-}
-}
+        if (tariff === 'TIME') {
+            if (lengthGroup) lengthGroup.classList.add('hidden');
+            if (hoursGroup) hoursGroup.classList.remove('hidden');
+        }
+    }
 }
 
 function updatePreorderFormFields() {
-const tariff = document.getElementById('preTariff').value;
-const sizeContainer = document.getElementById('preSizeContainer');
-const addSizeBtn = document.getElementById('preAddSizeBtn');
-const otherInputs = document.getElementById('preOtherInputs');
-const lengthGroup = document.getElementById('preLengthGroup');
-const widthGroup = document.getElementById('preWidthGroup');
-const hoursGroup = document.getElementById('preHoursGroup');
+    const tariff = document.getElementById('preTariff').value;
+    const sizeContainer = document.getElementById('preSizeContainer');
+    const addSizeBtn = document.getElementById('preAddSizeBtn');
+    const otherInputs = document.getElementById('preOtherInputs');
+    const lengthGroup = document.getElementById('preLengthGroup');
+    const widthGroup = document.getElementById('preWidthGroup');
+    const hoursGroup = document.getElementById('preHoursGroup');
 
-if (tariff === 'RASPIL_M2') {
-if (sizeContainer) sizeContainer.classList.remove('hidden');
-if (addSizeBtn) addSizeBtn.classList.remove('hidden');
-if (otherInputs) otherInputs.classList.add('hidden');
-} else {
-if (sizeContainer) sizeContainer.classList.add('hidden');
-if (addSizeBtn) addSizeBtn.classList.add('hidden');
-if (otherInputs) otherInputs.classList.remove('hidden');
-if (lengthGroup) lengthGroup.classList.remove('hidden');
-if (widthGroup) widthGroup.classList.add('hidden');
-if (hoursGroup) hoursGroup.classList.add('hidden');
+    if (tariff === 'RASPIL_M2') {
+        if (sizeContainer) sizeContainer.classList.remove('hidden');
+        if (addSizeBtn) addSizeBtn.classList.remove('hidden');
+        if (otherInputs) otherInputs.classList.add('hidden');
+    } else {
+        if (sizeContainer) sizeContainer.classList.add('hidden');
+        if (addSizeBtn) addSizeBtn.classList.add('hidden');
+        if (otherInputs) otherInputs.classList.remove('hidden');
+        if (lengthGroup) lengthGroup.classList.remove('hidden');
+        if (widthGroup) widthGroup.classList.add('hidden');
+        if (hoursGroup) hoursGroup.classList.add('hidden');
 
-if (tariff === 'TIME') {
-if (lengthGroup) lengthGroup.classList.add('hidden');
-if (hoursGroup) hoursGroup.classList.remove('hidden');
-}
-}
+        if (tariff === 'TIME') {
+            if (lengthGroup) lengthGroup.classList.add('hidden');
+            if (hoursGroup) hoursGroup.classList.remove('hidden');
+        }
+    }
 }
 
 function updateEditFormFields() {
-const tariff = document.getElementById('editTariff').value;
-const sizeContainer = document.getElementById('editSizeContainer');
-const addSizeBtn = document.getElementById('editAddSizeBtn');
-const lengthGroup = document.getElementById('editLengthGroup');
-const widthGroup = document.getElementById('editWidthGroup');
-const hoursGroup = document.getElementById('editHoursGroup');
+    const tariff = document.getElementById('editTariff').value;
+    const sizeContainer = document.getElementById('editSizeContainer');
+    const addSizeBtn = document.getElementById('editAddSizeBtn');
+    const lengthGroup = document.getElementById('editLengthGroup');
+    const widthGroup = document.getElementById('editWidthGroup');
+    const hoursGroup = document.getElementById('editHoursGroup');
 
-if (tariff === 'RASPIL_M2') {
-if (sizeContainer) sizeContainer.classList.remove('hidden');
-if (addSizeBtn) addSizeBtn.classList.remove('hidden');
-if (lengthGroup) lengthGroup.classList.add('hidden');
-if (widthGroup) widthGroup.classList.add('hidden');
-if (hoursGroup) hoursGroup.classList.add('hidden');
-} else {
-if (sizeContainer) sizeContainer.classList.add('hidden');
-if (addSizeBtn) addSizeBtn.classList.add('hidden');
-if (lengthGroup) lengthGroup.classList.remove('hidden');
-if (widthGroup) widthGroup.classList.add('hidden');
-if (hoursGroup) hoursGroup.classList.add('hidden');
+    if (tariff === 'RASPIL_M2') {
+        if (sizeContainer) sizeContainer.classList.remove('hidden');
+        if (addSizeBtn) addSizeBtn.classList.remove('hidden');
+        if (lengthGroup) lengthGroup.classList.add('hidden');
+        if (widthGroup) widthGroup.classList.add('hidden');
+        if (hoursGroup) hoursGroup.classList.add('hidden');
+    } else {
+        if (sizeContainer) sizeContainer.classList.add('hidden');
+        if (addSizeBtn) addSizeBtn.classList.add('hidden');
+        if (lengthGroup) lengthGroup.classList.remove('hidden');
+        if (widthGroup) widthGroup.classList.add('hidden');
+        if (hoursGroup) hoursGroup.classList.add('hidden');
 
-if (tariff === 'TIME') {
-if (lengthGroup) lengthGroup.classList.add('hidden');
-if (hoursGroup) hoursGroup.classList.remove('hidden');
-}
-}
+        if (tariff === 'TIME') {
+            if (lengthGroup) lengthGroup.classList.add('hidden');
+            if (hoursGroup) hoursGroup.classList.remove('hidden');
+        }
+    }
 }
 
 function updatePhotoFormFields() {
-const tariff = document.getElementById('photoTariff').value;
-const sizeContainer = document.getElementById('photoSizeContainer');
-const addSizeBtn = document.getElementById('photoAddSizeBtn');
-const otherInputs = document.getElementById('photoOtherInputs');
-const lengthGroup = document.getElementById('photoLengthGroup');
-const widthGroup = document.getElementById('photoWidthGroup');
-const hoursGroup = document.getElementById('photoHoursGroup');
+    const tariff = document.getElementById('photoTariff').value;
+    const sizeContainer = document.getElementById('photoSizeContainer');
+    const addSizeBtn = document.getElementById('photoAddSizeBtn');
+    const otherInputs = document.getElementById('photoOtherInputs');
+    const lengthGroup = document.getElementById('photoLengthGroup');
+    const widthGroup = document.getElementById('photoWidthGroup');
+    const hoursGroup = document.getElementById('photoHoursGroup');
 
-if (tariff === 'RASPIL_M2') {
-if (sizeContainer) sizeContainer.classList.remove('hidden');
-if (addSizeBtn) addSizeBtn.classList.remove('hidden');
-if (otherInputs) otherInputs.classList.add('hidden');
-} else {
-if (sizeContainer) sizeContainer.classList.add('hidden');
-if (addSizeBtn) addSizeBtn.classList.add('hidden');
-if (otherInputs) otherInputs.classList.remove('hidden');
-if (lengthGroup) lengthGroup.classList.remove('hidden');
-if (widthGroup) widthGroup.classList.add('hidden');
-if (hoursGroup) hoursGroup.classList.add('hidden');
+    if (tariff === 'RASPIL_M2') {
+        if (sizeContainer) sizeContainer.classList.remove('hidden');
+        if (addSizeBtn) addSizeBtn.classList.remove('hidden');
+        if (otherInputs) otherInputs.classList.add('hidden');
+    } else {
+        if (sizeContainer) sizeContainer.classList.add('hidden');
+        if (addSizeBtn) addSizeBtn.classList.add('hidden');
+        if (otherInputs) otherInputs.classList.remove('hidden');
+        if (lengthGroup) lengthGroup.classList.remove('hidden');
+        if (widthGroup) widthGroup.classList.add('hidden');
+        if (hoursGroup) hoursGroup.classList.add('hidden');
 
-if (tariff === 'TIME') {
-if (lengthGroup) lengthGroup.classList.add('hidden');
-if (hoursGroup) hoursGroup.classList.remove('hidden');
-}
-}
+        if (tariff === 'TIME') {
+            if (lengthGroup) lengthGroup.classList.add('hidden');
+            if (hoursGroup) hoursGroup.classList.remove('hidden');
+        }
+    }
 }
 
 function startShift() {
-const shift = getCurrentShift(); if (shift && shift.active) { alert('Смена уже активна!'); return; }
-setCurrentShift({ id: Date.now(), startedAt: new Date().toISOString(), active: true });
-alert('✅ Смена начата!'); updateUI();
+    const shift = getCurrentShift(); if (shift && shift.active) { alert('Смена уже активна!'); return; }
+    setCurrentShift({ id: Date.now(), startedAt: new Date().toISOString(), active: true });
+    alert('✅ Смена начата!'); updateUI();
 }
 
 function endShift() {
-const shift = getCurrentShift(); if (!shift || !shift.active) { alert('Нет активной смены!'); return; }
-const orders = loadOrders();
-const finalAmount = orders.filter(o => o.shiftId === shift.id).reduce((sum, o) => sum + (parseFloat(o.amount) || 0), 0);
-shift.active = false; shift.finishedAt = new Date().toISOString(); shift.finalAmount = finalAmount;
-setCurrentShift(shift); alert(`✅ Смена завершена!\nЗаработано: ${finalAmount.toFixed(2)} ₽`); updateUI();
+    const shift = getCurrentShift(); if (!shift || !shift.active) { alert('Нет активной смены!'); return; }
+    const orders = loadOrders();
+    const finalAmount = orders.filter(o => o.shiftId === shift.id).reduce((sum, o) => sum + (parseFloat(o.amount) || 0), 0);
+    shift.active = false; shift.finishedAt = new Date().toISOString(); shift.finalAmount = finalAmount;
+    setCurrentShift(shift); alert(`✅ Смена завершена!\nЗаработано: ${finalAmount.toFixed(2)} ₽`); updateUI();
 }
 
 function deleteOrder(orderId) {
-if (!confirm('Удалить заказ?')) return;
-const orders = loadOrders(); const idx = orders.findIndex(o => o.id === orderId);
-if (idx === -1) return; orders.splice(idx, 1); saveOrders(orders);
-if (getCurrentShift()?.active) updateUI(); showOrdersByDate(); renderCalendar(); alert('✅ Удалено');
+    if (!confirm('Удалить заказ?')) return;
+    const orders = loadOrders(); const idx = orders.findIndex(o => o.id === orderId);
+    if (idx === -1) return; orders.splice(idx, 1); saveOrders(orders);
+    if (getCurrentShift()?.active) updateUI(); showOrdersByDate(); renderCalendar(); alert('✅ Удалено');
 }
 
 function deletePreorder(preorderId) {
-if (!confirm('Удалить предзаказ?')) return;
-const preorders = loadPreorders(); const idx = preorders.findIndex(p => p.id === preorderId);
-if (idx === -1) return; preorders.splice(idx, 1); savePreorders(preorders); renderPreorders(); alert('✅ Удалено');
+    if (!confirm('Удалить предзаказ?')) return;
+    const preorders = loadPreorders(); const idx = preorders.findIndex(p => p.id === preorderId);
+    if (idx === -1) return; preorders.splice(idx, 1); savePreorders(preorders); renderPreorders(); alert('✅ Удалено');
 }
 
 let pendingPreorderId = null;
 function openDateModal(preorderId) { pendingPreorderId = preorderId; document.getElementById('modalDate').value = todayYMD(); document.getElementById('dateModal').classList.add('active'); }
 function closeDateModal() { document.getElementById('dateModal').classList.remove('active'); pendingPreorderId = null; }
 function confirmDateSelection() {
-const date = document.getElementById('modalDate').value; if (!date) { alert('Выберите дату'); return; }
-if (pendingPreorderId !== null) acceptPreorder(pendingPreorderId, date); closeDateModal();
+    const date = document.getElementById('modalDate').value; if (!date) { alert('Выберите дату'); return; }
+    if (pendingPreorderId !== null) acceptPreorder(pendingPreorderId, date); closeDateModal();
 }
 
 function viewOrderDetails(orderId) {
-const orders = loadOrders(); const order = orders.find(o => o.id === orderId); if (!order) return;
-const units = calculateUnits(order.tariff, order.length, order.width, order.hours, order.qty, order.dimensions);
-const tariffName = TARIFF_NAMES[order.tariff] || order.tariff;
-let html = `<div class="details-item"><span class="details-label">№ заказа:</span><span class="details-value">${order.orderNumber}</span></div>`;
-html += `<div class="details-item"><span class="details-label">Деталь:</span><span class="details-value">${order.detail}</span></div>`;
-html += `<div class="details-item"><span class="details-label">Тариф:</span><span class="details-value">${tariffName}</span></div>`;
-html += `<div class="details-item"><span class="details-label">Количество:</span><span class="details-value">${order.qty}</span></div>`;
+    const orders = loadOrders(); const order = orders.find(o => o.id === orderId); if (!order) return;
+    const units = calculateUnits(order.tariff, order.length, order.width, order.hours, order.qty, order.dimensions);
+    const tariffName = TARIFF_NAMES[order.tariff] || order.tariff;
+    let html = `<div class="details-item"><span class="details-label">№ заказа:</span><span class="details-value">${order.orderNumber}</span></div>`;
+    html += `<div class="details-item"><span class="details-label">Деталь:</span><span class="details-value">${order.detail}</span></div>`;
+    html += `<div class="details-item"><span class="details-label">Тариф:</span><span class="details-value">${tariffName}</span></div>`;
+    html += `<div class="details-item"><span class="details-label">Количество:</span><span class="details-value">${order.qty}</span></div>`;
 
-if (order.dimensions && order.dimensions.length > 0) {
-order.dimensions.forEach((dim, idx) => {
-html += `<div class="details-item"><span class="details-label">Размер ${idx + 1}:</span><span class="details-value">${dim.length} × ${dim.width} м</span></div>`;
-});
-html += `<div class="details-item"><span class="details-label">Общая площадь:</span><span class="details-value">${units.value} ${units.unit}</span></div>`;
-} else {
-if (order.length !== null) html += `<div class="details-item"><span class="details-label">Длина:</span><span class="details-value">${order.length} м</span></div>`;
-if (order.width !== null) html += `<div class="details-item"><span class="details-label">Ширина:</span><span class="details-value">${order.width} м</span></div>`;
-if (order.hours !== null) html += `<div class="details-item"><span class="details-label">Часы:</span><span class="details-value">${order.hours} ч</span></div>`;
-html += `<div class="details-item"><span class="details-label">Объем работ:</span><span class="details-value">${units.value} ${units.unit}</span></div>`;
-}
-html += `<div class="details-item"><span class="details-label">Сумма:</span><span class="details-value">${order.amount.toFixed(2)} ₽</span></div>`;
-document.getElementById('detailsContent').innerHTML = html; document.getElementById('detailsModal').classList.add('active');
+    if (order.dimensions && order.dimensions.length > 0) {
+        order.dimensions.forEach((dim, idx) => {
+            html += `<div class="details-item"><span class="details-label">Размер ${idx + 1}:</span><span class="details-value">${dim.length} × ${dim.width} м</span></div>`;
+        });
+        html += `<div class="details-item"><span class="details-label">Общая площадь:</span><span class="details-value">${units.value} ${units.unit}</span></div>`;
+    } else {
+        if (order.length !== null) html += `<div class="details-item"><span class="details-label">Длина:</span><span class="details-value">${order.length} м</span></div>`;
+        if (order.width !== null) html += `<div class="details-item"><span class="details-label">Ширина:</span><span class="details-value">${order.width} м</span></div>`;
+        if (order.hours !== null) html += `<div class="details-item"><span class="details-label">Часы:</span><span class="details-value">${order.hours} ч</span></div>`;
+        html += `<div class="details-item"><span class="details-label">Объем работ:</span><span class="details-value">${units.value} ${units.unit}</span></div>`;
+    }
+    html += `<div class="details-item"><span class="details-label">Сумма:</span><span class="details-value">${order.amount.toFixed(2)} ₽</span></div>`;
+    document.getElementById('detailsContent').innerHTML = html; document.getElementById('detailsModal').classList.add('active');
 }
 
 function closeDetailsModal() { document.getElementById('detailsModal').classList.remove('active'); }
 
 let editingOrder = null;
 function openEditModal(orderId) {
-const orders = loadOrders(); const order = orders.find(o => o.id === orderId); if (!order) return;
-editingOrder = order;
-document.getElementById('editOrderId').value = order.id;
-document.getElementById('editOrderNum').value = order.orderNumber;
-document.getElementById('editDetail').value = order.detail;
-document.getElementById('editTariff').value = order.tariff;
-document.getElementById('editQty').value = order.qty;
-document.getElementById('editLength').value = order.length || '';
-document.getElementById('editWidth').value = order.width || '';
-document.getElementById('editHours').value = order.hours || '';
+    const orders = loadOrders(); const order = orders.find(o => o.id === orderId); if (!order) return;
+    editingOrder = order;
+    document.getElementById('editOrderId').value = order.id;
+    document.getElementById('editOrderNum').value = order.orderNumber;
+    document.getElementById('editDetail').value = order.detail;
+    document.getElementById('editTariff').value = order.tariff;
+    document.getElementById('editQty').value = order.qty;
+    document.getElementById('editLength').value = order.length || '';
+    document.getElementById('editWidth').value = order.width || '';
+    document.getElementById('editHours').value = order.hours || '';
 
-resetEditSizeRows();
-if (order.dimensions && order.dimensions.length > 0 && order.tariff === 'RASPIL_M2') {
-const container = document.getElementById('editSizeRows');
-if (container) {
-container.innerHTML = '';
-order.dimensions.forEach((dim, idx) => {
-editSizeRowCount = idx + 1;
-const row = document.createElement('div');
-row.className = 'size-row';
-row.id = `editSizeRow${editSizeRowCount}`;
-row.innerHTML = `
-<div class="size-input-wrapper">
-<label>Длина ${editSizeRowCount} (м)</label>
-<input type="number" step="0.01" class="neu-input size-length" placeholder="0.00" value="${dim.length}" data-row="${editSizeRowCount}">
-</div>
-<div class="size-input-wrapper">
-<label>Ширина ${editSizeRowCount} (м)</label>
-<input type="number" step="0.01" class="neu-input size-width" placeholder="0.00" value="${dim.width}" data-row="${editSizeRowCount}">
-</div>
-<button type="button" class="remove-size-btn" onclick="removeEditSizeRow(${editSizeRowCount})"><i class="fas fa-minus"></i></button>
-`;
-container.appendChild(row);
-});
-}
-}
+    resetEditSizeRows();
+    if (order.dimensions && order.dimensions.length > 0 && order.tariff === 'RASPIL_M2') {
+        const container = document.getElementById('editSizeRows');
+        if (container) {
+            container.innerHTML = '';
+            order.dimensions.forEach((dim, idx) => {
+                editSizeRowCount = idx + 1;
+                const row = document.createElement('div');
+                row.className = 'size-row';
+                row.id = `editSizeRow${editSizeRowCount}`;
+                row.innerHTML = `
+                <div class="size-input-wrapper">
+                <label>Длина ${editSizeRowCount} (м)</label>
+                <input type="number" step="0.01" class="neu-input size-length" placeholder="0.00" value="${dim.length}" data-row="${editSizeRowCount}">
+                </div>
+                <div class="size-input-wrapper">
+                <label>Ширина ${editSizeRowCount} (м)</label>
+                <input type="number" step="0.01" class="neu-input size-width" placeholder="0.00" value="${dim.width}" data-row="${editSizeRowCount}">
+                </div>
+                <button type="button" class="remove-size-btn" onclick="removeEditSizeRow(${editSizeRowCount})"><i class="fas fa-minus"></i></button>
+                `;
+                container.appendChild(row);
+            });
+        }
+    }
 
-updateEditFormFields();
-document.getElementById('editModal').classList.add('active');
+    updateEditFormFields();
+    document.getElementById('editModal').classList.add('active');
 }
 
 function closeEditModal() { document.getElementById('editModal').classList.remove('active'); editingOrder = null; }
 
 function saveEditedOrder() {
-if (!editingOrder) return;
-const orderId = parseInt(document.getElementById('editOrderId').value);
-const num = document.getElementById('editOrderNum').value.trim(); if (!num) { alert('Укажите № заказа'); return; }
-const tariffKey = document.getElementById('editTariff').value;
-const detail = document.getElementById('editDetail').value.trim() || '—';
-const qty = parseInt(document.getElementById('editQty').value) || 1;
-const length = parseFloat(document.getElementById('editLength').value) || 0;
-const width = parseFloat(document.getElementById('editWidth').value) || 0;
-const hours = parseFloat(document.getElementById('editHours').value) || 0;
-const dimensions = getEditSizeDimensions();
+    if (!editingOrder) return;
+    const orderId = parseInt(document.getElementById('editOrderId').value);
+    const num = document.getElementById('editOrderNum').value.trim(); if (!num) { alert('Укажите № заказа'); return; }
+    const tariffKey = document.getElementById('editTariff').value;
+    const detail = document.getElementById('editDetail').value.trim() || '—';
+    const qty = parseInt(document.getElementById('editQty').value) || 1;
+    const length = parseFloat(document.getElementById('editLength').value) || 0;
+    const width = parseFloat(document.getElementById('editWidth').value) || 0;
+    const hours = parseFloat(document.getElementById('editHours').value) || 0;
+    const dimensions = getEditSizeDimensions();
 
-const amount = calculateAmount(tariffKey, length, width, hours, qty, dimensions);
+    const amount = calculateAmount(tariffKey, length, width, hours, qty, dimensions);
 
-const orders = loadOrders(); const idx = orders.findIndex(o => o.id === orderId);
-if (idx !== -1) {
-orders[idx] = {
-...orders[idx],
-orderNumber: num,
-tariff: tariffKey,
-detail: detail,
-qty: qty,
-length: length || null,
-width: width || null,
-hours: hours || null,
-dimensions: dimensions.length > 0 ? dimensions : null,
-amount: amount
-};
-saveOrders(orders); updateUI(); showOrdersByDate(); renderCalendar(); closeEditModal(); alert('✅ Обновлён');
-}
+    const orders = loadOrders(); const idx = orders.findIndex(o => o.id === orderId);
+    if (idx !== -1) {
+        orders[idx] = {
+            ...orders[idx],
+            orderNumber: num,
+            tariff: tariffKey,
+            detail: detail,
+            qty: qty,
+            length: length || null,
+            width: width || null,
+            hours: hours || null,
+            dimensions: dimensions.length > 0 ? dimensions : null,
+            amount: amount
+        };
+        saveOrders(orders); updateUI(); showOrdersByDate(); renderCalendar(); closeEditModal(); alert('✅ Обновлён');
+    }
 }
 
 function createMainOrder() {
-const num = document.getElementById('orderNum').value.trim(); if (!num) { alert('Укажите № заказа'); return; }
-const tariffKey = document.getElementById('tariff').value;
-const detail = document.getElementById('detail').value.trim() || '—';
-const qty = parseInt(document.getElementById('qty').value) || 1;
+    const num = document.getElementById('orderNum').value.trim(); if (!num) { alert('Укажите № заказа'); return; }
+    const tariffKey = document.getElementById('tariff').value;
+    const detail = document.getElementById('detail').value.trim() || '—';
+    const qty = parseInt(document.getElementById('qty').value) || 1;
 
-const lengthEl = document.getElementById('length');
-const widthEl = document.getElementById('width');
-const hoursEl = document.getElementById('hours');
+    const lengthEl = document.getElementById('length');
+    const widthEl = document.getElementById('width');
+    const hoursEl = document.getElementById('hours');
 
-const length = lengthEl ? parseFloat(lengthEl.value) || 0 : 0;
-const width = widthEl ? parseFloat(widthEl.value) || 0 : 0;
-const hours = hoursEl ? parseFloat(hoursEl.value) || 0 : 0;
+    const length = lengthEl ? parseFloat(lengthEl.value) || 0 : 0;
+    const width = widthEl ? parseFloat(widthEl.value) || 0 : 0;
+    const hours = hoursEl ? parseFloat(hoursEl.value) || 0 : 0;
 
-const dimensions = getMainSizeDimensions();
+    const dimensions = getMainSizeDimensions();
 
-const amount = calculateAmount(tariffKey, length, width, hours, qty, dimensions);
+    const amount = calculateAmount(tariffKey, length, width, hours, qty, dimensions);
 
-const shift = getCurrentShift(); if (!shift || !shift.active) { alert('⚠️ Начните смену!'); return; }
+    const shift = getCurrentShift(); if (!shift || !shift.active) { alert('⚠️ Начните смену!'); return; }
 
-const order = {
-id: Date.now(),
-orderNumber: num,
-tariff: tariffKey,
-detail: detail,
-qty: qty,
-length: length || null,
-width: width || null,
-hours: hours || null,
-dimensions: dimensions.length > 0 ? dimensions : null,
-amount: amount,
-date: todayYMD(),
-shiftId: shift.id,
-timestamp: new Date().toISOString()
-};
+    const order = {
+        id: Date.now(),
+        orderNumber: num,
+        tariff: tariffKey,
+        detail: detail,
+        qty: qty,
+        length: length || null,
+        width: width || null,
+        hours: hours || null,
+        dimensions: dimensions.length > 0 ? dimensions : null,
+        amount: amount,
+        date: todayYMD(),
+        shiftId: shift.id,
+        timestamp: new Date().toISOString()
+    };
 
-const orders = loadOrders(); orders.push(order); saveOrders(orders); updateUI(); renderCalendar();
+    const orders = loadOrders(); orders.push(order); saveOrders(orders); updateUI(); renderCalendar();
 
-document.getElementById('orderNum').value = '';
-document.getElementById('detail').value = '';
-document.getElementById('qty').value = '1';
+    document.getElementById('orderNum').value = '';
+    document.getElementById('detail').value = '';
+    document.getElementById('qty').value = '1';
 
-if (lengthEl) lengthEl.value = '';
-if (widthEl) widthEl.value = '';
-if (hoursEl) hoursEl.value = '';
+    if (lengthEl) lengthEl.value = '';
+    if (widthEl) widthEl.value = '';
+    if (hoursEl) hoursEl.value = '';
 
-resetMainSizeRows();
-updateMainFormFields();
+    resetMainSizeRows();
+    updateMainFormFields();
 }
 
 function createMainOrderWithSound() { createMainOrder(); setTimeout(playSuccessSound, 100); }
 
 function createPreorder() {
-const num = document.getElementById('preOrderNum').value.trim(); if (!num) { alert('Укажите № предзаказа'); return; }
-const tariffKey = document.getElementById('preTariff').value;
-const detail = document.getElementById('preDetail').value.trim() || '—';
-const qty = parseInt(document.getElementById('preQty').value) || 1;
+    const num = document.getElementById('preOrderNum').value.trim(); if (!num) { alert('Укажите № предзаказа'); return; }
+    const tariffKey = document.getElementById('preTariff').value;
+    const detail = document.getElementById('preDetail').value.trim() || '—';
+    const qty = parseInt(document.getElementById('preQty').value) || 1;
 
-const lengthEl = document.getElementById('preLength');
-const widthEl = document.getElementById('preWidth');
-const hoursEl = document.getElementById('preHours');
+    const lengthEl = document.getElementById('preLength');
+    const widthEl = document.getElementById('preWidth');
+    const hoursEl = document.getElementById('preHours');
 
-const length = lengthEl ? parseFloat(lengthEl.value) || 0 : 0;
-const width = widthEl ? parseFloat(widthEl.value) || 0 : 0;
-const hours = hoursEl ? parseFloat(hoursEl.value) || 0 : 0;
+    const length = lengthEl ? parseFloat(lengthEl.value) || 0 : 0;
+    const width = widthEl ? parseFloat(widthEl.value) || 0 : 0;
+    const hours = hoursEl ? parseFloat(hoursEl.value) || 0 : 0;
 
-const dimensions = getPreSizeDimensions();
+    const dimensions = getPreSizeDimensions();
 
-const amount = calculateAmount(tariffKey, length, width, hours, qty, dimensions);
+    const amount = calculateAmount(tariffKey, length, width, hours, qty, dimensions);
 
-const preorder = {
-id: Date.now(),
-orderNumber: num,
-tariff: tariffKey,
-detail: detail,
-qty: qty,
-length: length || null,
-width: width || null,
-hours: hours || null,
-dimensions: dimensions.length > 0 ? dimensions : null,
-amount: amount,
-date: todayYMD(),
-timestamp: new Date().toISOString()
-};
+    const preorder = {
+        id: Date.now(),
+        orderNumber: num,
+        tariff: tariffKey,
+        detail: detail,
+        qty: qty,
+        length: length || null,
+        width: width || null,
+        hours: hours || null,
+        dimensions: dimensions.length > 0 ? dimensions : null,
+        amount: amount,
+        date: todayYMD(),
+        timestamp: new Date().toISOString()
+    };
 
-const preorders = loadPreorders(); preorders.push(preorder); savePreorders(preorders);
-alert('✅ Предзаказ сохранён!'); renderPreorders();
+    const preorders = loadPreorders(); preorders.push(preorder); savePreorders(preorders);
+    alert('✅ Предзаказ сохранён!'); renderPreorders();
 
-document.getElementById('preOrderNum').value = '';
-document.getElementById('preDetail').value = '';
-document.getElementById('preQty').value = '1';
+    document.getElementById('preOrderNum').value = '';
+    document.getElementById('preDetail').value = '';
+    document.getElementById('preQty').value = '1';
 
-if (lengthEl) lengthEl.value = '';
-if (widthEl) widthEl.value = '';
-if (hoursEl) hoursEl.value = '';
+    if (lengthEl) lengthEl.value = '';
+    if (widthEl) widthEl.value = '';
+    if (hoursEl) hoursEl.value = '';
 
-resetPreSizeRows();
-updatePreorderFormFields();
+    resetPreSizeRows();
+    updatePreorderFormFields();
 }
 
 function acceptPreorder(preorderId, selectedDate = null) {
-const preorders = loadPreorders(); const idx = preorders.findIndex(p => p.id === preorderId); if (idx === -1) return;
-const preorder = preorders[idx]; const shift = getCurrentShift();
-if (!shift || !shift.active) { alert('Начните смену!'); return; }
-if (!selectedDate) { openDateModal(preorderId); return; }
-const order = {...preorder, shiftId: shift.id, date: normalizeDate(selectedDate)};
-const orders = loadOrders(); orders.push(order); saveOrders(orders);
-preorders.splice(idx, 1); savePreorders(preorders);
-alert(`✅ Принят на ${formatDateYMD(selectedDate)}!`); updateUI(); renderPreorders(); renderCalendar();
+    const preorders = loadPreorders(); const idx = preorders.findIndex(p => p.id === preorderId); if (idx === -1) return;
+    const preorder = preorders[idx]; const shift = getCurrentShift();
+    if (!shift || !shift.active) { alert('Начните смену!'); return; }
+    if (!selectedDate) { openDateModal(preorderId); return; }
+    const order = {...preorder, shiftId: shift.id, date: normalizeDate(selectedDate)};
+    const orders = loadOrders(); orders.push(order); saveOrders(orders);
+    preorders.splice(idx, 1); savePreorders(preorders);
+    alert(`✅ Принят на ${formatDateYMD(selectedDate)}!`); updateUI(); renderPreorders(); renderCalendar();
 }
 
 function renderPreorders() {
-const preorders = loadPreorders(); const container = document.getElementById('preordersListContainer');
-if (preorders.length === 0) { container.innerHTML = '<div class="empty-msg">Нет предзаказов</div>'; return; }
-let html = `<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>`;
-preorders.forEach(p => {
-html += `<tr><td>${p.orderNumber}</td><td>${p.detail}</td><td class="amount">${p.amount.toFixed(2)} ₽</td><td>
-<button class="action-btn" onclick="acceptPreorder(${p.id})"><i class="fas fa-check"></i></button>
-<button class="action-btn" onclick="deletePreorder(${p.id})"><i class="fas fa-trash"></i></button></td></tr>`;
-});
-html += '</tbody></table>'; container.innerHTML = html;
+    const preorders = loadPreorders(); const container = document.getElementById('preordersListContainer');
+    if (preorders.length === 0) { container.innerHTML = '<div class="empty-msg">Нет предзаказов</div>'; return; }
+    let html = `<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>`;
+    preorders.forEach(p => {
+        html += `<tr><td>${p.orderNumber}</td><td>${p.detail}</td><td class="amount">${p.amount.toFixed(2)} ₽</td><td>
+        <button class="action-btn" onclick="acceptPreorder(${p.id})"><i class="fas fa-check"></i></button>
+        <button class="action-btn" onclick="deletePreorder(${p.id})"><i class="fas fa-trash"></i></button></td></tr>`;
+    });
+    html += '</tbody></table>'; container.innerHTML = html;
 }
 
 function showOrdersByDate() {
-const dateInput = document.getElementById('viewDate').value; if (!dateInput) { alert('Выберите дату'); return; }
-const orders = loadOrders(); const filtered = orders.filter(o => o.date === dateInput);
-const formattedDate = formatDateYMD(dateInput);
-let html = `<div class="progress-title">Заказы за ${formattedDate}</div>`;
-if (filtered.length === 0) { html += '<div class="empty-msg">Нет заказов</div>'; }
-else {
-html += `<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>`;
-filtered.forEach(o => {
-html += `<tr><td>${o.orderNumber}</td><td>${o.detail}</td><td class="amount">${o.amount.toFixed(2)} ₽</td><td>
-<button class="action-btn" onclick="viewOrderDetails(${o.id})"><i class="fas fa-eye"></i></button>
-<button class="action-btn" onclick="openEditModal(${o.id})"><i class="fas fa-edit"></i></button>
-<button class="action-btn" onclick="deleteOrder(${o.id})"><i class="fas fa-trash"></i></button></td></tr>`;
-});
-html += '</tbody></table>';
-}
-document.getElementById('ordersListContainer').innerHTML = html;
+    const dateInput = document.getElementById('viewDate').value; if (!dateInput) { alert('Выберите дату'); return; }
+    const orders = loadOrders(); const filtered = orders.filter(o => o.date === dateInput);
+    const formattedDate = formatDateYMD(dateInput);
+    let html = `<div class="progress-title">Заказы за ${formattedDate}</div>`;
+    if (filtered.length === 0) { html += '<div class="empty-msg">Нет заказов</div>'; }
+    else {
+        html += `<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>`;
+        filtered.forEach(o => {
+            html += `<tr><td>${o.orderNumber}</td><td>${o.detail}</td><td class="amount">${o.amount.toFixed(2)} ₽</td><td>
+            <button class="action-btn" onclick="viewOrderDetails(${o.id})"><i class="fas fa-eye"></i></button>
+            <button class="action-btn" onclick="openEditModal(${o.id})"><i class="fas fa-edit"></i></button>
+            <button class="action-btn" onclick="deleteOrder(${o.id})"><i class="fas fa-trash"></i></button></td></tr>`;
+        });
+        html += '</tbody></table>';
+    }
+    document.getElementById('ordersListContainer').innerHTML = html;
 }
 
 document.getElementById('orderSearch').addEventListener('keypress', function(e) {
-if (e.key === 'Enter') {
-const query = this.value.trim().toLowerCase(); if (!query) { showOrdersByDate(); return; }
-const orders = loadOrders(); const matched = orders.filter(o => o.orderNumber.toLowerCase().includes(query));
-let html = `<div class="progress-title">Поиск: "${query}"</div>`;
-if (matched.length === 0) { html += '<div class="empty-msg">Не найдено</div>'; }
-else {
-html += `<table class="orders-table"><thead><tr><th>Дата</th><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>`;
-matched.forEach(o => {
-const displayDate = o.date ? formatDateYMD(o.date) : '—';
-html += `<tr><td style="font-size:0.85rem; color:var(--text-muted);">${displayDate}</td><td>${o.orderNumber}</td><td>${o.detail}</td><td class="amount">${o.amount.toFixed(2)} ₽</td><td>
-<button class="action-btn" onclick="viewOrderDetails(${o.id})"><i class="fas fa-eye"></i></button>
-<button class="action-btn" onclick="openEditModal(${o.id})"><i class="fas fa-edit"></i></button>
-<button class="action-btn" onclick="deleteOrder(${o.id})"><i class="fas fa-trash"></i></button></td></tr>`;
-});
-html += '</tbody></table>';
-}
-document.getElementById('ordersListContainer').innerHTML = html;
-if (!document.getElementById('main').classList.contains('active')) {
-document.querySelectorAll('.panel-item').forEach(i => i.classList.remove('active'));
-document.querySelectorAll('.content-block').forEach(c => c.classList.remove('active'));
-document.querySelector('.panel-item[data-target="main"]').classList.add('active');
-document.getElementById('main').classList.add('active');
-}
-}
+    if (e.key === 'Enter') {
+        const query = this.value.trim().toLowerCase(); if (!query) { showOrdersByDate(); return; }
+        const orders = loadOrders(); const matched = orders.filter(o => o.orderNumber.toLowerCase().includes(query));
+        let html = `<div class="progress-title">Поиск: "${query}"</div>`;
+        if (matched.length === 0) { html += '<div class="empty-msg">Не найдено</div>'; }
+        else {
+            html += `<table class="orders-table"><thead><tr><th>Дата</th><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>`;
+            matched.forEach(o => {
+                const displayDate = o.date ? formatDateYMD(o.date) : '—';
+                html += `<tr><td style="font-size:0.85rem; color:var(--text-muted);">${displayDate}</td><td>${o.orderNumber}</td><td>${o.detail}</td><td class="amount">${o.amount.toFixed(2)} ₽</td><td>
+                <button class="action-btn" onclick="viewOrderDetails(${o.id})"><i class="fas fa-eye"></i></button>
+                <button class="action-btn" onclick="openEditModal(${o.id})"><i class="fas fa-edit"></i></button>
+                <button class="action-btn" onclick="deleteOrder(${o.id})"><i class="fas fa-trash"></i></button></td></tr>`;
+            });
+            html += '</tbody></table>';
+        }
+        document.getElementById('ordersListContainer').innerHTML = html;
+        if (!document.getElementById('main').classList.contains('active')) {
+            document.querySelectorAll('.panel-item').forEach(i => i.classList.remove('active'));
+            document.querySelectorAll('.content-block').forEach(c => c.classList.remove('active'));
+            document.querySelector('.panel-item[data-target="main"]').classList.add('active');
+            document.getElementById('main').classList.add('active');
+        }
+    }
 });
 
 function saveOrdersToFile() {
-const dateInput = document.getElementById('viewDate').value; if (!dateInput) { alert('Выберите дату'); return; }
-const orders = loadOrders(); const filtered = orders.filter(o => o.date === dateInput);
-if (filtered.length === 0) { alert('Нет заказов'); return; }
-const formattedDate = formatDateYMD(dateInput);
-let content = `ЗАКАЗЫ ЗА ${formattedDate}\n========================\n`;
-let totalSum = 0;
-filtered.forEach((o, idx) => {
-const tariffName = TARIFF_NAMES[o.tariff] || o.tariff;
-const units = calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty, o.dimensions);
-content += `№${idx + 1}. ${o.orderNumber}\n${o.detail} (${tariffName})\n`;
-if (o.dimensions && o.dimensions.length > 0) {
-o.dimensions.forEach((dim, i) => {
-content += `   Размер ${i + 1}: ${dim.length} × ${dim.width} м\n`;
-});
-content += `   Общая площадь: ${units.value} ${units.unit}\n`;
-} else {
-if (o.length) content += `   Длина: ${o.length} м\n`;
-if (o.width) content += `   Ширина: ${o.width} м\n`;
-if (o.hours) content += `   Часы: ${o.hours} ч\n`;
-content += `   Объем: ${units.value} ${units.unit}\n`;
-}
-content += `   Кол-во: ${o.qty}\nСумма: ${o.amount.toFixed(2)} ₽\n---\n`;
-totalSum += o.amount;
-});
-content += `\nИТОГО: ${totalSum.toFixed(2)} ₽\nЭкспорт: ${new Date().toLocaleString('ru-RU')}`;
-const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
-const blob = new Blob([bom, content], { type: 'text/plain;charset=utf-8' });
-const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `заказы_${formattedDate}.txt`; a.click();
-URL.revokeObjectURL(a.href);
+    const dateInput = document.getElementById('viewDate').value; if (!dateInput) { alert('Выберите дату'); return; }
+    const orders = loadOrders(); const filtered = orders.filter(o => o.date === dateInput);
+    if (filtered.length === 0) { alert('Нет заказов'); return; }
+    const formattedDate = formatDateYMD(dateInput);
+    let content = `ЗАКАЗЫ ЗА ${formattedDate}\n========================\n`;
+    let totalSum = 0;
+    filtered.forEach((o, idx) => {
+        const tariffName = TARIFF_NAMES[o.tariff] || o.tariff;
+        const units = calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty, o.dimensions);
+        content += `№${idx + 1}. ${o.orderNumber}\n${o.detail} (${tariffName})\n`;
+        if (o.dimensions && o.dimensions.length > 0) {
+            o.dimensions.forEach((dim, i) => {
+                content += `   Размер ${i + 1}: ${dim.length} × ${dim.width} м\n`;
+            });
+            content += `   Общая площадь: ${units.value} ${units.unit}\n`;
+        } else {
+            if (o.length) content += `   Длина: ${o.length} м\n`;
+            if (o.width) content += `   Ширина: ${o.width} м\n`;
+            if (o.hours) content += `   Часы: ${o.hours} ч\n`;
+            content += `   Объем: ${units.value} ${units.unit}\n`;
+        }
+        content += `   Кол-во: ${o.qty}\nСумма: ${o.amount.toFixed(2)} ₽\n---\n`;
+        totalSum += o.amount;
+    });
+    content += `\nИТОГО: ${totalSum.toFixed(2)} ₽\nЭкспорт: ${new Date().toLocaleString('ru-RU')}`;
+    const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+    const blob = new Blob([bom, content], { type: 'text/plain;charset=utf-8' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `заказы_${formattedDate}.txt`; a.click();
+    URL.revokeObjectURL(a.href);
 }
 
 function saveOrdersToJSON() {
-const dateInput = document.getElementById('viewDate').value; if (!dateInput) { alert('Выберите дату'); return; }
-const orders = loadOrders(); const filtered = orders.filter(o => o.date === dateInput);
-if (filtered.length === 0) { alert('Нет заказов'); return; }
-const jsonContent = JSON.stringify(filtered, null, 2);
-const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8' });
-const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `заказы_${formatDateYMD(dateInput)}.json`; a.click();
-URL.revokeObjectURL(a.href);
+    const dateInput = document.getElementById('viewDate').value; if (!dateInput) { alert('Выберите дату'); return; }
+    const orders = loadOrders(); const filtered = orders.filter(o => o.date === dateInput);
+    if (filtered.length === 0) { alert('Нет заказов'); return; }
+    const jsonContent = JSON.stringify(filtered, null, 2);
+    const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `заказы_${formatDateYMD(dateInput)}.json`; a.click();
+    URL.revokeObjectURL(a.href);
 }
 
-// === ОБНОВЛЁННЫЙ обработчик импорта файлов с исправлением дат ===
+function parseTxtOrders(txtContent) {
+    const orders = []; const blocks = txtContent.split('---');
+    for (const block of blocks) {
+        const lines = block.trim().split('\n').filter(line => line.trim() !== ''); if (lines.length < 3) continue;
+        const order = { orderNumber: '', detail: '', tariff: '', qty: 1, length: null, width: null, hours: null, dimensions: null, amount: 0, date: null };
+        let currentDetail = '', currentTariff = '';
+        let dimensions = [];
+        for (const line of lines) {
+            const cleanLine = line.trim();
+            if (cleanLine.startsWith('№') && cleanLine.includes('.')) { const match = cleanLine.match(/№\d+\.\s*(.+)/); if (match) order.orderNumber = match[1].trim(); }
+            if (cleanLine.includes('(') && cleanLine.includes(')') && !cleanLine.includes('Сумма')) { const match = cleanLine.match(/(.+)\s*\((.+)\)/); if (match) { currentDetail = match[1].trim(); currentTariff = match[2].trim(); } }
+            if (cleanLine.startsWith('Размер')) { const match = cleanLine.match(/Размер\s*\d+:\s*([\d.]+)\s*×\s*([\d.]+)\s*м/); if (match) dimensions.push({ length: parseFloat(match[1]), width: parseFloat(match[2]) }); }
+            if (cleanLine.startsWith('Длина:')) { const match = cleanLine.match(/Длина:\s*([\d.]+)\s*м/); if (match) order.length = parseFloat(match[1]); }
+            if (cleanLine.startsWith('Ширина:')) { const match = cleanLine.match(/Ширина:\s*([\d.]+)\s*м/); if (match) order.width = parseFloat(match[1]); }
+            if (cleanLine.startsWith('Часы:')) { const match = cleanLine.match(/Часы:\s*([\d.]+)\s*ч/); if (match) order.hours = parseFloat(match[1]); }
+            if (cleanLine.startsWith('Кол-во:')) { const match = cleanLine.match(/Кол-во:\s*(\d+)/); if (match) order.qty = parseInt(match[1]); }
+            if (cleanLine.startsWith('Сумма:')) { const match = cleanLine.match(/Сумма:\s*([\d.]+)\s*₽/); if (match) order.amount = parseFloat(match[1]); }
+            if (cleanLine.match(/^Дата[:\s]/i)) {
+                const match = cleanLine.match(/Дата[:\s]+([\d.\-\/]+)/i);
+                if (match) {
+                    order.date = normalizeDate(match[1].trim());
+                }
+            }
+        }
+        if (dimensions.length > 0) order.dimensions = dimensions;
+        if (currentTariff) {
+            const tariffMap = { 'Распил': 'RASPIL_M2', 'Лин. распил': 'LINEAR_RASPIL', 'Склейка +': 'SKLEIKA_OB', 'Склейка –': 'SKLEIKA_NO_OB', 'Пазы': 'PAZY', 'Фаска': 'FREZER_FASKA', 'Время': 'TIME' };
+            order.tariff = tariffMap[currentTariff] || 'RASPIL_M2';
+        }
+        order.detail = currentDetail || '—'; if (order.orderNumber) orders.push(order);
+    }
+    return orders;
+}
+
+function calculateUnits(tariffKey, length, width, hours, qty, dimensions = null) {
+    const tariff = TARIFFS[tariffKey]; if (!tariff) return { value: 0, unit: '', linear: 0, area: 0, time: 0 };
+    let value = 0; let unit = tariff.unit;
+    let linear = 0, area = 0, time = 0;
+
+    if (tariffKey === 'RASPIL_M2' && dimensions && dimensions.length > 0) {
+        dimensions.forEach(dim => { area += dim.length * dim.width; });
+        area *= qty;
+        value = area;
+    } else if (tariff.unit === 'time') {
+        time = hours * qty;
+        value = time;
+    } else if (tariff.unit === 'm2') {
+        area = length * width * qty;
+        value = area;
+    } else {
+        linear = length * qty;
+        value = linear;
+    }
+    return { 
+        value: Math.round(value * 100) / 100, 
+        unit: UNIT_LABELS[unit] || unit,
+        linear: Math.round(linear * 100) / 100,
+        area: Math.round(area * 100) / 100,
+        time: Math.round(time * 100) / 100
+    };
+}
+
+function calculateStats() {
+    const orders = loadOrders(); let totalLinear = 0, totalArea = 0, totalTime = 0;
+    const operationCount = { RASPIL_M2: 0, LINEAR_RASPIL: 0, SKLEIKA_OB: 0, SKLEIKA_NO_OB: 0, PAZY: 0, FREZER_FASKA: 0, TIME: 0 };
+    orders.forEach(o => {
+        const units = calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty, o.dimensions);
+        totalLinear += units.linear;
+        totalArea += units.area;
+        totalTime += units.time;
+        operationCount[o.tariff] = (operationCount[o.tariff] || 0) + 1;
+    });
+    return {
+        linear: { value: totalLinear, percent: Math.min(100, totalLinear / 1000 * 100) },
+        area: { value: totalArea, percent: Math.min(100, totalArea / 200 * 100) },
+        time: { value: totalTime, percent: Math.min(100, totalTime / 100 * 100) },
+        operations: operationCount
+    };
+}
+
+function renderStats() {
+    const stats = calculateStats();
+    document.getElementById('linearTotal').textContent = stats.linear.value.toFixed(1);
+    document.getElementById('areaTotal').textContent = stats.area.value.toFixed(1);
+    document.getElementById('timeTotal').textContent = stats.time.value.toFixed(1);
+    setTimeout(() => {
+        document.getElementById('linearProgress').style.width = `${stats.linear.percent}%`;
+        document.getElementById('areaProgress').style.width = `${stats.area.percent}%`;
+        document.getElementById('timeProgress').style.width = `${stats.time.percent}%`;
+    }, 300);
+    const opNames = { RASPIL_M2: 'Распил', LINEAR_RASPIL: 'Лин. распил', SKLEIKA_OB: 'Склейка +', SKLEIKA_NO_OB: 'Склейка –', PAZY: 'Пазы', FREZER_FASKA: 'Фаска', TIME: 'Время' };
+    let maxCount = Math.max(...Object.values(stats.operations)) || 1;
+    let chartHtml = '';
+    for (const [key, count] of Object.entries(stats.operations)) {
+        if (count === 0) continue;
+        const percent = (count / maxCount) * 100;
+        chartHtml += `<div class="bar-item"><div class="bar-label"><span>${opNames[key]}</span><span>${count}</span></div><div class="bar-container"><div class="bar-fill" style="width: ${percent}%;"></div></div></div>`;
+    }
+    document.getElementById('operationsChart').innerHTML = chartHtml || '<p style="color:var(--text-muted); text-align:center;">Нет данных</p>';
+}
+
+// === КАЛЕНДАРЬ ===
+let currentCalendarDate = new Date();
+function loadCalendarData() { try { return JSON.parse(localStorage.getItem('operator_calendar') || '{}'); } catch (e) { return {}; } }
+function saveCalendarData(data) { localStorage.setItem('operator_calendar', JSON.stringify(data)); }
+function renderCalendar() {
+    const year = currentCalendarDate.getFullYear();
+    const month = currentCalendarDate.getMonth();
+    const data = loadCalendarData();
+    const today = todayYMD();
+    const orders = loadOrders();
+    const earningsByDate = {};
+    orders.forEach(o => {
+        if (o.date && o.amount) {
+            if (!earningsByDate[o.date]) earningsByDate[o.date] = 0;
+            earningsByDate[o.date] += parseFloat(o.amount);
+        }
+    });
+    const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+    document.getElementById('calendarMonthYear').textContent = `${monthNames[month]} ${year}`;
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const grid = document.getElementById('calendarGrid');
+    grid.innerHTML = '';
+    for (let i = 0; i < firstDay; i++) {
+        const empty = document.createElement('div');
+        grid.appendChild(empty);
+    }
+    for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const dayData = data[dateStr] || { hours: 0, isHoliday: false };
+        const dayOfWeek = new Date(year, month, d).getDay();
+        const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+        const isToday = (dateStr === today);
+        const hasEarnings = earningsByDate[dateStr] > 0;
+        const dayEarnings = hasEarnings ? earningsByDate[dateStr].toFixed(0) : '';
+        const cell = document.createElement('div');
+        cell.className = 'calendar-day';
+        if (isToday) cell.classList.add('today');
+        if (hasEarnings) cell.classList.add('worked');
+        if (isWeekend) cell.classList.add('weekend');
+        if (dayData.isHoliday) cell.classList.add('holiday');
+        let html = `<div class="day-num">${d}</div>`;
+        if (hasEarnings) {
+            html += `<div class="day-earnings">${dayEarnings} ₽</div>`;
+        } else if (dayData.hours > 0) {
+            html += `<div class="day-earnings">${dayData.hours} ч</div>`;
+        }
+        if (dayData.isHoliday) html += `<i class="fas fa-star holiday-icon"></i>`;
+        cell.innerHTML = html;
+        cell.onclick = () => openDayModal(dateStr, dayData);
+        grid.appendChild(cell);
+    }
+}
+function changeMonth(delta) { currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta); renderCalendar(); }
+function openDayModal(dateStr, dayData) {
+    document.getElementById('editDayDate').value = dateStr; document.getElementById('displayDayDate').textContent = formatDateYMD(dateStr);
+    document.getElementById('dayHours').value = dayData.hours || ''; document.getElementById('dayHoliday').checked = dayData.isHoliday || false;
+    document.getElementById('dayModal').classList.add('active');
+}
+function closeDayModal() { document.getElementById('dayModal').classList.remove('active'); }
+function saveDayData() {
+    const dateStr = document.getElementById('editDayDate').value;
+    const hours = parseFloat(document.getElementById('dayHours').value) || 0;
+    const isHoliday = document.getElementById('dayHoliday').checked;
+    const data = loadCalendarData(); data[dateStr] = { hours, isHoliday }; saveCalendarData(data);
+    closeDayModal(); renderCalendar(); alert('✅ Сохранено');
+}
+
+// === ФОТО ===
+function compressImage(file, callback) {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = event => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 800;
+            const MAX_HEIGHT = 800;
+            let width = img.width;
+            let height = img.height;
+            if (width > height) {
+                if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+            } else {
+                if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            callback(canvas.toDataURL('image/jpeg', 0.7));
+        };
+    };
+}
+
+function renderPhotos() {
+    const photos = loadPhotos();
+    const container = document.getElementById('photosListContainer');
+    if (photos.length === 0) {
+        container.innerHTML = '<div class="empty-msg">Нет сохраненных фото</div>';
+        return;
+    }
+    let html = '';
+    photos.forEach(p => {
+        const tagClass = p.tagType ? `tag-${p.tagType}` : 'tag-UNKNOWN';
+        const tagName = p.tagType ? getTagName(p.tagType) : '';
+        const tagHtml = tagName ? `<div class="photo-tag ${tagClass}">${tagName}</div>` : '';
+        let optionsHtml = '';
+        TAG_OPTIONS.forEach(opt => {
+            const selected = (opt.val === p.tagType) ? 'selected' : '';
+            optionsHtml += `<option value="${opt.val}" ${selected}>${opt.label}</option>`;
+        });
+        html += `
+        <div class="photo-card">
+        ${tagHtml}
+        <img src="${p.data}" alt="Photo">
+        <div class="photo-tag-selector">
+        <select class="tag-select-mini" onchange="updatePhotoTag(${p.id}, this.value)">
+        ${optionsHtml}
+        </select>
+        </div>
+        <div class="photo-actions">
+        <button class="photo-action-btn edit" onclick="openPhotoOrderModal(${p.id})" title="Оформить заказ"><i class="fas fa-file-signature"></i></button>
+        <button class="photo-action-btn delete" onclick="deletePhoto(${p.id})" title="Удалить"><i class="fas fa-trash"></i></button>
+        </div>
+        </div>`;
+    });
+    container.innerHTML = html;
+}
+
+function updatePhotoTag(photoId, newTag) {
+    const photos = loadPhotos();
+    const idx = photos.findIndex(p => p.id === photoId);
+    if (idx !== -1) {
+        photos[idx].tagType = newTag;
+        savePhotos(photos);
+        renderPhotos();
+    }
+}
+
+document.getElementById('cameraInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    compressImage(file, (compressedDataUrl) => {
+        const photos = loadPhotos();
+        const newPhoto = { id: Date.now(), data: compressedDataUrl, timestamp: new Date().toISOString(), tagType: "" };
+        photos.unshift(newPhoto);
+        savePhotos(photos);
+        renderPhotos();
+        this.value = '';
+    });
+});
+
+function deletePhoto(photoId) {
+    if (!confirm('Удалить фото?')) return;
+    let photos = loadPhotos();
+    photos = photos.filter(p => p.id !== photoId);
+    savePhotos(photos);
+    renderPhotos();
+}
+
+let currentPhotoIdForOrder = null;
+function openPhotoOrderModal(photoId) {
+    const photos = loadPhotos();
+    const photo = photos.find(p => p.id === photoId);
+    if (!photo) return;
+    currentPhotoIdForOrder = photoId;
+    document.getElementById('photoPreviewImg').src = photo.data;
+    document.getElementById('photoOrderNum').value = '';
+    document.getElementById('photoDetail').value = '';
+    document.getElementById('photoQty').value = '1';
+    document.getElementById('photoLength').value = '';
+    document.getElementById('photoWidth').value = '';
+    document.getElementById('photoHours').value = '';
+    resetPhotoSizeRows();
+    const selectedTag = photo.tagType || 'RASPIL_M2';
+    document.getElementById('photoTariff').value = selectedTag;
+    updatePhotoFormFields();
+    document.getElementById('photoOrderModal').classList.add('active');
+}
+
+function closePhotoOrderModal() { document.getElementById('photoOrderModal').classList.remove('active'); currentPhotoIdForOrder = null; }
+
+function openPhotoZoom() {
+    const src = document.getElementById('photoPreviewImg').src;
+    document.getElementById('zoomedImage').src = src;
+    document.getElementById('photoZoomModal').classList.add('active');
+}
+
+function closePhotoZoom() { document.getElementById('photoZoomModal').classList.remove('active'); }
+
+function confirmPhotoOrder() {
+    const num = document.getElementById('photoOrderNum').value.trim();
+    if (!num) { alert('Укажите № заказа'); return; }
+    const tariffKey = document.getElementById('photoTariff').value;
+    const detail = document.getElementById('photoDetail').value.trim() || '—';
+    const qty = parseInt(document.getElementById('photoQty').value) || 1;
+
+    const lengthEl = document.getElementById('photoLength');
+    const widthEl = document.getElementById('photoWidth');
+    const hoursEl = document.getElementById('photoHours');
+
+    const length = lengthEl ? parseFloat(lengthEl.value) || 0 : 0;
+    const width = widthEl ? parseFloat(widthEl.value) || 0 : 0;
+    const hours = hoursEl ? parseFloat(hoursEl.value) || 0 : 0;
+
+    const dimensions = getPhotoSizeDimensions();
+    const amount = calculateAmount(tariffKey, length, width, hours, qty, dimensions);
+
+    const preorder = {
+        id: Date.now(),
+        orderNumber: num,
+        tariff: tariffKey,
+        detail: detail,
+        qty: qty,
+        length: length || null,
+        width: width || null,
+        hours: hours || null,
+        dimensions: dimensions.length > 0 ? dimensions : null,
+        amount: amount,
+        date: todayYMD(),
+        timestamp: new Date().toISOString(),
+        hasPhoto: true
+    };
+
+    const preorders = loadPreorders(); preorders.push(preorder); savePreorders(preorders);
+    let photos = loadPhotos();
+    photos = photos.filter(p => p.id !== currentPhotoIdForOrder);
+    savePhotos(photos);
+    alert('✅ Оформлен в предзаказ! Фото удалено.');
+    closePhotoOrderModal();
+    renderPreorders();
+    renderPhotos();
+    document.querySelectorAll('.panel-item').forEach(i => i.classList.remove('active'));
+    document.querySelectorAll('.content-block').forEach(c => c.classList.remove('active'));
+    document.querySelector('.panel-item[data-target="preorders"]').classList.add('active');
+    document.getElementById('preorders').classList.add('active');
+}
+
+document.getElementById('photoTariff').addEventListener('change', updatePhotoFormFields);
+
+// === ДИНАМИЧЕСКАЯ ЗАГРУЗКА SHEETJS ===
+async function exportReportToExcel() {
+    const dateFrom = document.getElementById('reportDateFrom').value;
+    const dateTo = document.getElementById('reportDateTo').value;
+    
+    if (!dateFrom || !dateTo) { alert('⚠️ Выберите диапазон дат'); return; }
+    if (dateFrom > dateTo) { alert('⚠️ Дата начала не может быть позже даты окончания'); return; }
+    
+    showToast('⏳', '#3B82F6', 'Подготовка...', 'Загрузка модуля Excel');
+
+    // Динамическая загрузка библиотеки только при необходимости
+    if (typeof XLSX === 'undefined') {
+        try {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js';
+            document.head.appendChild(script);
+            await new Promise(resolve => script.onload = resolve);
+        } catch (e) {
+            showToast('❌', '#DC2626', 'Ошибка', 'Не удалось загрузить модуль Excel');
+            return;
+        }
+    }
+    
+    const orders = loadOrders();
+    const filtered = orders.filter(o => {
+        if (!o.date) return false;
+        return o.date >= dateFrom && o.date <= dateTo;
+    });
+    
+    if (filtered.length === 0) {
+        alert('📭 Нет заказов за выбранный период');
+        return;
+    }
+    
+    const data = [
+        ['№ заказа', 'Дата', 'Деталь', 'Тариф', 'Кол-во', 'Длина (м)', 'Ширина (м)', 'Часы', 'Размеры', 'Пог. м', 'М²', 'Часы (расч.)', 'Сумма (₽)']
+    ];
+    
+    filtered.forEach(o => {
+        const tariffName = TARIFF_NAMES[o.tariff] || o.tariff;
+        const units = calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty, o.dimensions);
+        let sizesStr = '';
+        if (o.dimensions && o.dimensions.length > 0) {
+            sizesStr = o.dimensions.map((d, i) => `${d.length}×${d.width}`).join('; ');
+        }
+        data.push([
+            o.orderNumber, formatDateYMD(o.date), o.detail, tariffName, o.qty || 1,
+            o.length !== null && o.length !== undefined ? o.length : '',
+            o.width !== null && o.width !== undefined ? o.width : '',
+            o.hours !== null && o.hours !== undefined ? o.hours : '',
+            sizesStr,
+            units.linear > 0 ? units.linear : '',
+            units.area > 0 ? units.area : '',
+            units.time > 0 ? units.time : '',
+            o.amount?.toFixed(2) || '0.00'
+        ]);
+    });
+    
+    const totalAmount = filtered.reduce((sum, o) => sum + (o.amount || 0), 0);
+    const totalLinear = filtered.reduce((sum, o) => sum + calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty, o.dimensions).linear, 0);
+    const totalArea = filtered.reduce((sum, o) => sum + calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty, o.dimensions).area, 0);
+    const totalTime = filtered.reduce((sum, o) => sum + calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty, o.dimensions).time, 0);
+    
+    data.push([], ['ИТОГО:', '', '', '', '', '', '', '', '', 
+         totalLinear > 0 ? totalLinear.toFixed(2) : '', 
+         totalArea > 0 ? totalArea.toFixed(2) : '', 
+         totalTime > 0 ? totalTime.toFixed(2) : '', 
+         totalAmount.toFixed(2)]);
+    
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    ws['!cols'] = [{wch: 12}, {wch: 10}, {wch: 20}, {wch: 15}, {wch: 8}, {wch: 10}, {wch: 10}, {wch: 8}, {wch: 25}, {wch: 10}, {wch: 8}, {wch: 12}, {wch: 12}];
+    
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Отчет');
+    
+    const fromFmt = formatDateYMD(dateFrom).replace(/\./g, '-');
+    const toFmt = formatDateYMD(dateTo).replace(/\./g, '-');
+    const filename = `Отчет_заказы_${fromFmt}_${toFmt}.xlsx`;
+    
+    XLSX.writeFile(wb, filename);
+    showToast('✅', '#16A34A', 'Отчет готов', `Скачано ${filtered.length} заказов`);
+}
+
+// === ОБНОВЛЁННЫЙ обработчик импорта файлов ===
 document.getElementById('jsonImportInput').addEventListener('change', async function(e) {
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
@@ -1637,21 +2160,14 @@ document.getElementById('jsonImportInput').addEventListener('change', async func
                 importedOrders = parseTxtOrders(content);
             }
             
-            if (importedOrders.length === 0) {
-                totalErrors++;
-                continue;
-            }
+            if (importedOrders.length === 0) { totalErrors++; continue; }
             
-            // Извлекаем дату из имени файла (резервный вариант)
             const fileDate = extractDateFromFilename(file.name);
             
             for (const item of importedOrders) {
-                // Приоритет: 1) date из объекта 2) дата из имени файла 3) сегодня
                 let orderDate = item.date ? normalizeDate(item.date) : (fileDate || todayYMD());
-                
-                // Валидация даты
                 if (!isValidDate(orderDate)) {
-                    console.warn('Невалидная дата, используем сегодня:', orderDate, 'для заказа', item.orderNumber);
+                    console.warn('Невалидная дата:', orderDate, 'для заказа', item.orderNumber);
                     orderDate = todayYMD();
                 }
                 
@@ -1667,15 +2183,13 @@ document.getElementById('jsonImportInput').addEventListener('change', async func
                     dimensions: item.dimensions || null,
                     amount: typeof item.amount === 'number' ? item.amount : 
                            calculateAmount(item.tariff || 'RASPIL_M2', item.length || 0, item.width || 0, item.hours || 0, item.qty || 1, item.dimensions),
-                    date: orderDate, // ✅ Гарантированно в формате YYYY-MM-DD
+                    date: orderDate,
                     timestamp: new Date().toISOString()
                 };
                 
                 if (autoAcceptMode) {
                     const shift = getCurrentShift();
-                    if (shift && shift.active) {
-                        newOrder.shiftId = shift.id;
-                    }
+                    if (shift && shift.active) newOrder.shiftId = shift.id;
                     const orders = loadOrders();
                     orders.push(newOrder);
                     saveOrders(orders);
@@ -1694,551 +2208,102 @@ document.getElementById('jsonImportInput').addEventListener('change', async func
     }
     
     if (autoAcceptMode) {
-        if (totalImported > 0) {
-            updateUI();
-            renderCalendar();
-            showToast('✅', '#16A34A', 'Готово!', `Принято ${totalImported} заказов`);
-        }
+        if (totalImported > 0) { updateUI(); renderCalendar(); showToast('✅', '#16A34A', 'Готово!', `Принято ${totalImported} заказов`); }
         autoAcceptMode = false;
         updateImportModeIndicator();
     } else {
-        if (totalImported > 0) {
-            renderPreorders();
-            showToast('✅', '#16A34A', 'Готово!', `Загружено ${totalImported} в предзаказы`);
-        }
+        if (totalImported > 0) { renderPreorders(); showToast('✅', '#16A34A', 'Готово!', `Загружено ${totalImported} в предзаказы`); }
     }
     
-    if (totalErrors > 0) {
-        showToast('⚠️', '#DC2626', 'Внимание', `Ошибок при импорте: ${totalErrors}`);
-    }
-    
+    if (totalErrors > 0) showToast('⚠️', '#DC2626', 'Внимание', `Ошибок при импорте: ${totalErrors}`);
     this.value = '';
 });
 
-function parseTxtOrders(txtContent) {
-const orders = []; const blocks = txtContent.split('---');
-for (const block of blocks) {
-const lines = block.trim().split('\n').filter(line => line.trim() !== ''); if (lines.length < 3) continue;
-const order = { orderNumber: '', detail: '', tariff: '', qty: 1, length: null, width: null, hours: null, dimensions: null, amount: 0, date: null };
-let currentDetail = '', currentTariff = '';
-let dimensions = [];
-for (const line of lines) {
-const cleanLine = line.trim();
-if (cleanLine.startsWith('№') && cleanLine.includes('.')) { const match = cleanLine.match(/№\d+\.\s*(.+)/); if (match) order.orderNumber = match[1].trim(); }
-if (cleanLine.includes('(') && cleanLine.includes(')') && !cleanLine.includes('Сумма')) { const match = cleanLine.match(/(.+)\s*\((.+)\)/); if (match) { currentDetail = match[1].trim(); currentTariff = match[2].trim(); } }
-if (cleanLine.startsWith('Размер')) { const match = cleanLine.match(/Размер\s*\d+:\s*([\d.]+)\s*×\s*([\d.]+)\s*м/); if (match) dimensions.push({ length: parseFloat(match[1]), width: parseFloat(match[2]) }); }
-if (cleanLine.startsWith('Длина:')) { const match = cleanLine.match(/Длина:\s*([\d.]+)\s*м/); if (match) order.length = parseFloat(match[1]); }
-if (cleanLine.startsWith('Ширина:')) { const match = cleanLine.match(/Ширина:\s*([\d.]+)\s*м/); if (match) order.width = parseFloat(match[1]); }
-if (cleanLine.startsWith('Часы:')) { const match = cleanLine.match(/Часы:\s*([\d.]+)\s*ч/); if (match) order.hours = parseFloat(match[1]); }
-if (cleanLine.startsWith('Кол-во:')) { const match = cleanLine.match(/Кол-во:\s*(\d+)/); if (match) order.qty = parseInt(match[1]); }
-if (cleanLine.startsWith('Сумма:')) { const match = cleanLine.match(/Сумма:\s*([\d.]+)\s*₽/); if (match) order.amount = parseFloat(match[1]); }
-
-// === УЛУЧШЕНО: распознавание даты из TXT с поддержкой разных форматов ===
-if (cleanLine.match(/^Дата[:\s]/i)) {
-    const match = cleanLine.match(/Дата[:\s]+([\d.\-\/]+)/i);
-    if (match) {
-        order.date = normalizeDate(match[1].trim());
-    }
-}
-}
-if (dimensions.length > 0) order.dimensions = dimensions;
-if (currentTariff) {
-const tariffMap = { 'Распил': 'RASPIL_M2', 'Лин. распил': 'LINEAR_RASPIL', 'Склейка +': 'SKLEIKA_OB', 'Склейка –': 'SKLEIKA_NO_OB', 'Пазы': 'PAZY', 'Фаска': 'FREZER_FASKA', 'Время': 'TIME' };
-order.tariff = tariffMap[currentTariff] || 'RASPIL_M2';
-}
-order.detail = currentDetail || '—'; if (order.orderNumber) orders.push(order);
-}
-return orders;
-}
-
-function calculateUnits(tariffKey, length, width, hours, qty, dimensions = null) {
-const tariff = TARIFFS[tariffKey]; if (!tariff) return { value: 0, unit: '', linear: 0, area: 0, time: 0 };
-let value = 0; let unit = tariff.unit;
-let linear = 0, area = 0, time = 0;
-
-if (tariffKey === 'RASPIL_M2' && dimensions && dimensions.length > 0) {
-dimensions.forEach(dim => { area += dim.length * dim.width; });
-area *= qty;
-value = area;
-} else if (tariff.unit === 'time') {
-time = hours * qty;
-value = time;
-} else if (tariff.unit === 'm2') {
-area = length * width * qty;
-value = area;
-} else {
-linear = length * qty;
-value = linear;
-}
-return { 
-    value: Math.round(value * 100) / 100, 
-    unit: UNIT_LABELS[unit] || unit,
-    linear: Math.round(linear * 100) / 100,
-    area: Math.round(area * 100) / 100,
-    time: Math.round(time * 100) / 100
-};
-}
-
-function calculateStats() {
-const orders = loadOrders(); let totalLinear = 0, totalArea = 0, totalTime = 0;
-const operationCount = { RASPIL_M2: 0, LINEAR_RASPIL: 0, SKLEIKA_OB: 0, SKLEIKA_NO_OB: 0, PAZY: 0, FREZER_FASKA: 0, TIME: 0 };
-orders.forEach(o => {
-const units = calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty, o.dimensions);
-totalLinear += units.linear;
-totalArea += units.area;
-totalTime += units.time;
-operationCount[o.tariff] = (operationCount[o.tariff] || 0) + 1;
-});
-return {
-linear: { value: totalLinear, percent: Math.min(100, totalLinear / 1000 * 100) },
-area: { value: totalArea, percent: Math.min(100, totalArea / 200 * 100) },
-time: { value: totalTime, percent: Math.min(100, totalTime / 100 * 100) },
-operations: operationCount
-};
-}
-
-function renderStats() {
-const stats = calculateStats();
-document.getElementById('linearTotal').textContent = stats.linear.value.toFixed(1);
-document.getElementById('areaTotal').textContent = stats.area.value.toFixed(1);
-document.getElementById('timeTotal').textContent = stats.time.value.toFixed(1);
-setTimeout(() => {
-document.getElementById('linearProgress').style.width = `${stats.linear.percent}%`;
-document.getElementById('areaProgress').style.width = `${stats.area.percent}%`;
-document.getElementById('timeProgress').style.width = `${stats.time.percent}%`;
-}, 300);
-const opNames = { RASPIL_M2: 'Распил', LINEAR_RASPIL: 'Лин. распил', SKLEIKA_OB: 'Склейка +', SKLEIKA_NO_OB: 'Склейка –', PAZY: 'Пазы', FREZER_FASKA: 'Фаска', TIME: 'Время' };
-let maxCount = Math.max(...Object.values(stats.operations)) || 1;
-let chartHtml = '';
-for (const [key, count] of Object.entries(stats.operations)) {
-if (count === 0) continue;
-const percent = (count / maxCount) * 100;
-chartHtml += `<div class="bar-item"><div class="bar-label"><span>${opNames[key]}</span><span>${count}</span></div><div class="bar-container"><div class="bar-fill" style="width: ${percent}%;"></div></div></div>`;
-}
-document.getElementById('operationsChart').innerHTML = chartHtml || '<p style="color:var(--text-muted); text-align:center;">Нет данных</p>';
-}
-
-// === КАЛЕНДАРЬ ===
-let currentCalendarDate = new Date();
-function loadCalendarData() { try { return JSON.parse(localStorage.getItem('operator_calendar') || '{}'); } catch (e) { return {}; } }
-function saveCalendarData(data) { localStorage.setItem('operator_calendar', JSON.stringify(data)); }
-function renderCalendar() {
-const year = currentCalendarDate.getFullYear();
-const month = currentCalendarDate.getMonth();
-const data = loadCalendarData();
-const today = todayYMD();
-const orders = loadOrders();
-const earningsByDate = {};
-orders.forEach(o => {
-if (o.date && o.amount) {
-if (!earningsByDate[o.date]) earningsByDate[o.date] = 0;
-earningsByDate[o.date] += parseFloat(o.amount);
-}
-});
-const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
-document.getElementById('calendarMonthYear').textContent = `${monthNames[month]} ${year}`;
-const firstDay = new Date(year, month, 1).getDay();
-const daysInMonth = new Date(year, month + 1, 0).getDate();
-const grid = document.getElementById('calendarGrid');
-grid.innerHTML = '';
-for (let i = 0; i < firstDay; i++) {
-const empty = document.createElement('div');
-grid.appendChild(empty);
-}
-for (let d = 1; d <= daysInMonth; d++) {
-const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-const dayData = data[dateStr] || { hours: 0, isHoliday: false };
-const dayOfWeek = new Date(year, month, d).getDay();
-const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
-const isToday = (dateStr === today);
-const hasEarnings = earningsByDate[dateStr] > 0;
-const dayEarnings = hasEarnings ? earningsByDate[dateStr].toFixed(0) : '';
-const cell = document.createElement('div');
-cell.className = 'calendar-day';
-if (isToday) cell.classList.add('today');
-if (hasEarnings) cell.classList.add('worked');
-if (isWeekend) cell.classList.add('weekend');
-if (dayData.isHoliday) cell.classList.add('holiday');
-let html = `<div class="day-num">${d}</div>`;
-if (hasEarnings) {
-html += `<div class="day-earnings">${dayEarnings} ₽</div>`;
-} else if (dayData.hours > 0) {
-html += `<div class="day-earnings">${dayData.hours} ч</div>`;
-}
-if (dayData.isHoliday) html += `<i class="fas fa-star holiday-icon"></i>`;
-cell.innerHTML = html;
-cell.onclick = () => openDayModal(dateStr, dayData);
-grid.appendChild(cell);
-}
-}
-function changeMonth(delta) { currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta); renderCalendar(); }
-function openDayModal(dateStr, dayData) {
-document.getElementById('editDayDate').value = dateStr; document.getElementById('displayDayDate').textContent = formatDateYMD(dateStr);
-document.getElementById('dayHours').value = dayData.hours || ''; document.getElementById('dayHoliday').checked = dayData.isHoliday || false;
-document.getElementById('dayModal').classList.add('active');
-}
-function closeDayModal() { document.getElementById('dayModal').classList.remove('active'); }
-function saveDayData() {
-const dateStr = document.getElementById('editDayDate').value;
-const hours = parseFloat(document.getElementById('dayHours').value) || 0;
-const isHoliday = document.getElementById('dayHoliday').checked;
-const data = loadCalendarData(); data[dateStr] = { hours, isHoliday }; saveCalendarData(data);
-closeDayModal(); renderCalendar(); alert('✅ Сохранено');
-}
-
-// === ФОТО ===
-function loadPhotos() { try { return JSON.parse(localStorage.getItem('operator_photos') || '[]'); } catch (e) { return []; } }
-function savePhotos(photos) {
-try {
-localStorage.setItem('operator_photos', JSON.stringify(photos));
-} catch (e) {
-console.error("Storage full", e);
-showToast('⚠️', '#DC2626', 'Память переполнена', 'Удалите старые фото или очистите кэш браузера.');
-}
-}
-
-function compressImage(file, callback) {
-const reader = new FileReader();
-reader.readAsDataURL(file);
-reader.onload = event => {
-const img = new Image();
-img.src = event.target.result;
-img.onload = () => {
-const canvas = document.createElement('canvas');
-const MAX_WIDTH = 800;
-const MAX_HEIGHT = 800;
-let width = img.width;
-let height = img.height;
-if (width > height) {
-if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-} else {
-if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
-}
-canvas.width = width;
-canvas.height = height;
-const ctx = canvas.getContext('2d');
-ctx.drawImage(img, 0, 0, width, height);
-callback(canvas.toDataURL('image/jpeg', 0.7));
-};
-};
-}
-
-function renderPhotos() {
-const photos = loadPhotos();
-const container = document.getElementById('photosListContainer');
-if (photos.length === 0) {
-container.innerHTML = '<div class="empty-msg">Нет сохраненных фото</div>';
-return;
-}
-let html = '';
-photos.forEach(p => {
-const tagClass = p.tagType ? `tag-${p.tagType}` : 'tag-UNKNOWN';
-const tagName = p.tagType ? getTagName(p.tagType) : '';
-const tagHtml = tagName ? `<div class="photo-tag ${tagClass}">${tagName}</div>` : '';
-let optionsHtml = '';
-TAG_OPTIONS.forEach(opt => {
-const selected = (opt.val === p.tagType) ? 'selected' : '';
-optionsHtml += `<option value="${opt.val}" ${selected}>${opt.label}</option>`;
-});
-html += `
-<div class="photo-card">
-${tagHtml}
-<img src="${p.data}" alt="Photo">
-<div class="photo-tag-selector">
-<select class="tag-select-mini" onchange="updatePhotoTag(${p.id}, this.value)">
-${optionsHtml}
-</select>
-</div>
-<div class="photo-actions">
-<button class="photo-action-btn edit" onclick="openPhotoOrderModal(${p.id})" title="Оформить заказ"><i class="fas fa-file-signature"></i></button>
-<button class="photo-action-btn delete" onclick="deletePhoto(${p.id})" title="Удалить"><i class="fas fa-trash"></i></button>
-</div>
-</div>`;
-});
-container.innerHTML = html;
-}
-
-function updatePhotoTag(photoId, newTag) {
-const photos = loadPhotos();
-const idx = photos.findIndex(p => p.id === photoId);
-if (idx !== -1) {
-photos[idx].tagType = newTag;
-savePhotos(photos);
-renderPhotos();
-}
-}
-
-document.getElementById('cameraInput').addEventListener('change', function(e) {
-const file = e.target.files[0];
-if (!file) return;
-compressImage(file, (compressedDataUrl) => {
-const photos = loadPhotos();
-const newPhoto = { id: Date.now(), data: compressedDataUrl, timestamp: new Date().toISOString(), tagType: "" };
-photos.unshift(newPhoto);
-savePhotos(photos);
-renderPhotos();
-this.value = '';
-});
-});
-
-function deletePhoto(photoId) {
-if (!confirm('Удалить фото?')) return;
-let photos = loadPhotos();
-photos = photos.filter(p => p.id !== photoId);
-savePhotos(photos);
-renderPhotos();
-}
-
-let currentPhotoIdForOrder = null;
-function openPhotoOrderModal(photoId) {
-const photos = loadPhotos();
-const photo = photos.find(p => p.id === photoId);
-if (!photo) return;
-currentPhotoIdForOrder = photoId;
-document.getElementById('photoPreviewImg').src = photo.data;
-document.getElementById('photoOrderNum').value = '';
-document.getElementById('photoDetail').value = '';
-document.getElementById('photoQty').value = '1';
-document.getElementById('photoLength').value = '';
-document.getElementById('photoWidth').value = '';
-document.getElementById('photoHours').value = '';
-resetPhotoSizeRows();
-const selectedTag = photo.tagType || 'RASPIL_M2';
-document.getElementById('photoTariff').value = selectedTag;
-updatePhotoFormFields();
-document.getElementById('photoOrderModal').classList.add('active');
-}
-
-function closePhotoOrderModal() { document.getElementById('photoOrderModal').classList.remove('active'); currentPhotoIdForOrder = null; }
-
-function openPhotoZoom() {
-const src = document.getElementById('photoPreviewImg').src;
-document.getElementById('zoomedImage').src = src;
-document.getElementById('photoZoomModal').classList.add('active');
-}
-
-function closePhotoZoom() { document.getElementById('photoZoomModal').classList.remove('active'); }
-
-function confirmPhotoOrder() {
-const num = document.getElementById('photoOrderNum').value.trim();
-if (!num) { alert('Укажите № заказа'); return; }
-const tariffKey = document.getElementById('photoTariff').value;
-const detail = document.getElementById('photoDetail').value.trim() || '—';
-const qty = parseInt(document.getElementById('photoQty').value) || 1;
-
-const lengthEl = document.getElementById('photoLength');
-const widthEl = document.getElementById('photoWidth');
-const hoursEl = document.getElementById('photoHours');
-
-const length = lengthEl ? parseFloat(lengthEl.value) || 0 : 0;
-const width = widthEl ? parseFloat(widthEl.value) || 0 : 0;
-const hours = hoursEl ? parseFloat(hoursEl.value) || 0 : 0;
-
-const dimensions = getPhotoSizeDimensions();
-const amount = calculateAmount(tariffKey, length, width, hours, qty, dimensions);
-
-const preorder = {
-id: Date.now(),
-orderNumber: num,
-tariff: tariffKey,
-detail: detail,
-qty: qty,
-length: length || null,
-width: width || null,
-hours: hours || null,
-dimensions: dimensions.length > 0 ? dimensions : null,
-amount: amount,
-date: todayYMD(),
-timestamp: new Date().toISOString(),
-hasPhoto: true
-};
-
-const preorders = loadPreorders(); preorders.push(preorder); savePreorders(preorders);
-let photos = loadPhotos();
-photos = photos.filter(p => p.id !== currentPhotoIdForOrder);
-savePhotos(photos);
-alert('✅ Оформлен в предзаказ! Фото удалено.');
-closePhotoOrderModal();
-renderPreorders();
-renderPhotos();
-document.querySelectorAll('.panel-item').forEach(i => i.classList.remove('active'));
-document.querySelectorAll('.content-block').forEach(c => c.classList.remove('active'));
-document.querySelector('.panel-item[data-target="preorders"]').classList.add('active');
-document.getElementById('preorders').classList.add('active');
-}
-
-document.getElementById('photoTariff').addEventListener('change', updatePhotoFormFields);
-
-// === ЭКСПОРТ ОТЧЕТА В EXCEL (расширенный) ===
-function exportReportToExcel() {
-    const dateFrom = document.getElementById('reportDateFrom').value;
-    const dateTo = document.getElementById('reportDateTo').value;
-    
-    if (!dateFrom || !dateTo) {
-        alert('⚠️ Выберите диапазон дат');
-        return;
-    }
-    if (dateFrom > dateTo) {
-        alert('⚠️ Дата начала не может быть позже даты окончания');
-        return;
-    }
-    
-    const orders = loadOrders();
-    const filtered = orders.filter(o => {
-        if (!o.date) return false;
-        return o.date >= dateFrom && o.date <= dateTo;
-    });
-    
-    if (filtered.length === 0) {
-        alert('📭 Нет заказов за выбранный период');
-        return;
-    }
-    
-    const data = [
-        ['№ заказа', 'Дата', 'Деталь', 'Тариф', 'Кол-во', 'Длина (м)', 'Ширина (м)', 'Часы', 'Размеры', 'Пог. м', 'М²', 'Часы (расч.)', 'Сумма (₽)']
-    ];
-    
-    filtered.forEach(o => {
-        const tariffName = TARIFF_NAMES[o.tariff] || o.tariff;
-        const units = calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty, o.dimensions);
-        let sizesStr = '';
-        
-        if (o.dimensions && o.dimensions.length > 0) {
-            sizesStr = o.dimensions.map((d, i) => `${d.length}×${d.width}`).join('; ');
-        }
-        
-        data.push([
-            o.orderNumber,
-            formatDateYMD(o.date),
-            o.detail,
-            tariffName,
-            o.qty || 1,
-            o.length !== null && o.length !== undefined ? o.length : '',
-            o.width !== null && o.width !== undefined ? o.width : '',
-            o.hours !== null && o.hours !== undefined ? o.hours : '',
-            sizesStr,
-            units.linear > 0 ? units.linear : '',
-            units.area > 0 ? units.area : '',
-            units.time > 0 ? units.time : '',
-            o.amount?.toFixed(2) || '0.00'
-        ]);
-    });
-    
-    const totalAmount = filtered.reduce((sum, o) => sum + (o.amount || 0), 0);
-    const totalLinear = filtered.reduce((sum, o) => sum + calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty, o.dimensions).linear, 0);
-    const totalArea = filtered.reduce((sum, o) => sum + calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty, o.dimensions).area, 0);
-    const totalTime = filtered.reduce((sum, o) => sum + calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty, o.dimensions).time, 0);
-    
-    data.push(
-        [],
-        ['ИТОГО:', '', '', '', '', '', '', '', '', 
-         totalLinear > 0 ? totalLinear.toFixed(2) : '', 
-         totalArea > 0 ? totalArea.toFixed(2) : '', 
-         totalTime > 0 ? totalTime.toFixed(2) : '', 
-         totalAmount.toFixed(2)]
-    );
-    
-    const ws = XLSX.utils.aoa_to_sheet(data);
-    
-    ws['!cols'] = [
-        {wch: 12}, {wch: 10}, {wch: 20}, {wch: 15}, {wch: 8},
-        {wch: 10}, {wch: 10}, {wch: 8}, {wch: 25},
-        {wch: 10}, {wch: 8}, {wch: 12}, {wch: 12}
-    ];
-    
-    const range = XLSX.utils.decode_range(ws['!ref']);
-    for (let C = range.s.c; C <= range.e.c; C++) {
-        const cellRef = XLSX.utils.encode_cell({r: 0, c: C});
-        if (!ws[cellRef]) ws[cellRef] = {t: 's', v: ''};
-        ws[cellRef].s = {font: {bold: true}};
-    }
-    
-    const lastRow = data.length - 1;
-    for (let C = 0; C <= 12; C++) {
-        const cellRef = XLSX.utils.encode_cell({r: lastRow, c: C});
-        if (ws[cellRef] && (C === 0 || C >= 9)) {
-            ws[cellRef].s = {font: {bold: true}};
-        }
-    }
-    
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Отчет');
-    
-    const fromFmt = formatDateYMD(dateFrom).replace(/\./g, '-');
-    const toFmt = formatDateYMD(dateTo).replace(/\./g, '-');
-    const filename = `Отчет_заказы_${fromFmt}_${toFmt}.xlsx`;
-    
-    XLSX.writeFile(wb, filename);
-    
-    showToast('✅', '#16A34A', 'Отчет готов', `Скачано ${filtered.length} заказов`);
-}
-
 // === НАВИГАЦИЯ И ИНИЦИАЛИЗАЦИЯ ===
 document.querySelectorAll('.panel-item').forEach(item => {
-item.addEventListener('click', () => {
-document.querySelectorAll('.panel-item').forEach(i => i.classList.remove('active'));
-document.querySelectorAll('.content-block').forEach(c => c.classList.remove('active'));
-item.classList.add('active');
-const target = item.dataset.target;
-document.getElementById(target).classList.add('active');
-if (target === 'stats') renderStats();
-else if (target === 'main') updateUI();
-else if (target === 'calendar') renderCalendar();
-else if (target === 'preorders') renderPreorders();
-else if (target === 'photos') renderPhotos();
-});
+    item.addEventListener('click', () => {
+        document.querySelectorAll('.panel-item').forEach(i => i.classList.remove('active'));
+        document.querySelectorAll('.content-block').forEach(c => c.classList.remove('active'));
+        item.classList.add('active');
+        const target = item.dataset.target;
+        document.getElementById(target).classList.add('active');
+        if (target === 'stats') renderStats();
+        else if (target === 'main') updateUI();
+        else if (target === 'calendar') renderCalendar();
+        else if (target === 'preorders') renderPreorders();
+        else if (target === 'photos') renderPhotos();
+    });
 });
 
 function loadAvatar() {
-const avatarData = localStorage.getItem('operator_avatar');
-const avatarBtn = document.getElementById('avatarBtn');
-if (avatarData) {
-const img = document.createElement('img');
-img.src = avatarData;
-img.onerror = () => { localStorage.removeItem('operator_avatar'); avatarBtn.innerHTML = '<i class="fas fa-user"></i>'; };
-avatarBtn.innerHTML = ''; avatarBtn.appendChild(img);
-} else { avatarBtn.innerHTML = '<i class="fas fa-user"></i>'; }
+    const avatarData = localStorage.getItem('operator_avatar');
+    const avatarBtn = document.getElementById('avatarBtn');
+    if (avatarData) {
+        const img = document.createElement('img');
+        img.src = avatarData;
+        img.onerror = () => { localStorage.removeItem('operator_avatar'); avatarBtn.innerHTML = '<i class="fas fa-user"></i>'; };
+        avatarBtn.innerHTML = ''; avatarBtn.appendChild(img);
+    } else { avatarBtn.innerHTML = '<i class="fas fa-user"></i>'; }
 }
 
 document.getElementById('avatarBtn').addEventListener('click', () => { document.getElementById('avatarUpload').click(); });
 document.getElementById('avatarUpload').addEventListener('change', function(e) {
-const file = e.target.files[0]; if (!file) return;
-if (!file.type.match('image.*')) { alert('Выберите изображение'); return; }
-const reader = new FileReader();
-reader.onload = function(event) { localStorage.setItem('operator_avatar', event.target.result); loadAvatar(); };
-reader.readAsDataURL(file);
+    const file = e.target.files[0]; if (!file) return;
+    if (!file.type.match('image.*')) { alert('Выберите изображение'); return; }
+    const reader = new FileReader();
+    reader.onload = function(event) { localStorage.setItem('operator_avatar', event.target.result); loadAvatar(); };
+    reader.readAsDataURL(file);
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-document.getElementById('viewDate').value = todayYMD();
+    markPerformance('DOM Ready');
+    
+    document.getElementById('viewDate').value = todayYMD();
 
-const today = new Date();
-const firstDay = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
-const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
-document.getElementById('reportDateFrom').value = firstDay;
-document.getElementById('reportDateTo').value = lastDay;
+    const today = new Date();
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+    const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0];
+    document.getElementById('reportDateFrom').value = firstDay;
+    document.getElementById('reportDateTo').value = lastDay;
 
-['tariff','preTariff','editTariff'].forEach(id => {
-const el = document.getElementById(id);
-if (el) el.addEventListener('change', () => {
-if (id === 'tariff') updateMainFormFields();
-else if (id === 'preTariff') updatePreorderFormFields();
-else updateEditFormFields();
-});
-});
+    ['tariff','preTariff','editTariff'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('change', () => {
+            if (id === 'tariff') updateMainFormFields();
+            else if (id === 'preTariff') updatePreorderFormFields();
+            else updateEditFormFields();
+        });
+    });
 
-const mainSizeRows = document.getElementById('mainSizeRows');
-if (mainSizeRows) mainSizeRows.addEventListener('input', updateMainSizeTotal);
+    const mainSizeRows = document.getElementById('mainSizeRows');
+    if (mainSizeRows) mainSizeRows.addEventListener('input', updateMainSizeTotal);
 
-const preSizeRows = document.getElementById('preSizeRows');
-if (preSizeRows) preSizeRows.addEventListener('input', updatePreSizeTotal);
+    const preSizeRows = document.getElementById('preSizeRows');
+    if (preSizeRows) preSizeRows.addEventListener('input', updatePreSizeTotal);
 
-resetMainSizeRows();
-resetPreSizeRows();
-resetEditSizeRows();
-resetPhotoSizeRows();
+    // Очистка старых фото
+    cleanupOldPhotos(20);
+    
+    resetMainSizeRows();
+    resetPreSizeRows();
+    resetEditSizeRows();
+    resetPhotoSizeRows();
 
-updateUI(); renderPreorders(); loadAvatar(); renderCalendar(); renderPhotos();
+    updateUI(); renderPreorders(); loadAvatar(); renderCalendar(); renderPhotos();
+    
+    markPerformance('App Initialized');
+    
+    // Скрытие индикатора загрузки
+    setTimeout(() => {
+        const loader = document.getElementById('appLoader');
+        if (loader) {
+            loader.classList.add('hidden');
+            setTimeout(() => loader.remove(), 300);
+        }
+    }, 100);
+    
+    // Отложенная регистрация Service Worker
+    registerServiceWorker();
 });
 </script>
 </body>
