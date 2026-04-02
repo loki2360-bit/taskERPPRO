@@ -244,8 +244,7 @@ border: none;
 font-size: 1rem;
 cursor: pointer;
 display: flex;
-align-items: center;
-justify-content: center;
+align-items: center; justify-content: center;
 box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light);
 transition: all 0.2s;
 margin-top: auto;
@@ -307,6 +306,98 @@ text-align: right;
     animation: spin 0.8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* === РЕКЛАМНОЕ ОКНО === */
+#adModal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(59, 66, 86, 0.85);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.2s ease-out;
+}
+#adModal.active { display: flex; }
+#adModal .modal-content {
+    max-width: 340px;
+    width: 90%;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    background: linear-gradient(135deg, var(--card) 0%, var(--bg) 100%);
+    border: 2px solid var(--accent-solid);
+}
+#adModal .ad-close-btn {
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--accent-red);
+    color: white;
+    border: none;
+    font-size: 1.2rem;
+    cursor: not-allowed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transition: all 0.2s;
+    opacity: 0.5;
+}
+#adModal .ad-close-btn.ready {
+    cursor: pointer;
+    opacity: 1;
+    animation: pulseBtn 0.5s ease-out;
+}
+#adModal .ad-close-btn.ready:hover {
+    transform: scale(1.1);
+    background: #B91C1C;
+}
+@keyframes pulseBtn {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+#adModal .ad-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent-solid);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+#adModal .ad-content {
+    font-size: 0.9rem;
+    color: var(--text);
+    line-height: 1.4;
+    margin-bottom: 16px;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#adModal .ad-timer {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--accent-solid);
+    color: #F0F1F3;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+#adModal .ad-timer.hidden { display: none; }
+#adModal .ad-timer .timer-count {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
 /* === ОПТИМИЗАЦИЯ ДЛЯ МОБИЛЬНЫХ === */
 @media (max-width: 480px) {
 .glass-panel { bottom: 16px; height: 56px; width: calc(100% - 32px); padding: 0 5px; }
@@ -316,6 +407,7 @@ text-align: right;
 .modal-content { padding: 16px; }
 .toast-container { right: 10px; top: 70px; }
 .toast { min-width: 200px; padding: 10px 12px; }
+#adModal .modal-content { max-width: 300px; padding: 16px; }
 }
 /* === ЛЕНИВАЯ ОТРИСОВКА === */
 .lazy-render {
@@ -547,6 +639,26 @@ text-align: right;
 <div class="install-prompt-buttons">
 <button class="install-btn" onclick="installApp()">Установить</button>
 <button class="later-btn" onclick="closeInstallPrompt()">Позже</button>
+</div>
+</div>
+
+<!-- === РЕКЛАМНОЕ МОДАЛЬНОЕ ОКНО === -->
+<div id="adModal">
+<div class="modal-content">
+    <button class="ad-close-btn" id="adCloseBtn" onclick="closeAdModal()" disabled>
+        <i class="fas fa-times"></i>
+    </button>
+    <div class="ad-title">
+        <i class="fas fa-gift"></i>
+        <span>Специальное предложение</span>
+    </div>
+    <div class="ad-content" id="adContent">
+        🎁 Скачайте наше приложение для ещё более удобной работы с заказами!
+    </div>
+    <div class="ad-timer" id="adTimer">
+        <i class="fas fa-clock"></i>
+        <span>Закрытие через: <span class="timer-count" id="timerCount">10</span> сек</span>
+    </div>
 </div>
 </div>
 
@@ -1699,36 +1811,108 @@ document.getElementById('orderSearch').addEventListener('keypress', function(e) 
     }
 });
 
-function saveOrdersToFile() {
-    const dateInput = document.getElementById('viewDate').value; if (!dateInput) { alert('Выберите дату'); return; }
-    const orders = loadOrders(); const filtered = orders.filter(o => o.date === dateInput);
-    if (filtered.length === 0) { alert('Нет заказов'); return; }
-    const formattedDate = formatDateYMD(dateInput);
-    let content = `ЗАКАЗЫ ЗА ${formattedDate}\n========================\n`;
-    let totalSum = 0;
-    filtered.forEach((o, idx) => {
-        const tariffName = TARIFF_NAMES[o.tariff] || o.tariff;
-        const units = calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty, o.dimensions);
-        content += `№${idx + 1}. ${o.orderNumber}\n${o.detail} (${tariffName})\n`;
-        if (o.dimensions && o.dimensions.length > 0) {
-            o.dimensions.forEach((dim, i) => {
-                content += `   Размер ${i + 1}: ${dim.length} × ${dim.width} м\n`;
-            });
-            content += `   Общая площадь: ${units.value} ${units.unit}\n`;
-        } else {
-            if (o.length) content += `   Длина: ${o.length} м\n`;
-            if (o.width) content += `   Ширина: ${o.width} м\n`;
-            if (o.hours) content += `   Часы: ${o.hours} ч\n`;
-            content += `   Объем: ${units.value} ${units.unit}\n`;
+// === РЕКЛАМНОЕ ОКНО: ФУНКЦИИ ===
+let adTimerInterval = null;
+let adDownloadCallback = null;
+
+function showAdModal(callback) {
+    adDownloadCallback = callback;
+    const adModal = document.getElementById('adModal');
+    const closeBtn = document.getElementById('adCloseBtn');
+    const timerEl = document.getElementById('adTimer');
+    const timerCount = document.getElementById('timerCount');
+    
+    // Сброс состояния
+    closeBtn.disabled = true;
+    closeBtn.classList.remove('ready');
+    timerEl.classList.remove('hidden');
+    let secondsLeft = 10;
+    timerCount.textContent = secondsLeft;
+    
+    // Рандомный текст рекламы
+    const adTexts = [
+        '🎁 Скачайте наше приложение для ещё более удобной работы с заказами!',
+        '🚀 Хотите больше функций? Попробуйте премиум-версию!',
+        '💡 Совет: экспортируйте отчёты регулярно для удобства анализа',
+        '⭐ Оцените приложение в магазине — это поможет нам стать лучше!',
+        '🔔 Включите уведомления, чтобы не пропустить важные обновления'
+    ];
+    document.getElementById('adContent').textContent = adTexts[Math.floor(Math.random() * adTexts.length)];
+    
+    // Показать модальное окно
+    adModal.classList.add('active');
+    
+    // Запустить таймер
+    adTimerInterval = setInterval(() => {
+        secondsLeft--;
+        timerCount.textContent = secondsLeft;
+        if (secondsLeft <= 0) {
+            clearInterval(adTimerInterval);
+            timerEl.classList.add('hidden');
+            closeBtn.disabled = false;
+            closeBtn.classList.add('ready');
         }
-        content += `   Кол-во: ${o.qty}\nСумма: ${o.amount.toFixed(2)} ₽\n---\n`;
-        totalSum += o.amount;
+    }, 1000);
+}
+
+function closeAdModal() {
+    const closeBtn = document.getElementById('adCloseBtn');
+    if (closeBtn.disabled) return;
+    
+    const adModal = document.getElementById('adModal');
+    adModal.classList.remove('active');
+    
+    // Выполнить отложенный скачивание
+    if (typeof adDownloadCallback === 'function') {
+        adDownloadCallback();
+    }
+    
+    // Сброс
+    adDownloadCallback = null;
+    if (adTimerInterval) {
+        clearInterval(adTimerInterval);
+        adTimerInterval = null;
+    }
+}
+
+function saveOrdersToFile() {
+    const dateInput = document.getElementById('viewDate').value; 
+    if (!dateInput) { alert('Выберите дату'); return; }
+    
+    // Показать рекламу перед скачиванием
+    showAdModal(() => {
+        // Эта функция выполнится после закрытия рекламы
+        const orders = loadOrders(); 
+        const filtered = orders.filter(o => o.date === dateInput);
+        if (filtered.length === 0) { alert('Нет заказов'); return; }
+        
+        const formattedDate = formatDateYMD(dateInput);
+        let content = `ЗАКАЗЫ ЗА ${formattedDate}\n========================\n`;
+        let totalSum = 0;
+        filtered.forEach((o, idx) => {
+            const tariffName = TARIFF_NAMES[o.tariff] || o.tariff;
+            const units = calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty, o.dimensions);
+            content += `№${idx + 1}. ${o.orderNumber}\n${o.detail} (${tariffName})\n`;
+            if (o.dimensions && o.dimensions.length > 0) {
+                o.dimensions.forEach((dim, i) => {
+                    content += `   Размер ${i + 1}: ${dim.length} × ${dim.width} м\n`;
+                });
+                content += `   Общая площадь: ${units.value} ${units.unit}\n`;
+            } else {
+                if (o.length) content += `   Длина: ${o.length} м\n`;
+                if (o.width) content += `   Ширина: ${o.width} м\n`;
+                if (o.hours) content += `   Часы: ${o.hours} ч\n`;
+                content += `   Объем: ${units.value} ${units.unit}\n`;
+            }
+            content += `   Кол-во: ${o.qty}\nСумма: ${o.amount.toFixed(2)} ₽\n---\n`;
+            totalSum += o.amount;
+        });
+        content += `\nИТОГО: ${totalSum.toFixed(2)} ₽\nЭкспорт: ${new Date().toLocaleString('ru-RU')}`;
+        const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+        const blob = new Blob([bom, content], { type: 'text/plain;charset=utf-8' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `заказы_${formattedDate}.txt`; a.click();
+        URL.revokeObjectURL(a.href);
     });
-    content += `\nИТОГО: ${totalSum.toFixed(2)} ₽\nЭкспорт: ${new Date().toLocaleString('ru-RU')}`;
-    const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
-    const blob = new Blob([bom, content], { type: 'text/plain;charset=utf-8' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `заказы_${formattedDate}.txt`; a.click();
-    URL.revokeObjectURL(a.href);
 }
 
 function saveOrdersToJSON() {
