@@ -3,69 +3,478 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Task Manager</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Задачи • Lite</title>
+  <style>
+    :root {
+      --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --muted: #64748b;
+      --primary: #2563eb; --danger: #ef4444; --success: #10b981; --warning: #f59e0b;
+      --border: #e2e8f0; --radius: 12px; --shadow: 0 2px 10px rgba(0,0,0,0.06);
+      --font: system-ui, -apple-system, sans-serif;
+    }
+    [data-theme="dark"] {
+      --bg: #0b1120; --card: #1e293b; --text: #f1f5f9; --muted: #94a3b8;
+      --border: #334155; --shadow: 0 2px 10px rgba(0,0,0,0.4);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font); line-height: 1.5; padding-bottom: 80px; }
+    
+    /* Header */
+    header { position: sticky; top: 0; z-index: 50; background: var(--card); padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .brand { font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
+    .brand span { font-size: 0.7rem; background: var(--primary); color: #fff; padding: 2px 6px; border-radius: 6px; }
+    .actions { display: flex; gap: 6px; }
+    
+    /* Buttons */
+    .btn { padding: 8px 12px; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; min-height: 36px; transition: transform 0.1s; }
+    .btn:active { transform: scale(0.96); }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-sm { padding: 6px 10px; font-size: 0.85rem; min-height: 32px; }
+    .btn-icon { width: 36px; height: 36px; padding: 0; justify-content: center; }
+    
+    /* Search */
+    .search-bar { padding: 10px 16px; background: var(--card); border-bottom: 1px solid var(--border); display: flex; gap: 8px; flex-wrap: wrap; }
+    .search-bar input, .search-bar select { flex: 1; min-width: 120px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; background: var(--bg); color: var(--text); }
+    
+    /* Task List */
+    .task-list { list-style: none; padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
+    .task-card { background: var(--card); padding: 14px; border-radius: var(--radius); box-shadow: var(--shadow); cursor: pointer; border-left: 4px solid var(--primary); transition: background 0.15s; }
+    .task-card:active { background: rgba(37,99,235,0.06); }
+    .task-card.pinned { border-left-color: var(--warning); }
+    .task-card h3 { font-size: 1rem; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: start; }
+    .task-card .meta { font-size: 0.75rem; color: var(--muted); margin-top: 6px; }
+    .task-card .desc { font-size: 0.9rem; margin: 6px 0; color: var(--text); opacity: 0.9; }
+    .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+    .tag { font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; color: #fff; font-weight: 600; }
+    .tag-срочно { background: #ef4444; } .tag-важно { background: #f59e0b; }
+    .tag-личное { background: #8b5cf6; } .tag-работа { background: #06b6d4; }
+    .tag-идея { background: #10b981; } .tag-покупки { background: #ec4899; }
+    
+    /* FAB */
+    .fab { position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: var(--primary); color: #fff; border: none; border-radius: 50%; font-size: 28px; box-shadow: 0 4px 14px rgba(37,99,235,0.4); cursor: pointer; z-index: 40; }
+    .fab:active { transform: scale(0.95); }
+    
+    /* Modal */
+    .modal { position: fixed; inset: 0; background: rgba(15,23,42,0.5); display: none; justify-content: center; align-items: flex-end; z-index: 100; }
+    .modal.active { display: flex; }
+    @media(min-width: 640px) { .modal { align-items: center; } }
+    .modal-box { background: var(--card); width: 100%; max-width: 480px; max-height: 90vh; border-radius: 16px 16px 0 0; overflow-y: auto; padding: 16px; }
+    @media(min-width: 640px) { .modal-box { border-radius: 14px; } }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+    .modal-header h2 { font-size: 1.1rem; font-weight: 700; }
+    .close { background: none; border: none; font-size: 1.8rem; cursor: pointer; color: var(--muted); }
+    
+    /* Form */
+    .form-grid { display: flex; flex-direction: column; gap: 12px; }
+    .fg label { font-size: 0.75rem; color: var(--muted); display: block; margin-bottom: 4px; }
+    .fg input, .fg textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; background: var(--bg); color: var(--text); }
+    .fg textarea { min-height: 80px; resize: vertical; }
+    .tags-input { display: flex; gap: 6px; flex-wrap: wrap; }
+    .tags-input input { flex: 1; min-width: 100px; }
+    .tag-chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; background: var(--primary); color: #fff; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+    .tag-chip button { background: none; border: none; color: inherit; padding: 0; margin-left: 2px; cursor: pointer; font-size: 1rem; line-height: 1; }
+    
+    /* Detail View */
+    #detailView { display: none; padding: 16px; }
+    #detailView.active { display: block; }
+    .detail-card { background: var(--card); padding: 16px; border-radius: var(--radius); box-shadow: var(--shadow); }
+    .detail-card h1 { font-size: 1.2rem; margin-bottom: 8px; }
+    .detail-card .desc { font-size: 1rem; margin: 10px 0; line-height: 1.6; white-space: pre-wrap; }
+    .detail-actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+    .detail-actions button { flex: 1; min-width: 100px; }
+    
+    /* Empty State */
+    .empty { text-align: center; padding: 40px 20px; color: var(--muted); }
+    .empty svg { width: 60px; height: 60px; margin-bottom: 12px; opacity: 0.6; }
+    
+    /* Utilities */
+    .hidden { display: none !important; }
+    .pin-icon { color: var(--warning); margin-right: 4px; }
+    [data-theme="dark"] input, [data-theme="dark"] textarea, [data-theme="dark"] select { background: #0f172a; border-color: #475569; }
+    
+    @media(max-width: 480px) {
+      .search-bar { flex-direction: column; }
+      .search-bar input, .search-bar select { width: 100%; }
+    }
+  </style>
 </head>
 <body>
-  <header class="top-bar">
-    <h1>Задачи</h1>
-    <div class="search-box">
-      <input type="text" id="searchInput" placeholder="Поиск...">
-      <select id="searchTag">
-        <option value="">Все теги</option>
-      </select>
-      <input type="date" id="searchDate">
-    </div>
-  </header>
-
-  <main id="listView">
-    <ul id="taskList" class="task-list"></ul>
-    <button class="fab" id="addBtn">+</button>
-  </main>
-
-  <section id="detailView" class="hidden">
-    <button class="back-btn" id="backBtn">← Назад</button>
-    <div id="detailContent"></div>
-  </section>
-
-  <dialog id="taskModal">
-    <form id="taskForm">
-      <h2 id="modalTitle">Новая задача</h2>
-      <input type="text" id="inputTitle" placeholder="Заголовок" required>
-      <textarea id="inputText" placeholder="Описание (необязательно)"></textarea>
-      
-      <div class="subtask-section">
-        <label>Подзадачи:</label>
-        <div id="subtaskList"></div>
-        <div class="add-subtask">
-          <input type="text" id="newSubtask" placeholder="Добавить подзадачу...">
-          <button type="button" id="addSubtaskBtn">+</button>
-        </div>
-      </div>
-
-      <div class="tags-section">
-        <label>Теги (через запятую):</label>
-        <input type="text" id="inputTags" placeholder="работа, срочное, личное">
-      </div>
-
-      <div class="file-section">
-        <label>Файлы (макс. 5/день, до 200КБ):</label>
-        <input type="file" id="inputFiles" multiple accept="*/*">
-        <small id="fileLimitMsg"></small>
-      </div>
-
+  <!-- List View -->
+  <div id="listView">
+    <header>
+      <div class="brand">Задачи <span>Lite</span></div>
       <div class="actions">
-        <label class="pin-toggle">
-          <input type="checkbox" id="inputPin"> Закрепить (макс. 5)
-        </label>
-        <div class="btn-row">
-          <button type="submit" class="btn primary">Сохранить</button>
-          <button type="button" class="btn secondary" id="cancelBtn">Отмена</button>
-        </div>
+        <button class="btn btn-outline btn-sm" onclick="toggleTheme()" title="Тема">🌓</button>
+        <button class="btn btn-outline btn-sm" onclick="exportData()" title="Экспорт">📥</button>
       </div>
-    </form>
-  </dialog>
+    </header>
+    
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="🔍 Поиск по названию..." oninput="renderList()">
+      <input type="date" id="searchDate" onchange="renderList()">
+      <select id="searchTag" onchange="renderList()">
+        <option value="">Все теги</option>
+        <option value="срочно">🔴 Срочно</option>
+        <option value="важно">🟡 Важно</option>
+        <option value="личное">🟣 Личное</option>
+        <option value="работа">🔵 Работа</option>
+        <option value="идея">🟢 Идея</option>
+        <option value="покупки">🩷 Покупки</option>
+      </select>
+    </div>
+    
+    <ul id="taskList" class="task-list"></ul>
+    <div id="emptyState" class="empty hidden">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      <p>Нет задач. Создайте первую!</p>
+    </div>
+    
+    <button class="fab" id="addBtn" onclick="openModal()">+</button>
+  </div>
+  
+  <!-- Detail View -->
+  <div id="detailView">
+    <button class="btn btn-outline btn-sm" onclick="showList()" style="margin-bottom: 12px">← Назад</button>
+    <div id="detailContent" class="detail-card"></div>
+  </div>
+  
+  <!-- Modal -->
+  <div id="modal" class="modal" onclick="if(event.target===this)closeModal()">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 id="modalTitle">Новая задача</h2>
+        <button class="close" onclick="closeModal()">&times;</button>
+      </div>
+      <form id="taskForm" class="form-grid">
+        <input type="hidden" id="editId">
+        <div class="fg">
+          <label>Заголовок *</label>
+          <input type="text" id="inputTitle" required placeholder="Например: Купить продукты">
+        </div>
+        <div class="fg">
+          <label>Описание</label>
+          <textarea id="inputText" placeholder="Детали, заметки..."></textarea>
+        </div>
+        <div class="fg">
+          <label>Теги (выберите или введите)</label>
+          <div class="tags-input">
+            <select id="inputTagSelect" onchange="addTagFromSelect()">
+              <option value="">+ Добавить тег</option>
+              <option value="срочно">🔴 Срочно</option>
+              <option value="важно">🟡 Важно</option>
+              <option value="личное">🟣 Личное</option>
+              <option value="работа">🔵 Работа</option>
+              <option value="идея">🟢 Идея</option>
+              <option value="покупки">🩷 Покупки</option>
+            </select>
+            <input type="text" id="inputTagCustom" placeholder="Свой тег..." onkeypress="if(event.key==='Enter'){addCustomTag();return false}">
+          </div>
+          <div id="selectedTags" class="tags" style="margin-top: 8px"></div>
+        </div>
+        <div class="fg">
+          <label style="display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" id="inputPin" style="width: 18px; height: 18px;">
+            <span>📌 Закрепить (макс. 5)</span>
+          </label>
+        </div>
+        <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px;">
+          <button type="button" class="btn btn-outline" onclick="closeModal()">Отмена</button>
+          <button type="submit" class="btn btn-primary">💾 Сохранить</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-  <script src="app.js"></script>
+  <script>
+    // === Хранилище ===
+    const DB_KEY = 'tasks_lite_v1';
+    const uuid = () => (crypto.randomUUID?.() || Math.random().toString(36).substr(2, 9));
+    
+    let tasks = JSON.parse(localStorage.getItem(DB_KEY) || '[]');
+    let editingId = null;
+    let currentTags = [];
+    
+    // === DOM ===
+    const $ = id => document.getElementById(id);
+    
+    // === Инициализация ===
+    function init() {
+      renderList();
+      updateTagFilter();
+      
+      // События
+      $('addBtn').onclick = () => openModal();
+      $('taskForm').onsubmit = saveTask;
+      document.onkeydown = e => { if(e.key==='Escape'){ closeModal(); showList(); } };
+      
+      // Тема из localStorage
+      if(localStorage.getItem('theme') === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    }
+    
+    // === Рендер списка задач ===
+    function renderList() {
+      const query = $('searchInput').value.toLowerCase();
+      const date = $('searchDate').value;
+      const tag = $('searchTag').value;
+      
+      let filtered = tasks.filter(t => {
+        const matchQuery = !query || t.title.toLowerCase().includes(query) || (t.text||'').toLowerCase().includes(query);
+        const matchDate = !date || new Date(t.createdAt).toISOString().startsWith(date);
+        const matchTag = !tag || t.tags.includes(tag);
+        return matchQuery && matchDate && matchTag;
+      });
+      
+      // Сортировка: закреплённые сверху, потом по дате (новые первыми)
+      filtered.sort((a, b) => {
+        if (a.pinned && !b.pinned) return -1;
+        if (!a.pinned && b.pinned) return 1;
+        return b.createdAt - a.createdAt;
+      });
+      
+      const list = $('taskList');
+      const empty = $('emptyState');
+      
+      if (!filtered.length) {
+        list.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+      empty.classList.add('hidden');
+      
+      list.innerHTML = filtered.map(t => {
+        const pin = t.pinned ? '<span class="pin-icon">📌</span>' : '';
+        const tagsHtml = t.tags.map(tag => `<span class="tag tag-${tag}">${getTagName(tag)}</span>`).join('');
+        const dateStr = new Date(t.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+        return `
+          <li class="task-card ${t.pinned ? 'pinned' : ''}" onclick="openDetail('${t.id}')">
+            <h3>${pin}${escHtml(t.title)}</h3>
+            ${t.text ? `<div class="desc">${escHtml(t.text).slice(0, 100)}${t.text.length>100?'…':''}</div>` : ''}
+            <div class="tags">${tagsHtml}</div>
+            <div class="meta">${dateStr} • ${t.tags.length} тег${t.tags.length===1?'':'а'}</div>
+          </li>
+        `;
+      }).join('');
+    }
+    
+    // === Детальный просмотр ===
+    function openDetail(id) {
+      const t = tasks.find(x => x.id === id);
+      if (!t) return;
+      
+      const tagsHtml = t.tags.map(tag => `<span class="tag tag-${tag}">${getTagName(tag)}</span>`).join('');
+      const dateStr = new Date(t.createdAt).toLocaleDateString('ru-RU', { 
+        day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' 
+      });
+      
+      $('detailContent').innerHTML = `
+        <h1>${escHtml(t.title)}</h1>
+        <div class="meta" style="margin-bottom: 12px">${dateStr}</div>
+        <div class="tags" style="margin-bottom: 12px">${tagsHtml || '<span style="color:var(--muted)">Без тегов</span>'}</div>
+        <div class="desc">${t.text ? escHtml(t.text) : '<span style="color:var(--muted)">Без описания</span>'}</div>
+        <div class="detail-actions">
+          <button class="btn btn-outline" onclick="editTask('${t.id}')">✏️ Редактировать</button>
+          <button class="btn btn-danger" onclick="deleteTask('${t.id}')">🗑️ Удалить</button>
+          <button class="btn ${t.pinned?'btn-outline':'btn-primary'}" onclick="togglePin('${t.id}')">
+            ${t.pinned?'📎 Открепить':'📌 Закрепить'}
+          </button>
+        </div>
+      `;
+      
+      $('listView').style.display = 'none';
+      $('detailView').classList.add('active');
+    }
+    
+    function showList() {
+      $('listView').style.display = 'block';
+      $('detailView').classList.remove('active');
+    }
+    
+    // === Модальное окно ===
+    function openModal(id = null) {
+      editingId = id;
+      $('taskForm').reset();
+      currentTags = [];
+      $('selectedTags').innerHTML = '';
+      
+      if (id) {
+        const t = tasks.find(x => x.id === id);
+        $('modalTitle').textContent = 'Редактирование';
+        $('inputTitle').value = t.title;
+        $('inputText').value = t.text || '';
+        currentTags = [...t.tags];
+        $('inputPin').checked = t.pinned;
+        renderSelectedTags();
+      } else {
+        $('modalTitle').textContent = 'Новая задача';
+        // Проверка лимита пинов
+        const pinnedCount = tasks.filter(t => t.pinned).length;
+        $('inputPin').disabled = pinnedCount >= 5 && !editingId;
+        if (pinnedCount >= 5 && !editingId) {
+          $('inputPin').title = 'Максимум 5 закреплённых задач';
+        }
+      }
+      $('modal').classList.add('active');
+      $('inputTitle').focus();
+    }
+    
+    function closeModal() {
+      $('modal').classList.remove('active');
+      editingId = null;
+    }
+    
+    // === Теги в модалке ===
+    function addTagFromSelect() {
+      const val = $('inputTagSelect').value;
+      if (val && !currentTags.includes(val)) {
+        currentTags.push(val);
+        renderSelectedTags();
+      }
+      $('inputTagSelect').value = '';
+    }
+    
+    function addCustomTag() {
+      const val = $('inputTagCustom').value.trim().toLowerCase();
+      if (val && !currentTags.includes(val) && val.length <= 20) {
+        currentTags.push(val);
+        renderSelectedTags();
+        $('inputTagCustom').value = '';
+      }
+    }
+    
+    function removeTag(tag) {
+      currentTags = currentTags.filter(t => t !== tag);
+      renderSelectedTags();
+    }
+    
+    function renderSelectedTags() {
+      $('selectedTags').innerHTML = currentTags.map(tag => 
+        `<span class="tag-chip tag-${tag}">${getTagName(tag)} <button type="button" onclick="removeTag('${tag}')">×</button></span>`
+      ).join('');
+    }
+    
+    function getTagName(key) {
+      const names = {
+        'срочно': 'Срочно', 'важно': 'Важно', 'личное': 'Личное',
+        'работа': 'Работа', 'идея': 'Идея', 'покупки': 'Покупки'
+      };
+      return names[key] || key;
+    }
+    
+    // === Сохранение задачи ===
+    function saveTask(e) {
+      e.preventDefault();
+      
+      const title = $('inputTitle').value.trim();
+      const text = $('inputText').value.trim();
+      const pinned = $('inputPin').checked;
+      
+      // Проверка лимита пинов
+      if (pinned && !editingId) {
+        const pinnedCount = tasks.filter(t => t.pinned).length;
+        if (pinnedCount >= 5) {
+          alert('Максимум 5 закреплённых задач. Сначала открепите одну.');
+          return;
+        }
+      }
+      
+      const now = Date.now();
+      const task = {
+        id: editingId || uuid(),
+        title,
+        text,
+        tags: [...currentTags],
+        pinned,
+        createdAt: editingId ? tasks.find(t=>t.id===editingId)?.createdAt || now : now,
+        updatedAt: now
+      };
+      
+      if (editingId) {
+        tasks = tasks.map(t => t.id === editingId ? task : t);
+      } else {
+        tasks.unshift(task);
+      }
+      
+      localStorage.setItem(DB_KEY, JSON.stringify(tasks));
+      closeModal();
+      renderList();
+      updateTagFilter();
+    }
+    
+    // === Действия с задачей ===
+    function editTask(id) {
+      showList();
+      setTimeout(() => openModal(id), 100);
+    }
+    
+    function deleteTask(id) {
+      if (confirm('Удалить задачу?')) {
+        tasks = tasks.filter(t => t.id !== id);
+        localStorage.setItem(DB_KEY, JSON.stringify(tasks));
+        showList();
+        renderList();
+      }
+    }
+    
+    function togglePin(id) {
+      const t = tasks.find(x => x.id === id);
+      if (!t) return;
+      
+      if (!t.pinned) {
+        const pinnedCount = tasks.filter(x => x.pinned).length;
+        if (pinnedCount >= 5) {
+          alert('Максимум 5 закреплённых задач');
+          return;
+        }
+      }
+      t.pinned = !t.pinned;
+      t.updatedAt = Date.now();
+      localStorage.setItem(DB_KEY, JSON.stringify(tasks));
+      openDetail(id); // обновить вид
+      renderList(); // обновить список
+    }
+    
+    // === Утилиты ===
+    function escHtml(str) {
+      return (str || '').replace(/[&<>"']/g, m => 
+        ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])
+      );
+    }
+    
+    function updateTagFilter() {
+      const tags = new Set();
+      tasks.forEach(t => t.tags.forEach(tag => tags.add(tag)));
+      const sel = $('searchTag');
+      const current = sel.value;
+      sel.innerHTML = '<option value="">Все теги</option>' + 
+        ['срочно','важно','личное','работа','идея','покупки', ...tags].filter((v,i,a)=>a.indexOf(v)===i)
+        .map(tag => `<option value="${tag}">${getTagName(tag)}</option>`).join('');
+      sel.value = current;
+    }
+    
+    // === Тема ===
+    function toggleTheme() {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      document.documentElement.setAttribute('data-theme', isDark ? '' : 'dark');
+      localStorage.setItem('theme', isDark ? 'light' : 'dark');
+    }
+    
+    // === Экспорт данных ===
+    function exportData() {
+      const data = { tasks, exportedAt: new Date().toISOString() };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `tasks_backup_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    
+    // === Запуск ===
+    init();
+  </script>
 </body>
 </html>
