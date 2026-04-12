@@ -20,14 +20,13 @@
 --card: #1e293b;
 --text: #f1f5f9;
 --text-muted: #94a3b8;
---accent-blue: #3b82f6;
---accent-blue-dark: #2563eb;
+--accent-yellow: #FFD700;
+--accent-yellow-dark: #FFC107;
 --accent-white: #f8fafc;
---accent-solid: #3b82f6;
+--accent-solid: #FFD700;
 --accent-red: #ef4444;
 --accent-green: #10b981;
 --border: #334155;
---shadow-light: rgba(255, 255, 255, 0.05);
 --shadow-dark: rgba(0, 0, 0, 0.3);
 --radius: 16px;
 --radius-sm: 12px;
@@ -35,93 +34,92 @@
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
 body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh; line-height: 1.4; overflow-x: hidden; }
 .header-bar { position: fixed; top: 0; left: 0; width: 100%; background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(20px); padding: 16px 20px; display: flex; align-items: center; gap: 16px; z-index: 200; border-bottom: 1px solid var(--border); }
-.avatar-btn { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-dark)); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; font-size: 18px; cursor: pointer; overflow: hidden; position: relative; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+.avatar-btn { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-yellow), var(--accent-yellow-dark)); display: flex; align-items: center; justify-content: center; color: #0f172a; font-weight: bold; font-size: 18px; cursor: pointer; overflow: hidden; position: relative; }
 .avatar-btn img { width: 100%; height: 100%; object-fit: cover; }
 .avatar-btn i { pointer-events: none; }
 .search-container { flex: 1; position: relative; }
 .search-input { width: 100%; padding: 12px 16px 12px 44px; background: var(--card); border: 1px solid var(--border); border-radius: 24px; color: var(--text); font-size: 0.95rem; -webkit-appearance: none; transition: all 0.3s; }
-.search-input:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+.search-input:focus { outline: none; border-color: var(--accent-yellow); }
 .search-input::placeholder { color: var(--text-muted); }
 .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
 .main-content { padding: 88px 20px 100px; max-width: 768px; margin: 0 auto; }
 .glass-panel { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; justify-content: space-around; height: 64px; width: calc(100% - 40px); max-width: 500px; border-radius: 32px; padding: 0 8px; background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--border); z-index: 200; }
 .panel-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--text-muted); font-size: 0.7rem; text-align: center; cursor: pointer; padding: 8px 12px; user-select: none; position: relative; flex: 1; transition: all 0.3s; border-radius: 20px; }
 .panel-item i { font-size: 1.2rem; margin-bottom: 2px; }
-.panel-item.active { color: var(--accent-blue); background: rgba(59, 130, 246, 0.1); }
-.neu-btn { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 20px; font-weight: 600; color: var(--text); cursor: pointer; box-shadow: 0 4px 12px var(--shadow-dark); transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; font-size: 0.95rem; }
-.neu-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--shadow-dark); }
+.panel-item.active { color: var(--accent-yellow); background: rgba(255, 215, 0, 0.1); }
+.neu-btn { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 20px; font-weight: 600; color: var(--text); cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+.neu-btn:hover { transform: translateY(-2px); }
 .neu-btn:active { transform: translateY(0); }
-.neu-btn-accent { background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-dark)); color: #fff; border: none; box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4); }
-.neu-btn-accent:hover { box-shadow: 0 6px 24px rgba(59, 130, 246, 0.5); }
-.neu-input, .neu-select { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; color: var(--text); box-shadow: 0 2px 8px var(--shadow-dark); width: 100%; -webkit-appearance: none; transition: all 0.3s; font-size: 0.95rem; }
-.neu-input:focus, .neu-select:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
-.progress-container { height: 8px; background: var(--card); border-radius: 4px; overflow: hidden; margin: 16px 0; box-shadow: inset 0 2px 4px var(--shadow-dark); }
-.progress-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--accent-blue), var(--accent-blue-dark)); width: 0; transition: width 1.2s cubic-bezier(0.22, 0.61, 0.36, 1); position: relative; }
-.bar-container { height: 32px; background: var(--card); border-radius: 16px; overflow: hidden; box-shadow: inset 0 2px 4px var(--shadow-dark); border: 1px solid var(--border); }
-.bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent-blue), var(--accent-blue-dark)); border-radius: 16px; width: 0; transition: width 1.4s cubic-bezier(0.22, 0.61, 0.36, 1); }
+.neu-btn-accent { background: linear-gradient(135deg, var(--accent-yellow), var(--accent-yellow-dark)); color: #0f172a; border: none; font-weight: 700; }
+.neu-btn-accent:hover { transform: translateY(-2px); }
+.neu-input, .neu-select { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; color: var(--text); width: 100%; -webkit-appearance: none; transition: all 0.3s; font-size: 0.95rem; }
+.neu-input:focus, .neu-select:focus { outline: none; border-color: var(--accent-yellow); }
+.progress-container { height: 8px; background: var(--card); border-radius: 4px; overflow: hidden; margin: 16px 0; }
+.progress-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--accent-yellow), var(--accent-yellow-dark)); width: 0; transition: width 1.2s cubic-bezier(0.22, 0.61, 0.36, 1); position: relative; }
+.bar-container { height: 32px; background: var(--card); border-radius: 16px; overflow: hidden; border: 1px solid var(--border); }
+.bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent-yellow), var(--accent-yellow-dark)); border-radius: 16px; width: 0; transition: width 1.4s cubic-bezier(0.22, 0.61, 0.36, 1); }
 .status-bar { display: flex; align-items: center; gap: 8px; padding: 12px 0; margin: 16px 0; }
-.step { width: 12px; height: 12px; border-radius: 50%; background: var(--card); border: 2px solid var(--border); box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.1); transition: all 0.3s; }
-.step.active { background: var(--accent-blue); border-color: var(--accent-blue); box-shadow: 0 0 12px rgba(59, 130, 246, 0.5); }
-.step.current { background: var(--accent-blue-dark); border-color: var(--accent-blue-dark); box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3); }
-.step.completed { background: var(--accent-green); border-color: var(--accent-green); box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.4); }
+.step { width: 12px; height: 12px; border-radius: 50%; background: var(--card); border: 2px solid var(--border); transition: all 0.3s; }
+.step.active { background: var(--accent-yellow); border-color: var(--accent-yellow); }
+.step.current { background: var(--accent-yellow-dark); border-color: var(--accent-yellow-dark); }
+.step.completed { background: var(--accent-green); border-color: var(--accent-green); }
 .content-block { display: none; }
 .content-block.active { display: block; animation: fadeIn 0.3s ease-out; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.9); backdrop-filter: blur(8px); z-index:1000; justify-content:center; align-items:center; padding: 20px; }
 .modal.active { display: flex; }
-.modal-content { background: var(--card); padding: 28px; border-radius: var(--radius); max-width: 450px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); border: 1px solid var(--border); }
+.modal-content { background: var(--card); padding: 28px; border-radius: var(--radius); max-width: 450px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); }
 .modal-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 20px; color: var(--text); }
 .orders-table { width: 100%; border-collapse: collapse; margin-top: 20px; background: var(--card); border-radius: var(--radius-sm); overflow: hidden; }
 .orders-table th, .orders-table td { padding: 14px 12px; text-align: left; border-bottom: 1px solid var(--border); }
-.orders-table th { color: var(--accent-blue); font-weight: 600; background: rgba(59, 130, 246, 0.1); }
+.orders-table th { color: var(--accent-yellow); font-weight: 600; background: rgba(255, 215, 0, 0.1); }
 .orders-table .amount { color: var(--accent-green); font-weight: 600; }
 .empty-msg { text-align: center; color: var(--text-muted); padding: 32px; font-style: italic; background: var(--card); border-radius: var(--radius-sm); margin-top: 16px; }
-.action-btn { width: 36px; height: 36px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px var(--shadow-dark); transition: all 0.2s; }
-.action-btn:hover { background: var(--accent-blue); color: #fff; border-color: var(--accent-blue); transform: translateY(-2px); }
+.action-btn { width: 36px; height: 36px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
+.action-btn:hover { background: var(--accent-yellow); color: #0f172a; border-color: var(--accent-yellow); transform: translateY(-2px); }
 .action-btn:active { transform: scale(0.95); }
 .hidden { display: none !important; }
 .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.calendar-nav-btn { background: var(--card); border: 1px solid var(--border); color: var(--text); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 12px var(--shadow-dark); transition: all 0.3s; display: flex; align-items: center; justify-content: center; }
-.calendar-nav-btn:hover { background: var(--accent-blue); border-color: var(--accent-blue); transform: translateY(-2px); }
+.calendar-nav-btn { background: var(--card); border: 1px solid var(--border); color: var(--text); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; }
+.calendar-nav-btn:hover { background: var(--accent-yellow); border-color: var(--accent-yellow); color: #0f172a; transform: translateY(-2px); }
 .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
-.calendar-day { aspect-ratio: 1; background: var(--card); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; position: relative; box-shadow: 0 4px 12px var(--shadow-dark); transition: all 0.3s; border: 1px solid var(--border); }
-.calendar-day:hover { transform: translateY(-4px); box-shadow: 0 8px 20px var(--shadow-dark); }
-.calendar-day.today { border-color: var(--accent-blue); border-width: 2px; box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); }
+.calendar-day { aspect-ratio: 1; background: var(--card); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; position: relative; transition: all 0.3s; border: 1px solid var(--border); }
+.calendar-day:hover { transform: translateY(-4px); }
+.calendar-day.today { border-color: var(--accent-yellow); border-width: 2px; }
 .calendar-day.worked { background: linear-gradient(135deg, var(--accent-green), #059669); color: #fff; border-color: var(--accent-green); }
 .calendar-day.weekend { opacity: 0.8; border-color: var(--accent-red); }
-.calendar-day.holiday { border-color: var(--accent-red); border-width: 2px; box-shadow: 0 0 16px rgba(239, 68, 68, 0.4); }
+.calendar-day.holiday { border-color: var(--accent-red); border-width: 2px; }
 .calendar-day .day-num { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
 .calendar-day .day-earnings { font-size: 0.7rem; font-weight: 600; opacity: 0.95; text-align: center; line-height: 1.1; }
 .calendar-day .holiday-icon { position: absolute; top: 6px; right: 6px; font-size: 0.7rem; color: var(--accent-red); background: rgba(255,255,255,0.9); border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; }
 .progress-title { margin: 24px 0 12px; color: var(--text-muted); font-size: 0.95rem; display: flex; align-items: center; gap: 10px; font-weight: 600; }
-.progress-title i { color: var(--accent-blue); }
+.progress-title i { color: var(--accent-yellow); }
 .progress-label { display: flex; justify-content: space-between; font-size: 0.95rem; color: var(--text-muted); margin: 8px 0; }
 .modal-row { margin-bottom: 16px; }
 .modal-row label { display: block; margin-bottom: 8px; color: var(--text-muted); font-size: 0.9rem; font-weight: 500; }
 .modal-buttons { display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end; }
-.checkbox-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding: 12px; background: rgba(59, 130, 246, 0.05); border-radius: var(--radius-sm); }
-.checkbox-row input { width: 20px; height: 20px; accent-color: var(--accent-blue); cursor: pointer; }
+.checkbox-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding: 12px; background: rgba(255, 215, 0, 0.05); border-radius: var(--radius-sm); }
+.checkbox-row input { width: 20px; height: 20px; accent-color: var(--accent-yellow); cursor: pointer; }
 .toast-container { position: fixed; top: 100px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
-.toast { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px 20px; display: flex; align-items: center; gap: 14px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); animation: slideIn 0.3s ease-out; pointer-events: auto; min-width: 300px; border-left: 4px solid transparent; backdrop-filter: blur(10px); }
+.toast { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px 20px; display: flex; align-items: center; gap: 14px; animation: slideIn 0.3s ease-out; pointer-events: auto; min-width: 300px; border-left: 4px solid transparent; backdrop-filter: blur(10px); }
 .toast-icon { font-size: 1.5rem; }
 .toast-content { display: flex; flex-direction: column; }
 .toast-title { font-weight: 600; font-size: 0.95rem; }
 .toast-msg { font-size: 0.85rem; color: var(--text-muted); }
 @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 @keyframes fadeOut { to { opacity: 0; transform: translateX(100%); } }
-.install-prompt { display: none; position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-dark)); color: #fff; padding: 20px 28px; border-radius: var(--radius); box-shadow: 0 12px 40px rgba(59, 130, 246, 0.4); z-index: 1000; text-align: center; max-width: 90%; width: 400px; border: 1px solid rgba(255,255,255,0.1); }
+.install-prompt { display: none; position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, var(--accent-yellow), var(--accent-yellow-dark)); color: #0f172a; padding: 20px 28px; border-radius: var(--radius); z-index: 1000; text-align: center; max-width: 90%; width: 400px; border: 1px solid rgba(255,255,255,0.1); }
 .install-prompt.show { display: block; animation: slideUp 0.3s ease-out; }
 @keyframes slideUp { from { transform: translate(-50%, 100px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
 .install-prompt-buttons { display: flex; gap: 12px; justify-content: center; margin-top: 16px; }
 .install-prompt button { padding: 10px 24px; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.3s; }
-.install-prompt .install-btn { background: #fff; color: var(--accent-blue); }
-.install-prompt .later-btn { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.3); }
+.install-prompt .install-btn { background: #0f172a; color: var(--accent-yellow); }
+.install-prompt .later-btn { background: transparent; color: #0f172a; border: 1px solid rgba(15,23,42,0.3); }
 .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 16px; margin-top: 20px; }
 .photo-card {
 background: var(--card);
 border-radius: var(--radius);
 overflow: hidden;
-box-shadow: 0 4px 16px var(--shadow-dark);
 border: 1px solid var(--border);
 position: relative;
 aspect-ratio: 1;
@@ -129,7 +127,7 @@ display: flex;
 flex-direction: column;
 transition: all 0.3s;
 }
-.photo-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px var(--shadow-dark); }
+.photo-card:hover { transform: translateY(-4px); }
 .photo-card img { width: 100%; height: 100%; object-fit: cover; flex: 1; }
 .photo-tag {
 position: absolute;
@@ -139,13 +137,12 @@ padding: 4px 10px;
 border-radius: 8px;
 font-size: 0.7rem;
 font-weight: 700;
-color: #fff;
+color: #0f172a;
 text-transform: uppercase;
-box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 z-index: 10;
 pointer-events: none;
 }
-.tag-RASPIL_M2 { background-color: #3b82f6; }
+.tag-RASPIL_M2 { background-color: #FFD700; }
 .tag-LINEAR_RASPIL { background-color: #10b981; }
 .tag-SKLEIKA_OB { background-color: #8b5cf6; }
 .tag-SKLEIKA_NO_OB { background-color: #6d28d9; }
@@ -197,13 +194,13 @@ z-index: 20;
 .photo-action-btn.delete { color: #ef4444; }
 .photo-action-btn.edit { color: #10b981; }
 .capture-btn-container { display: flex; justify-content: center; margin-bottom: 24px; }
-.capture-btn { width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-dark)); color: white; border: 4px solid var(--bg); box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4); font-size: 1.8rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; }
-.capture-btn:hover { transform: scale(1.05); box-shadow: 0 12px 32px rgba(59, 130, 246, 0.5); }
+.capture-btn { width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-yellow), var(--accent-yellow-dark)); color: #0f172a; border: 4px solid var(--bg); font-size: 1.8rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; font-weight: bold; }
+.capture-btn:hover { transform: scale(1.05); }
 .zoom-preview-container { position: relative; text-align: center; margin-bottom: 20px; }
-.zoom-preview-img { max-width: 100%; max-height: 180px; border-radius: var(--radius-sm); border: 1px solid var(--border); box-shadow: 0 4px 12px var(--shadow-dark); }
-.zoom-btn { position: absolute; bottom: 12px; right: 12px; background: rgba(59, 130, 246, 0.9); color: white; border: none; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: all 0.2s; }
-.zoom-btn:hover { background: var(--accent-blue-dark); transform: scale(1.1); }
-#photoZoomModal .modal-content { max-width: 95%; width: 95%; height: 95%; background: rgba(15, 23, 42, 0.98); border: none; box-shadow: none; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.zoom-preview-img { max-width: 100%; max-height: 180px; border-radius: var(--radius-sm); border: 1px solid var(--border); }
+.zoom-btn { position: absolute; bottom: 12px; right: 12px; background: rgba(255, 215, 0, 0.9); color: #0f172a; border: none; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; transition: all 0.2s; }
+.zoom-btn:hover { background: var(--accent-yellow-dark); transform: scale(1.1); }
+#photoZoomModal .modal-content { max-width: 95%; width: 95%; height: 95%; background: rgba(15, 23, 42, 0.98); border: none; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 #photoZoomModal img { max-width: 100%; max-height: 90vh; object-fit: contain; border-radius: 8px; }
 #photoZoomModal .close-zoom-btn { position: absolute; top: 30px; right: 30px; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; width: 48px; height: 48px; font-size: 1.3rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; backdrop-filter: blur(8px); }
 #photoZoomModal .close-zoom-btn:hover { background: rgba(255,255,255,0.2); transform: rotate(90deg); }
@@ -228,21 +225,20 @@ flex-direction: column;
 width: 40px;
 height: 40px;
 border-radius: 12px;
-background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-dark));
-color: #fff;
+background: linear-gradient(135deg, var(--accent-yellow), var(--accent-yellow-dark));
+color: #0f172a;
 border: none;
 font-size: 1.2rem;
 cursor: pointer;
 display: flex;
 align-items: center;
 justify-content: center;
-box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 transition: all 0.3s;
 margin-top: auto;
+font-weight: bold;
 }
 .add-size-btn:hover {
 transform: scale(1.1);
-box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
 }
 .remove-size-btn {
 width: 40px;
@@ -256,13 +252,11 @@ cursor: pointer;
 display: flex;
 align-items: center;
 justify-content: center;
-box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 transition: all 0.3s;
 margin-top: auto;
 }
 .remove-size-btn:hover {
 transform: scale(1.1);
-box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
 }
 .size-rows-container {
 margin: 16px 0;
@@ -273,7 +267,7 @@ border: 1px solid var(--border);
 }
 .size-total-display {
 font-size: 0.9rem;
-color: var(--accent-blue);
+color: var(--accent-yellow);
 margin-top: 12px;
 text-align: right;
 font-weight: 600;
@@ -282,8 +276,8 @@ font-weight: 600;
     position: fixed;
     top: 80px;
     right: 20px;
-    background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-dark));
-    color: #fff;
+    background: linear-gradient(135deg, var(--accent-yellow), var(--accent-yellow-dark));
+    color: #0f172a;
     padding: 12px 20px;
     border-radius: 24px;
     font-size: 0.9rem;
@@ -291,8 +285,6 @@ font-weight: 600;
     z-index: 150;
     display: none;
     animation: pulse 2s infinite;
-    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4);
-    border: 1px solid rgba(255,255,255,0.1);
 }
 #importModeIndicator.show { display: flex; align-items: center; gap: 8px; }
 #importModeIndicator i { font-size: 1.1rem; }
@@ -314,10 +306,9 @@ font-weight: 600;
 .spinner {
     width: 56px; height: 56px;
     border: 4px solid var(--border);
-    border-top-color: var(--accent-blue);
+    border-top-color: var(--accent-yellow);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 /* === ОПТИМИЗАЦИЯ ДЛЯ МОБИЛЬНЫХ === */
@@ -352,19 +343,112 @@ input[type="range"]::-webkit-slider-thumb {
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-dark));
+    background: linear-gradient(135deg, var(--accent-yellow), var(--accent-yellow-dark));
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-    border: 2px solid #fff;
+    border: 2px solid #0f172a;
 }
 input[type="range"]::-moz-range-thumb {
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-dark));
+    background: linear-gradient(135deg, var(--accent-yellow), var(--accent-yellow-dark));
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-    border: 2px solid #fff;
+    border: 2px solid #0f172a;
+}
+
+/* === КАРТОЧКИ КАК В БАНКЕ === */
+.card-section {
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    margin-bottom: 16px;
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.card-header i {
+    color: var(--accent-yellow);
+    font-size: 1.2rem;
+}
+
+.card-header h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.card-body {
+    padding: 20px;
+}
+
+/* === КОМПАКТНАЯ ПАНЕЛЬ СМЕНЫ === */
+.shift-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.shift-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.shift-status.active {
+    color: var(--accent-green);
+}
+
+.shift-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.shift-buttons .neu-btn {
+    padding: 10px 16px;
+    font-size: 0.85rem;
+}
+
+/* === СТАТИСТИКА === */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.stat-card {
+    background: rgba(255, 215, 0, 0.05);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    text-align: center;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent-yellow);
+}
+
+.stat-value.green {
+    color: var(--accent-green);
 }
 </style>
 </head>
@@ -382,71 +466,114 @@ input[type="range"]::-moz-range-thumb {
 <div class="main-content" id="mainContent">
 <!-- Основной блок -->
 <div id="main" class="content-block active">
-<div style="background: var(--card); padding: 24px; border-radius: var(--radius); margin-bottom: 24px; border: 1px solid var(--border); box-shadow: 0 4px 16px var(--shadow-dark);">
-    <h2 style="margin-bottom: 8px; font-size: 1.5rem;">Александр<span id="opId"></span></h2>
-    <p style="color: var(--text-muted); margin-bottom: 16px;">Всего: <b style="color: var(--accent-blue); font-size: 1.3rem;"><span id="totalAll">0.00</span> ₽</b></p>
-    
-    <div class="progress-title"><i class="fas fa-bullseye"></i> План: <b>3000 ₽</b></div>
-    <div class="status-bar" id="planStatusBar">
-    <div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div>
-    <div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div>
-    <div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div>
-    <div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div>
+
+<!-- Карточка статистики -->
+<div class="card-section">
+    <div class="card-header">
+        <i class="fas fa-wallet"></i>
+        <h3>Александр<span id="opId"></span></h3>
     </div>
-    <div class="progress-label"><span>Текущая смена:</span><span><b style="color: var(--accent-green);"><span id="todayEarned">0.00</span> ₽</b></span></div>
-    <div class="progress-label" id="shiftStatus" style="color: var(--text-muted); font-style: italic;">Смена не начата</div>
-    <div style="margin: 24px 0; display: flex; gap: 12px;">
-    <button class="neu-btn neu-btn-accent" onclick="startShift()"><i class="fas fa-play"></i> Начать смену</button>
-    <button class="neu-btn neu-btn-accent" onclick="endShift()"><i class="fas fa-stop"></i> Завершить смену</button>
+    <div class="card-body">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Всего</div>
+                <div class="stat-value"><span id="totalAll">0.00</span> ₽</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">За месяц</div>
+                <div class="stat-value green"><span id="monthEarned">0.00</span> ₽</div>
+            </div>
+        </div>
+        
+        <div class="progress-title"><i class="fas fa-bullseye"></i> План: <b>3000 ₽</b></div>
+        <div class="status-bar" id="planStatusBar">
+        <div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div>
+        <div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div>
+        <div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div>
+        <div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div>
+        </div>
+        <div class="progress-label"><span>Текущая смена:</span><span><b style="color: var(--accent-green);"><span id="todayEarned">0.00</span> ₽</b></span></div>
     </div>
 </div>
 
-<div class="progress-title" style="margin-top: 32px;"><i class="fas fa-plus"></i> Новый заказ</div>
-<div style="background: var(--card); padding: 24px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 4px 16px var(--shadow-dark);">
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-<div><label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;">№ заказа</label><input type="text" id="orderNum" class="neu-input" placeholder="ORD-001" autocomplete="off"></div>
-<div><label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;">Тариф</label>
-<select id="tariff" class="neu-select">
-<option value="RASPIL_M2">Распил — 65 ₽/м²</option>
-<option value="LINEAR_RASPIL">Лин. распил — 26 ₽/м</option>
-<option value="SKLEIKA_OB">Склейка + — 210 ₽/м²</option>
-<option value="SKLEIKA_NO_OB">Склейка – — 165 ₽/м²</option>
-<option value="PAZY">Пазы — 30 ₽/м</option>
-<option value="FREZER_FASKA">Фаска — 16 ₽/м</option>
-<option value="TIME">Время — 330 ₽/ч</option>
-</select></div>
-</div>
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-<div><label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;">Деталь</label><input type="text" id="detail" class="neu-input" placeholder="Название" autocomplete="off"></div>
-<div><label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;">Кол-во</label><input type="number" id="qty" value="1" min="1" class="neu-input"></div>
-</div>
-
-<!-- Контейнер для размеров -->
-<div id="mainSizeContainer" class="size-rows-container hidden">
-<div id="mainSizeRows"></div>
-<button type="button" id="mainAddSizeBtn" class="add-size-btn hidden" onclick="addMainSizeRow()" title="Добавить размеры"><i class="fas fa-plus"></i></button>
-<div id="mainSizeTotal" class="size-total-display hidden"></div>
+<!-- Карточка управления сменой -->
+<div class="card-section">
+    <div class="card-header">
+        <i class="fas fa-clock"></i>
+        <h3>Управление сменой</h3>
+    </div>
+    <div class="card-body">
+        <div class="shift-controls">
+            <div class="shift-status" id="shiftStatus">
+                <i class="fas fa-circle" style="font-size: 8px;"></i>
+                <span>Смена не начата</span>
+            </div>
+            <div class="shift-buttons">
+                <button class="neu-btn neu-btn-accent" onclick="startShift()"><i class="fas fa-play"></i> Начать</button>
+                <button class="neu-btn" onclick="endShift()"><i class="fas fa-stop"></i> Завершить</button>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;" id="mainOtherInputs">
-<div id="mainLengthGroup"><label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;">Длина (м)</label><input type="number" step="0.01" id="length" class="neu-input" placeholder="0.00"></div>
-<div id="mainWidthGroup" class="hidden"><label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;">Ширина (м)</label><input type="number" step="0.01" id="width" class="neu-input" placeholder="0.00"></div>
-<div id="mainHoursGroup" class="hidden"><label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;">Часы</label><input type="number" step="0.1" id="hours" class="neu-input" placeholder="0.0"></div>
+<!-- Карточка нового заказа -->
+<div class="card-section">
+    <div class="card-header">
+        <i class="fas fa-plus-circle"></i>
+        <h3>Новый заказ</h3>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+        <div><label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;">№ заказа</label><input type="text" id="orderNum" class="neu-input" placeholder="ORD-001" autocomplete="off"></div>
+        <div><label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;">Тариф</label>
+        <select id="tariff" class="neu-select">
+        <option value="RASPIL_M2">Распил — 65 ₽/м²</option>
+        <option value="LINEAR_RASPIL">Лин. распил — 26 ₽/м</option>
+        <option value="SKLEIKA_OB">Склейка + — 210 ₽/м²</option>
+        <option value="SKLEIKA_NO_OB">Склейка – — 165 ₽/м²</option>
+        <option value="PAZY">Пазы — 30 ₽/м</option>
+        <option value="FREZER_FASKA">Фаска — 16 ₽/м</option>
+        <option value="TIME">Время — 330 ₽/ч</option>
+        </select></div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+        <div><label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;">Деталь</label><input type="text" id="detail" class="neu-input" placeholder="Название" autocomplete="off"></div>
+        <div><label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;">Кол-во</label><input type="number" id="qty" value="1" min="1" class="neu-input"></div>
+        </div>
+
+        <!-- Контейнер для размеров -->
+        <div id="mainSizeContainer" class="size-rows-container hidden">
+        <div id="mainSizeRows"></div>
+        <button type="button" id="mainAddSizeBtn" class="add-size-btn hidden" onclick="addMainSizeRow()" title="Добавить размеры"><i class="fas fa-plus"></i></button>
+        <div id="mainSizeTotal" class="size-total-display hidden"></div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;" id="mainOtherInputs">
+        <div id="mainLengthGroup"><label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;">Длина (м)</label><input type="number" step="0.01" id="length" class="neu-input" placeholder="0.00"></div>
+        <div id="mainWidthGroup" class="hidden"><label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;">Ширина (м)</label><input type="number" step="0.01" id="width" class="neu-input" placeholder="0.00"></div>
+        <div id="mainHoursGroup" class="hidden"><label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;">Часы</label><input type="number" step="0.1" id="hours" class="neu-input" placeholder="0.0"></div>
+        </div>
+
+        <button class="neu-btn neu-btn-accent" onclick="createMainOrderWithSound()" style="width: 100%;"><i class="fas fa-check"></i> Создать заказ</button>
+    </div>
 </div>
 
-<button class="neu-btn neu-btn-accent" onclick="createMainOrderWithSound()" style="width: 100%; margin-top: 8px;"><i class="fas fa-check"></i> Создать заказ</button>
-</div>
-
-<div class="progress-title" style="margin-top: 32px;"><i class="fas fa-history"></i> Заказы по дате</div>
-<div style="background: var(--card); padding: 24px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 4px 16px var(--shadow-dark);">
-<div style="display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 16px;">
-<div><label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;">Дата</label><input type="date" id="viewDate" class="neu-input" value=""></div>
-</div>
-<div style="display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap;">
-<button class="neu-btn neu-btn-accent" onclick="showOrdersByDate()"><i class="fas fa-eye"></i> Показать</button>
-<button class="neu-btn" onclick="saveOrdersToFile()"><i class="fas fa-download"></i> В TXT</button>
-<button class="neu-btn" onclick="saveOrdersToJSON()"><i class="fas fa-file-code"></i> В JSON</button>
-</div>
+<!-- Карточка заказов по дате -->
+<div class="card-section">
+    <div class="card-header">
+        <i class="fas fa-history"></i>
+        <h3>Заказы по дате</h3>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 16px;">
+        <div><label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;">Дата</label><input type="date" id="viewDate" class="neu-input" value=""></div>
+        </div>
+        <div style="display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap;">
+        <button class="neu-btn neu-btn-accent" onclick="showOrdersByDate()"><i class="fas fa-eye"></i> Показать</button>
+        <button class="neu-btn" onclick="saveOrdersToFile()"><i class="fas fa-download"></i> В TXT</button>
+        <button class="neu-btn" onclick="saveOrdersToJSON()"><i class="fas fa-file-code"></i> В JSON</button>
+        </div>
+    </div>
 </div>
 <div id="ordersListContainer" style="margin-top: 24px;"></div>
 </div>
@@ -454,48 +581,50 @@ input[type="range"]::-moz-range-thumb {
 <!-- Предзаказы -->
 <div id="preorders" class="content-block">
 <div class="container">
-<h2 style="color: var(--text); margin-bottom: 24px; font-size: 1.5rem;"><i class="fas fa-clock" style="color: var(--accent-blue);"></i> Предзаказы</h2>
-<div style="background: var(--card); padding: 24px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 4px 16px var(--shadow-dark); margin-bottom: 24px;">
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-<div><label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;">№ заказа</label><input type="text" id="preOrderNum" class="neu-input" placeholder="PRE-001" autocomplete="off"></div>
-<div><label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;">Тариф</label>
-<select id="preTariff" class="neu-select">
-<option value="RASPIL_M2">Распил — 65 ₽/м²</option>
-<option value="LINEAR_RASPIL">Лин. распил — 26 ₽/м</option>
-<option value="SKLEIKA_OB">Склейка + — 210 ₽/м²</option>
-<option value="SKLEIKA_NO_OB">Склейка – — 165 ₽/м²</option>
-<option value="PAZY">Пазы — 30 ₽/м</option>
-<option value="FREZER_FASKA">Фаска — 16 ₽/м</option>
-<option value="TIME">Время — 330 ₽/ч</option>
-</select></div>
-</div>
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-<div><label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;">Деталь</label><input type="text" id="preDetail" class="neu-input" placeholder="Название" autocomplete="off"></div>
-<div><label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;">Кол-во</label><input type="number" id="preQty" value="1" min="1" class="neu-input"></div>
-</div>
+<h2 style="color: var(--text); margin-bottom: 24px; font-size: 1.5rem;"><i class="fas fa-clock" style="color: var(--accent-yellow);"></i> Предзаказы</h2>
+<div class="card-section">
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+        <div><label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;">№ заказа</label><input type="text" id="preOrderNum" class="neu-input" placeholder="PRE-001" autocomplete="off"></div>
+        <div><label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;">Тариф</label>
+        <select id="preTariff" class="neu-select">
+        <option value="RASPIL_M2">Распил — 65 ₽/м²</option>
+        <option value="LINEAR_RASPIL">Лин. распил — 26 ₽/м</option>
+        <option value="SKLEIKA_OB">Склейка + — 210 ₽/м²</option>
+        <option value="SKLEIKA_NO_OB">Склейка – — 165 ₽/м²</option>
+        <option value="PAZY">Пазы — 30 ₽/м</option>
+        <option value="FREZER_FASKA">Фаска — 16 ₽/м</option>
+        <option value="TIME">Время — 330 ₽/ч</option>
+        </select></div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+        <div><label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;">Деталь</label><input type="text" id="preDetail" class="neu-input" placeholder="Название" autocomplete="off"></div>
+        <div><label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;">Кол-во</label><input type="number" id="preQty" value="1" min="1" class="neu-input"></div>
+        </div>
 
-<!-- Контейнер для размеров предзаказа -->
-<div id="preSizeContainer" class="size-rows-container hidden">
-<div id="preSizeRows"></div>
-<button type="button" id="preAddSizeBtn" class="add-size-btn hidden" onclick="addPreSizeRow()" title="Добавить размеры"><i class="fas fa-plus"></i></button>
-<div id="preSizeTotal" class="size-total-display hidden"></div>
-</div>
+        <!-- Контейнер для размеров предзаказа -->
+        <div id="preSizeContainer" class="size-rows-container hidden">
+        <div id="preSizeRows"></div>
+        <button type="button" id="preAddSizeBtn" class="add-size-btn hidden" onclick="addPreSizeRow()" title="Добавить размеры"><i class="fas fa-plus"></i></button>
+        <div id="preSizeTotal" class="size-total-display hidden"></div>
+        </div>
 
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;" id="preOtherInputs">
-<div id="preLengthGroup"><label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;">Длина (м)</label><input type="number" step="0.01" id="preLength" class="neu-input" placeholder="0.00"></div>
-<div id="preWidthGroup" class="hidden"><label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;">Ширина (м)</label><input type="number" step="0.01" id="preWidth" class="neu-input" placeholder="0.00"></div>
-<div id="preHoursGroup" class="hidden"><label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;">Часы</label><input type="number" step="0.1" id="preHours" class="neu-input" placeholder="0.0"></div>
-</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;" id="preOtherInputs">
+        <div id="preLengthGroup"><label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;">Длина (м)</label><input type="number" step="0.01" id="preLength" class="neu-input" placeholder="0.00"></div>
+        <div id="preWidthGroup" class="hidden"><label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;">Ширина (м)</label><input type="number" step="0.01" id="preWidth" class="neu-input" placeholder="0.00"></div>
+        <div id="preHoursGroup" class="hidden"><label style="display: block; margin-bottom: 8px; color: var(--text-muted); font-weight: 500;">Часы</label><input type="number" step="0.1" id="preHours" class="neu-input" placeholder="0.0"></div>
+        </div>
 
-<div style="display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap;">
-<button class="neu-btn neu-btn-accent" onclick="createPreorder()"><i class="fas fa-save"></i> Сохранить предзаказ</button>
-<button class="neu-btn" onclick="document.getElementById('jsonImportInput').click()"><i class="fas fa-upload"></i> Загрузить в предзаказы</button>
-<button class="neu-btn neu-btn-accent" onclick="document.getElementById('jsonImportInput').click(); autoAcceptMode = true; updateImportModeIndicator();"><i class="fas fa-bolt"></i> Загрузить и принять сразу</button>
-</div>
-<input type="file" id="jsonImportInput" accept=".txt,.json" multiple style="display: none;" />
-<small style="color: var(--text-muted); display: block; margin-top: 12px;">
-    <i class="fas fa-info-circle"></i> Дата берётся из файла (поле "date" или имя файла в формате 2024-03-15 / 15.03.2024)
-</small>
+        <div style="display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap;">
+        <button class="neu-btn neu-btn-accent" onclick="createPreorder()"><i class="fas fa-save"></i> Сохранить</button>
+        <button class="neu-btn" onclick="document.getElementById('jsonImportInput').click()"><i class="fas fa-upload"></i> Загрузить</button>
+        <button class="neu-btn neu-btn-accent" onclick="document.getElementById('jsonImportInput').click(); autoAcceptMode = true; updateImportModeIndicator();"><i class="fas fa-bolt"></i> Загрузить и принять</button>
+        </div>
+        <input type="file" id="jsonImportInput" accept=".txt,.json" multiple style="display: none;" />
+        <small style="color: var(--text-muted); display: block; margin-top: 12px;">
+            <i class="fas fa-info-circle"></i> Дата берётся из файла (поле "date" или имя файла в формате 2024-03-15 / 15.03.2024)
+        </small>
+    </div>
 </div>
 <div class="progress-title" style="margin-top: 24px;"><i class="fas fa-list"></i> Список предзаказов</div>
 <div id="preordersListContainer" style="margin-top: 16px;"></div>
@@ -505,21 +634,23 @@ input[type="range"]::-moz-range-thumb {
 <!-- Календарь -->
 <div id="calendar" class="content-block">
 <div class="container">
-<h2 style="color: var(--text); margin-bottom: 24px; font-size: 1.5rem;"><i class="fas fa-calendar-alt" style="color: var(--accent-blue);"></i> Календарь заработка</h2>
-<div style="background: var(--card); padding: 24px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 4px 16px var(--shadow-dark);">
-<div class="calendar-header">
-<button class="calendar-nav-btn" onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
-<div style="font-size: 1.3rem; font-weight: 700; color: var(--text);" id="calendarMonthYear"></div>
-<button class="calendar-nav-btn" onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
-</div>
-<div class="calendar-grid" id="calendarGrid"></div>
+<h2 style="color: var(--text); margin-bottom: 24px; font-size: 1.5rem;"><i class="fas fa-calendar-alt" style="color: var(--accent-yellow);"></i> Календарь заработка</h2>
+<div class="card-section">
+    <div class="card-body">
+        <div class="calendar-header">
+        <button class="calendar-nav-btn" onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+        <div style="font-size: 1.3rem; font-weight: 700; color: var(--text);" id="calendarMonthYear"></div>
+        <button class="calendar-nav-btn" onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+    </div>
 </div>
 <div class="progress-title" style="margin-top: 24px;"><i class="fas fa-info-circle"></i> Легенда</div>
 <div style="display: flex; gap: 16px; flex-wrap: wrap; font-size: 0.9rem; color: var(--text-muted);">
 <div style="display:flex; align-items:center; gap:8px;"><div style="width:14px; height:14px; border-radius:4px; background: linear-gradient(135deg, var(--accent-green), #059669);"></div> Были заказы (сумма)</div>
 <div style="display:flex; align-items:center; gap:8px;"><div style="width:14px; height:14px; border-radius:4px; background:var(--card); border:1px solid var(--border);"></div> Нет заказов</div>
 <div style="display:flex; align-items:center; gap:8px;"><div style="width:14px; height:14px; border-radius:4px; border:2px solid var(--accent-red);"></div> Выходной/Праздник</div>
-<div style="display:flex; align-items:center; gap:8px;"><div style="width:14px; height:14px; border-radius:4px; border:2px solid var(--accent-blue);"></div> Сегодня</div>
+<div style="display:flex; align-items:center; gap:8px;"><div style="width:14px; height:14px; border-radius:4px; border:2px solid var(--accent-yellow);"></div> Сегодня</div>
 </div>
 </div>
 </div>
@@ -527,9 +658,9 @@ input[type="range"]::-moz-range-thumb {
 <!-- Фото -->
 <div id="photos" class="content-block">
 <div class="container">
-<h2 style="color: var(--text); margin-bottom: 24px; font-size: 1.5rem;"><i class="fas fa-camera" style="color: var(--accent-blue);"></i> Фото заказов</h2>
+<h2 style="color: var(--text); margin-bottom: 24px; font-size: 1.5rem;"><i class="fas fa-camera" style="color: var(--accent-yellow);"></i> Фото заказов</h2>
 <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 16px; text-align: center; background: var(--card); padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
-<i class="fas fa-info-circle" style="color: var(--accent-blue);"></i> Выберите тариф на фото, чтобы появился цветной ярлык. После оформления фото удалится.
+<i class="fas fa-info-circle" style="color: var(--accent-yellow);"></i> Выберите тариф на фото, чтобы появился цветной ярлык. После оформления фото удалится.
 </p>
 <div class="capture-btn-container">
 <label for="cameraInput" class="capture-btn" title="Сделать фото"><i class="fas fa-camera"></i></label>
@@ -543,38 +674,40 @@ input[type="range"]::-moz-range-thumb {
 <!-- Статистика -->
 <div id="stats" class="content-block">
 <div class="container">
-<h2 style="color: var(--text); margin-bottom: 24px; font-size: 1.5rem;"><i class="fas fa-chart-bar" style="color: var(--accent-blue);"></i> Общая статистика</h2>
+<h2 style="color: var(--text); margin-bottom: 24px; font-size: 1.5rem;"><i class="fas fa-chart-bar" style="color: var(--accent-yellow);"></i> Общая статистика</h2>
 
 <!-- Экспорт отчета по датам -->
 <div class="progress-title" style="margin-top: 24px;"><i class="fas fa-file-export"></i> Экспорт отчета</div>
-<div style="background: var(--card); padding: 24px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 4px 16px var(--shadow-dark);">
-    <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 16px; align-items: end; margin-bottom: 16px;">
-        <div>
-            <label style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted); font-weight: 500;">С даты</label>
-            <input type="date" id="reportDateFrom" class="neu-input" value="">
+<div class="card-section">
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 16px; align-items: end; margin-bottom: 16px;">
+            <div>
+                <label style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted); font-weight: 500;">С даты</label>
+                <input type="date" id="reportDateFrom" class="neu-input" value="">
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted); font-weight: 500;">По дату</label>
+                <input type="date" id="reportDateTo" class="neu-input" value="">
+            </div>
+            <button class="neu-btn neu-btn-accent" onclick="exportReportToExcel()" style="height: 48px; white-space: nowrap;">
+                <i class="fas fa-file-excel"></i> Скачать
+            </button>
         </div>
-        <div>
-            <label style="display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--text-muted); font-weight: 500;">По дату</label>
-            <input type="date" id="reportDateTo" class="neu-input" value="">
-        </div>
-        <button class="neu-btn neu-btn-accent" onclick="exportReportToExcel()" style="height: 48px; white-space: nowrap;">
-            <i class="fas fa-file-excel"></i> Скачать
-        </button>
     </div>
 </div>
 
 <div class="progress-title"><i class="fas fa-ruler-horizontal"></i> Погонные метры</div>
 <div class="progress-container"><div class="progress-fill" id="linearProgress"></div></div>
-<div class="progress-label"><span>Всего</span><span><b id="linearTotal" style="color: var(--accent-blue);">0.0</b> м</span></div>
+<div class="progress-label"><span>Всего</span><span><b id="linearTotal" style="color: var(--accent-yellow);">0.0</b> м</span></div>
 <div class="progress-title"><i class="fas fa-border-all"></i> Квадратные метры</div>
 <div class="progress-container"><div class="progress-fill" id="areaProgress"></div></div>
-<div class="progress-label"><span>Всего</span><span><b id="areaTotal" style="color: var(--accent-blue);">0.0</b> м²</span></div>
+<div class="progress-label"><span>Всего</span><span><b id="areaTotal" style="color: var(--accent-yellow);">0.0</b> м²</span></div>
 <div class="progress-title"><i class="fas fa-clock"></i> Время работы</div>
 <div class="progress-container"><div class="progress-fill" id="timeProgress"></div></div>
-<div class="progress-label"><span>Всего</span><span><b id="timeTotal" style="color: var(--accent-blue);">0.0</b> ч</span></div>
+<div class="progress-label"><span>Всего</span><span><b id="timeTotal" style="color: var(--accent-yellow);">0.0</b> ч</span></div>
 <div class="chart-container">
 <div class="progress-title"><i class="fas fa-tasks"></i> Популярность операций</div>
-<div id="operationsChart" style="background: var(--card); padding: 24px; border-radius: var(--radius); border: 1px solid var(--border);"><p style="color: var(--text-muted); text-align: center;">Данные появятся после создания заказов</p></div>
+<div id="operationsChart" class="card-section"><div class="card-body"><p style="color: var(--text-muted); text-align: center;">Данные появятся после создания заказов</p></div></div>
 </div>
 </div>
 </div>
@@ -774,7 +907,7 @@ function getTagName(val) {
 }
 
 const EARNINGS_MILESTONES = [
-    { amount: 500, emoji: '😡', color: '#ef4444', text: 'Разгон...' }, { amount: 1000, emoji: '😢', color: '#3b82f6', text: 'Первая тысяча' },
+    { amount: 500, emoji: '😡', color: '#ef4444', text: 'Разгон...' }, { amount: 1000, emoji: '😢', color: '#FFD700', text: 'Первая тысяча' },
     { amount: 1500, emoji: '😐', color: '#94a3b8', text: 'Половина пути' }, { amount: 2000, emoji: '🙂', color: '#10b981', text: 'Хороший результат' },
     { amount: 2500, emoji: '😄', color: '#f59e0b', text: 'Почти план!' }
 ];
@@ -787,6 +920,11 @@ function formatDateYMD(dateStr) {
 }
 
 function todayYMD() { return new Date().toISOString().split('T')[0]; }
+
+function getMonthStart() {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+}
 
 // === ОПТИМИЗИРОВАННЫЕ функции хранилища с кэшированием ===
 function loadOrders() { 
@@ -1289,17 +1427,29 @@ function checkMilestones(amount) {
 function updateUI() {
     const orders = loadOrders();
     const totalAll = orders.reduce((sum, o) => sum + (parseFloat(o.amount) || 0), 0);
+    
+    // Считаем за месяц
+    const monthStart = getMonthStart();
+    const monthTotal = orders.filter(o => o.date >= monthStart).reduce((sum, o) => sum + (parseFloat(o.amount) || 0), 0);
+    
     const shift = getCurrentShift();
     let currentShiftAmount = 0; let statusText = 'Смена не начата';
+    let statusClass = '';
     if (shift && shift.active) {
         currentShiftAmount = orders.filter(o => o.shiftId === shift.id).reduce((sum, o) => sum + (parseFloat(o.amount) || 0), 0);
         statusText = 'Смена активна';
+        statusClass = 'active';
     } else if (shift && !shift.active) {
         currentShiftAmount = shift.finalAmount || 0; statusText = 'Смена завершена';
     }
     document.getElementById('totalAll').textContent = totalAll.toFixed(2);
+    document.getElementById('monthEarned').textContent = monthTotal.toFixed(2);
     document.getElementById('todayEarned').textContent = currentShiftAmount.toFixed(2);
-    document.getElementById('shiftStatus').textContent = statusText;
+    
+    const shiftStatusEl = document.getElementById('shiftStatus');
+    shiftStatusEl.textContent = statusText;
+    shiftStatusEl.className = 'shift-status ' + statusClass;
+    
     const steps = document.querySelectorAll('#planStatusBar .step');
     const targetStep = Math.min(19, Math.floor((currentShiftAmount / 3000) * 20));
     steps.forEach((step, i) => {
@@ -1868,7 +2018,7 @@ function renderStats() {
     for (const [key, count] of Object.entries(stats.operations)) {
         if (count === 0) continue;
         const percent = (count / maxCount) * 100;
-        chartHtml += `<div class="bar-item" style="margin-bottom: 16px;"><div class="bar-label" style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem;"><span style="color: var(--text);">${opNames[key]}</span><span style="color: var(--accent-blue); font-weight: 600;">${count}</span></div><div class="bar-container"><div class="bar-fill" style="width: ${percent}%;"></div></div></div>`;
+        chartHtml += `<div class="bar-item" style="margin-bottom: 16px;"><div class="bar-label" style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem;"><span style="color: var(--text);">${opNames[key]}</span><span style="color: var(--accent-yellow); font-weight: 600;">${count}</span></div><div class="bar-container"><div class="bar-fill" style="width: ${percent}%;"></div></div></div>`;
     }
     document.getElementById('operationsChart').innerHTML = chartHtml || '<p style="color:var(--text-muted); text-align:center;">Нет данных</p>';
 }
@@ -2122,7 +2272,7 @@ async function exportReportToExcel() {
     if (!dateFrom || !dateTo) { alert('⚠️ Выберите диапазон дат'); return; }
     if (dateFrom > dateTo) { alert('⚠️ Дата начала не может быть позже даты окончания'); return; }
     
-    showToast('⏳', '#3b82f6', 'Подготовка...', 'Загрузка модуля Excel');
+    showToast('⏳', '#FFD700', 'Подготовка...', 'Загрузка модуля Excel');
 
     // Динамическая загрузка библиотеки только при необходимости
     if (typeof XLSX === 'undefined') {
@@ -2203,7 +2353,7 @@ document.getElementById('jsonImportInput').addEventListener('change', async func
     if (files.length === 0) return;
     
     const modeText = autoAcceptMode ? 'и авто-принять' : 'в предзаказы';
-    showToast('⏳', '#3b82f6', 'Импорт...', `Обработка ${files.length} файл(ов) ${modeText}`);
+    showToast('⏳', '#FFD700', 'Импорт...', `Обработка ${files.length} файл(ов) ${modeText}`);
     
     let totalImported = 0;
     let totalErrors = 0;
